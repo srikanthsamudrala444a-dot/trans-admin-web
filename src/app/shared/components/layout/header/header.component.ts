@@ -12,17 +12,7 @@ import { User } from '../../../../core/models/user.model';
   standalone: true,
   imports: [CommonModule, MatToolbarModule, MatButtonModule, MatIconModule, MatMenuModule],
   templateUrl: './header.component.html',
-  styles: [`
-    .title {
-      margin-left: 16px;
-    }
-    
-    @media (max-width: 768px) {
-      .title {
-        display: none;
-      }
-    }
-  `]
+  styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent {
   @Output() sidebarToggle = new EventEmitter<void>();

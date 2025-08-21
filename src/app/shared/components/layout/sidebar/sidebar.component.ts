@@ -18,68 +18,8 @@ interface MenuItem {
   selector: 'app-sidebar',
   standalone: true,
   imports: [CommonModule, MatListModule, MatIconModule, MatButtonModule],
-  template: `
-    <div class="sidebar-content">
-      <div class="logo-section">
-        <h2>CabAdmin</h2>
-      </div>
-      
-      <mat-nav-list>
-        <ng-container *ngFor="let item of menuItems">
-          <mat-list-item 
-            *ngIf="hasPermission(item.roles)"
-            [class.active]="isActive(item.route)"
-            (click)="goto(item.route)">
-            <mat-icon matListItemIcon>{{item.icon}}</mat-icon>
-            <span matListItemTitle>{{item.label}}</span>
-          </mat-list-item>
-        </ng-container>
-      </mat-nav-list>
-    </div>
-  `,
-  styles: [`
-    .sidebar-content {
-      height: 100%;
-      background: #263238;
-      color: white;
-    }
-    
-    .logo-section {
-      padding: 20px;
-      border-bottom: 1px solid #37474f;
-      text-align: center;
-    }
-    
-    .logo-section h2 {
-      margin: 0;
-      color: #4fc3f7;
-      font-weight: 300;
-    }
-    
-    mat-nav-list {
-      padding-top: 0;
-    }
-    
-    mat-list-item {
-      color: #b0bec5;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    
-    mat-list-item:hover,
-    mat-list-item.active {
-      background-color: #37474f;
-      color: white;
-    }
-    
-    mat-list-item.active {
-      border-right: 3px solid #4fc3f7;
-    }
-    
-    mat-icon {
-      color: inherit;
-    }
-  `]
+  templateUrl: './sidebar.component.html',
+  styleUrls: ['./sidebar.component.scss']
 })
 export class SidebarComponent {
   @Output() navigate = new EventEmitter<string>();

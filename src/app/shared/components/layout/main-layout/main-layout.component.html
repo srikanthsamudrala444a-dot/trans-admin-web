@@ -1,1 +1,19 @@
-<p>main-layout works!</p>
+<div class="app-container">
+      <app-header (sidebarToggle)="drawer.toggle()"></app-header>
+      
+      <mat-sidenav-container class="sidenav-container">
+        <mat-sidenav 
+          #drawer
+          [mode]="(isHandset$ | async) ? 'over' : 'side'"
+          [opened]="!(isHandset$ | async)"
+          class="sidenav">
+          <app-sidebar></app-sidebar>
+        </mat-sidenav>
+        
+        <mat-sidenav-content class="main-content">
+          <div class="content-wrapper">
+            <router-outlet></router-outlet>
+          </div>
+        </mat-sidenav-content>
+      </mat-sidenav-container>
+    </div>

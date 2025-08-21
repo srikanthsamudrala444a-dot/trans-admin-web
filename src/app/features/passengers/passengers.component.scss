@@ -1,0 +1,74 @@
+ .passengers-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .page-header h1 {
+      margin: 0 0 24px 0;
+      color: #333;
+    }
+    
+    .filter-card {
+      margin-bottom: 24px;
+    }
+    
+    .filters {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    
+    .filters mat-form-field {
+      min-width: 200px;
+    }
+    
+    .passenger-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .passenger-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #4caf50;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+    }
+    
+    .passenger-name {
+      font-weight: 500;
+      color: #333;
+    }
+    
+    .passenger-email {
+      font-size: 0.875rem;
+      color: #666;
+    }
+    
+    .status-active {
+      background-color: #e8f5e8;
+      color: #2e7d32;
+    }
+    
+    .status-banned {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+    
+    .rating {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .star-icon {
+      color: #ffc107;
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }

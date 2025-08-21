@@ -1,0 +1,29 @@
+ .app-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    
+    .sidenav-container {
+      flex: 1;
+    }
+    
+    .sidenav {
+      width: 280px;
+      background: #263238;
+    }
+    
+    .main-content {
+      background: #fafafa;
+    }
+    
+    .content-wrapper {
+      padding: 24px;
+      min-height: calc(100vh - 64px);
+    }
+    
+    @media (max-width: 768px) {
+      .content-wrapper {
+        padding: 16px;
+      }
+    }

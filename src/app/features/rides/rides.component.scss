@@ -1,0 +1,72 @@
+.rides-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    
+    .page-header h1 {
+      margin: 0;
+      color: #333;
+    }
+    
+    .filter-card {
+      margin-bottom: 24px;
+    }
+    
+    .filters {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    
+    .filters mat-form-field {
+      min-width: 200px;
+    }
+    
+    .status-pending {
+      background-color: #fff3e0;
+      color: #e65100;
+    }
+    
+    .status-accepted {
+      background-color: #e8f5e8;
+      color: #2e7d32;
+    }
+    
+    .status-started {
+      background-color: #e3f2fd;
+      color: #1565c0;
+    }
+    
+    .status-completed {
+      background-color: #f3e5f5;
+      color: #6a1b9a;
+    }
+    
+    .status-cancelled {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+    
+    @media (max-width: 768px) {
+      .page-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: stretch;
+      }
+      
+      .filters {
+        flex-direction: column;
+      }
+      
+      .filters mat-form-field {
+        min-width: auto;
+        width: 100%;
+      }
+    }

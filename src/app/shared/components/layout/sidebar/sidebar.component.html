@@ -1,1 +1,17 @@
-<p>sidebar works!</p>
+ <div class="sidebar-content">
+      <div class="logo-section">
+        <h2>CabAdmin</h2>
+      </div>
+      
+      <mat-nav-list>
+        <ng-container *ngFor="let item of menuItems">
+          <mat-list-item 
+            *ngIf="hasPermission(item.roles)"
+            [class.active]="isActive(item.route)"
+            (click)="goto(item.route)">
+            <mat-icon matListItemIcon>{{item.icon}}</mat-icon>
+            <span matListItemTitle>{{item.label}}</span>
+          </mat-list-item>
+        </ng-container>
+      </mat-nav-list>
+    </div>

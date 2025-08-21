@@ -11,7 +11,7 @@ import { AppComponent } from './app/app.component';
 @Component({
   selector: 'app-root',
   template: `<router-outlet></router-outlet>`,
-  imports: [RouterModule ]
+  imports: [RouterModule]
 })
 export class App {}
 
