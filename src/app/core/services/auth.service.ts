@@ -1,10 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { User, LoginRequest, AuthResponse } from '../models/user.model';
+import { isPlatformBrowser } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
@@ -16,11 +17,13 @@ export class AuthService {
 
   public currentUser$ = this.currentUserSubject.asObservable();
   public token$ = this.tokenSubject.asObservable();
+  isBrowser: boolean;
 
-  constructor(
+  constructor(@Inject(PLATFORM_ID) private platformId: Object,
     private http: HttpClient,
     private router: Router
   ) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
     this.loadStoredAuth();
   }
 
@@ -63,13 +66,15 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     const token = this.getToken();
-    return token !== null && !this.jwtHelper.isTokenExpired(token);
+    return !!token; // adjust if decoding JWT
   }
 
-  getToken(): string | null {
-    return localStorage.getItem('token');
+   getToken(): string | null {
+    if (isPlatformBrowser(this.platformId)) {
+      return localStorage.getItem('token');
+    }
+    return null;
   }
-
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
   }
@@ -94,13 +99,44 @@ export class AuthService {
   }
 
   private loadStoredAuth(): void {
-    const token = localStorage.getItem('token');
-    const userStr = localStorage.getItem('user');
-    
-    if (token && userStr && !this.jwtHelper.isTokenExpired(token)) {
-      const user: User = JSON.parse(userStr);
-      this.currentUserSubject.next(user);
-      this.tokenSubject.next(token);
+  const token = localStorage.getItem('token');
+  const userStr = localStorage.getItem('user');
+
+  if (token && this.isValidJwt(token) && userStr) {   // ✅ validate first
+    try {
+      if (!this.jwtHelper.isTokenExpired(token)) {
+        const user: User = JSON.parse(userStr);
+        this.currentUserSubject.next(user);
+        this.tokenSubject.next(token);
+      }
+    } catch (err) {
+      console.error("Invalid JWT or expired token:", err);
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
     }
   }
+ }
+
+  private isValidJwt(token: string): boolean {
+  return token.split('.').length === 3;
+  }
+
+  private getLocalStorage(key: string): string | null {
+  if (typeof localStorage !== 'undefined') {
+    return localStorage.getItem(key);
+  }
+  return null;
+  }
+  saveToken(token: string) {
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('token', token);
+    }
+  }
+
+  clearToken() {
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('token');
+    }
+  }
+  
 }

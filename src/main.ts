@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withFetch } from '@angular/common/http';
 import { routes } from './app/app.routes';
 import { RouterModule } from '@angular/router'; 
 import { AppComponent } from './app/app.component';
@@ -15,11 +15,10 @@ import { AppComponent } from './app/app.component';
 })
 export class App {}
 
-bootstrapApplication(App, {
+bootstrapApplication(AppComponent, {
   providers: [
     provideRouter(routes),
     provideAnimations(),
-    provideHttpClient()
-    
+    provideHttpClient(withFetch())
   ]
 }).catch(err => console.error(err));
