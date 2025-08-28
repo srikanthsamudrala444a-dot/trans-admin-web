@@ -1,3 +1,4 @@
+import { NgModule } from '@angular/core';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
@@ -10,6 +11,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatBadgeModule } from '@angular/material/badge';
 import { Driver } from '../../core/models/ride.model';
+import { DriverService } from '../../core/services/driver.service';
+import { FormsModule } from '@angular/forms';
+
 
 @Component({
   selector: 'app-drivers',
@@ -24,7 +28,8 @@ import { Driver } from '../../core/models/ride.model';
     MatInputModule,
     MatSelectModule,
     MatFormFieldModule,
-    MatBadgeModule
+    MatBadgeModule,
+    FormsModule,
   ],
   templateUrl: './drivers.component.html',
   styleUrls: ['./drivers.component.scss']
@@ -37,49 +42,97 @@ export class DriversComponent implements OnInit {
   offlineDrivers = 0;
   pendingApprovals = 0;
 
+  constructor(private driverService: DriverService) {}
+
+  selectedFile: File | null = null;
+  selectedDocumentType: string = '';
+  uploadMessage: string = '';
+  uploadError: string = '';
+
   ngOnInit(): void {
     this.loadDrivers();
   }
-
+  
   private loadDrivers(): void {
-    // Mock data
-    this.drivers = [
-      {
-        name: 'John Smith',
-        email: 'john.smith@email.com',
-        phone: '+1234567890',
-        status: 'online',
-        rating: 4.8,
-        totalRides: 234,
-        earnings: 2150,
-        documentsStatus: 'approved'
+     this.driverService.getAllDrivers().subscribe({
+      next: (res: Driver[]) => {
+        console.log('All drivers:', res);
+        this.drivers = res;
       },
-      {
-        name: 'Mike Wilson',
-        email: 'mike.wilson@email.com',
-        phone: '+1234567891',
-        status: 'busy',
-        rating: 4.6,
-        totalRides: 189,
-        earnings: 1875,
-        documentsStatus: 'approved'
-      },
-      {
-        name: 'Sarah Davis',
-        email: 'sarah.davis@email.com',
-        phone: '+1234567892',
-        status: 'offline',
-        rating: 4.9,
-        totalRides: 312,
-        earnings: 3200,
-        documentsStatus: 'pending'
-      }
-    ];
-
-    this.calculateStats();
+      error: (err: any) => console.error('Error fetching drivers:', err)
+    });
   }
 
-  private calculateStats(): void {
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+    }
+  }
+
+  uploadDocument(driverId: string): void {
+    if (!this.selectedFile || !this.selectedDocumentType) {
+      this.uploadError = 'Please select a file and document type.';
+      return;
+    }
+    this.driverService.uploadDriverDocument(driverId, this.selectedDocumentType, this.selectedFile).subscribe({
+      next: (response: any) => {
+        this.uploadMessage = 'Document uploaded successfully!';
+        this.loadDrivers(); // Optionally refresh the driver list or document list
+      },
+      error: (err: { message: any; }) => {
+        this.uploadError = `Upload failed: ${err.message || 'Unknown error'}`;
+      }
+    });
+  }
+
+  getDriverDocuments(driverId: string): void {
+    this.driverService.getDocumentList(driverId).subscribe({
+      next: (documents: any) => {
+        console.log('Documents for driver:', documents);
+        // Handle displaying documents in the UI
+      },
+      error: (err: any) => {
+        console.error('Error fetching documents:', err);
+      }
+    });
+  }
+
+  toggleDriverStatus(driver: Driver): void {
+    let newStatus: 'online' | 'offline' | 'busy';
+    if (driver.status === 'online') {
+      newStatus = 'offline';
+    } else {
+      newStatus = 'online';
+    }
+    this.driverService.updateAvailability(driver.id, newStatus).subscribe({
+      next: (updatedDriver: { id: string; status: string; }) => {
+        console.log('Driver status updated:', updatedDriver);
+        const index = this.drivers.findIndex(d => d.id === updatedDriver.id);
+        if (index !== -1) {
+          this.drivers[index].status = updatedDriver.status as 'online' | 'offline' | 'busy';
+          this.calculateStats(); 
+        }
+      },
+      error: (err: any) => {
+        console.error('Error updating driver status:', err);
+      }
+    });
+  }
+  addNewDriver(newDriverData: Omit<Driver, 'id' | 'createdAt' | 'updatedAt'>): void {
+    this.driverService.registerDriver(newDriverData).subscribe({
+      next: (createdDriver: Driver) => {
+        console.log('New driver registered:', createdDriver);
+        this.drivers.push(createdDriver); 
+        this.calculateStats();
+      },
+      error: (err: any) => {
+        console.error('Error registering driver:', err);
+      }
+    });
+  }
+
+    private calculateStats(): void {
     this.onlineDrivers = this.drivers.filter(d => d.status === 'online').length;
     this.offlineDrivers = this.drivers.filter(d => d.status === 'offline').length;
     this.pendingApprovals = this.drivers.filter(d => d.documentsStatus === 'pending').length;

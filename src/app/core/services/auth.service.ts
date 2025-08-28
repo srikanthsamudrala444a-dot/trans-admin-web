@@ -11,6 +11,7 @@ import { isPlatformBrowser } from '@angular/common';
   providedIn: 'root'
 })
 export class AuthService {
+  private token: string | null = null;
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   private tokenSubject = new BehaviorSubject<string | null>(null);
   private jwtHelper = new JwtHelperService();
@@ -98,24 +99,25 @@ export class AuthService {
     this.tokenSubject.next(authResponse.token);
   }
 
-  private loadStoredAuth(): void {
-  const token = localStorage.getItem('token');
-  const userStr = localStorage.getItem('user');
-
-  if (token && this.isValidJwt(token) && userStr) {   // ✅ validate first
-    try {
-      if (!this.jwtHelper.isTokenExpired(token)) {
-        const user: User = JSON.parse(userStr);
-        this.currentUserSubject.next(user);
-        this.tokenSubject.next(token);
-      }
-    } catch (err) {
-      console.error("Invalid JWT or expired token:", err);
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+  private loadStoredAuth() {
+    if (isPlatformBrowser(this.platformId)) {   // ✅ only run in browser
+      this.token = localStorage.getItem('token');
     }
   }
- }
+
+  saveToken(token: string) {
+    this.token = token;
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('token', token);
+    }
+  }
+
+  clearAuth() {
+    this.token = null;
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('token');
+    }
+  }
 
   private isValidJwt(token: string): boolean {
   return token.split('.').length === 3;
@@ -126,11 +128,6 @@ export class AuthService {
     return localStorage.getItem(key);
   }
   return null;
-  }
-  saveToken(token: string) {
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('token', token);
-    }
   }
 
   clearToken() {

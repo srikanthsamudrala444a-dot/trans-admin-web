@@ -49,3 +49,13 @@ export interface Passenger {
   isBanned: boolean;
   createdAt: Date;
 }
+
+export interface Document {
+  id: string;
+  driverId: string;
+  documentType: string;
+  fileName: string;
+  fileUrl: string;
+  status: 'pending' | 'approved' | 'rejected';
+  uploadedAt: Date;
+}

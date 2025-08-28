@@ -75,5 +75,14 @@ export const routes: Routes = [
   {
     path: '**',
     loadComponent: () => import('./shared/components/not-found/not-found.component').then(c => c.NotFoundComponent)
+  },
+  {
+    path: 'driver-location',
+    loadComponent: () => import('./features/driver-location/driver-location.component').then(c => c.DriverLocationComponent)
+  },
+  {
+    path: 'driver-documents',
+    loadComponent: () => import('./features/driver-documents/driver-documents.component').then(c => c.DriverDocumentsComponent)
   }
+
 ];
