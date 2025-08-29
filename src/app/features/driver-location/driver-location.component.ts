@@ -46,5 +46,6 @@ export class DriverLocationComponent {
         },
         error: (err) => console.error('Error fetching nearby drivers:', err)
       });
-  }
+    }
+
 }

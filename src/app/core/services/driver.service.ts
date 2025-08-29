@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+
 @Injectable({
   providedIn: 'root'
 })
@@ -12,9 +13,9 @@ export class DriverService {
 
   constructor(private http: HttpClient) {}
 
-  getAllDrivers(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/driver/all`);
-  }
+  getAllDrivers() {
+     return this.http.get('/driver/api/v1/drivers/all');
+ }
 
   getDriverById(id: string): Observable<any> {
     return this.http.get(`${this.baseUrl}/driver/${id}`);
@@ -52,16 +53,16 @@ export class DriverService {
     return this.http.get(`${this.baseUrl}/driver/docs/${driverId}/getDocumentList`);
   }
 
-  getDriverLocation(driverId: string): Observable<any> {
-    return this.http.get(`${this.baseUrl}/drivers/location/${driverId}`);
-  }
+ getDriverLocation(driverId: string): Observable<any> {
+  return this.http.get(`/driver/api/v1/drivers/location/${driverId}`);
+ }
 
-  getNearbyDrivers(lat: number, lng: number, radius: number): Observable<any> {
-    const params = new HttpParams()
-      .set('latitude', lat.toString())
-      .set('longitude', lng.toString())
-      .set('radius', radius.toString());
+ getNearbyDrivers(lat: number, lng: number, radius: number): Observable<any> {
+  const params = new HttpParams()
+    .set('latitude', lat.toString())
+    .set('longitude', lng.toString())
+    .set('radius', radius.toString());
 
-    return this.http.get(`${this.baseUrl}/drivers/location/nearby`, { params });
-  }
+  return this.http.get(`${this.baseUrl}/drivers/location/nearby`, { params });
+}
 }

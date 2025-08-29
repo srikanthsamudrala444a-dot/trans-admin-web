@@ -13,6 +13,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { Driver } from '../../core/models/ride.model';
 import { DriverService } from '../../core/services/driver.service';
 import { FormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 
 
 @Component({
@@ -41,6 +42,7 @@ export class DriversComponent implements OnInit {
   onlineDrivers = 0;
   offlineDrivers = 0;
   pendingApprovals = 0;
+  http: any;
 
   constructor(private driverService: DriverService) {}
 
@@ -53,13 +55,17 @@ export class DriversComponent implements OnInit {
     this.loadDrivers();
   }
   
-  private loadDrivers(): void {
-     this.driverService.getAllDrivers().subscribe({
-      next: (res: Driver[]) => {
-        console.log('All drivers:', res);
-        this.drivers = res;
+  loadDrivers(): void {
+    this.http.get('/api/driver/all').subscribe({
+      next: (data: any) => {
+        console.log('Drivers:', data);
       },
-      error: (err: any) => console.error('Error fetching drivers:', err)
+      error: (err: { status: number; }) => {
+        console.error('Error fetching drivers', err);
+        if (err instanceof HttpErrorResponse && err.status === 200) {
+          console.warn('Received unexpected HTML instead of JSON');
+        }
+      }
     });
   }
 
@@ -78,7 +84,7 @@ export class DriversComponent implements OnInit {
     this.driverService.uploadDriverDocument(driverId, this.selectedDocumentType, this.selectedFile).subscribe({
       next: (response: any) => {
         this.uploadMessage = 'Document uploaded successfully!';
-        this.loadDrivers(); // Optionally refresh the driver list or document list
+        this.loadDrivers(); 
       },
       error: (err: { message: any; }) => {
         this.uploadError = `Upload failed: ${err.message || 'Unknown error'}`;
@@ -90,7 +96,6 @@ export class DriversComponent implements OnInit {
     this.driverService.getDocumentList(driverId).subscribe({
       next: (documents: any) => {
         console.log('Documents for driver:', documents);
-        // Handle displaying documents in the UI
       },
       error: (err: any) => {
         console.error('Error fetching documents:', err);

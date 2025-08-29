@@ -8,6 +8,7 @@ import { DashboardStats, ChartData } from '../../core/models/dashboard.model';
 import { Driver } from '../../core/models/ride.model';
 import { HttpClientModule } from '@angular/common/http';
 import { DriverService } from '../../core/services/driver.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-dashboard',
@@ -29,8 +30,9 @@ export class DashboardComponent implements OnInit {
 
   currentDriverLocation: Location | null = null;
   nearbyDrivers: Driver[] = [];
+  drivers: Object | undefined;
 
-  constructor(private driverService: DriverService) {}
+  constructor(private driverService: DriverService, private http: HttpClient) {}
 
   ngOnInit(): void {
     this.loadDashboardData();
@@ -53,27 +55,41 @@ export class DashboardComponent implements OnInit {
   // }
 
   loadDriverLocation(driverId: string) {
-    this.driverService.getDriverLocation(driverId).subscribe({
-      next: (data: any) => {
-        this.loadDriverLocation = data;
-        console.log('Driver Location:', data);
+  this.http.post('/driver/api/v1/drivers/location', { driverId }).subscribe({
+    next: (data: any) => {
+      this.loadDriverLocation = data;
+      console.log('Driver Location:', data);
+    },
+    error: (err: any) => {
+      console.error('Error fetching driver location', err);
+    }
+  });
+}
+
+
+loadDrivers(): void {
+    this.driverService.getAllDrivers().subscribe({
+      next: (data) => {
+        console.log('Drivers:', data);
+        this.drivers = data; // save data to component variable
       },
-      error: (err: any) => console.error('Error fetching driver location', err)
+      error: (err) => {
+        console.error('Error fetching drivers', err);
+      }
     });
   }
 
-    loadNearbyDrivers(lat: number, lng: number, radius?: number): void {
-    this.driverService.getNearbyDrivers(lat, lng, radius ?? 0).subscribe({
-      next: (drivers: Driver[]) => {
-        this.nearbyDrivers = drivers; 
-        console.log(`Nearby drivers (${lat}, ${lng}, ${radius || 'all'}):`, drivers);
-        // Display these drivers on a map or in a list
-      },
-      error: (err: any) => {
-        console.error('Error fetching nearby drivers:', err);
-        // Handle error
-      }
-    });
+
+  loadNearbyDrivers(lat: number, lng: number, radius?: number): void {
+    this.http.get<any[]>('http://localhost:3000/driver/all') // use correct backend port
+  .subscribe({
+    next: (drivers: any) => {
+      console.log('Drivers:', drivers);
+    },
+    error: (error: any) => {
+      console.error('Error fetching drivers:', error);
+    }
+  });
   }
   
   private loadDashboardData(): void {
