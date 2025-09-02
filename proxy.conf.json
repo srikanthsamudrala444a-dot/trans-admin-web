@@ -1,5 +1,5 @@
 {
-  "/driver/api": {
+  "/api": {
     "target": "https://dev.glaciersoft.in.net",
     "secure": false,
     "changeOrigin": true,

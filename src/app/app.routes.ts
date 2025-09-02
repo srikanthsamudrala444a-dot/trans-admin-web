@@ -84,5 +84,4 @@ export const routes: Routes = [
     path: 'driver-documents',
     loadComponent: () => import('./features/driver-documents/driver-documents.component').then(c => c.DriverDocumentsComponent)
   }
-
 ];

@@ -14,6 +14,7 @@ import { Driver } from '../../core/models/ride.model';
 import { DriverService } from '../../core/services/driver.service';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
 
 @Component({
@@ -42,9 +43,8 @@ export class DriversComponent implements OnInit {
   onlineDrivers = 0;
   offlineDrivers = 0;
   pendingApprovals = 0;
-  http: any;
 
-  constructor(private driverService: DriverService) {}
+  constructor(private driverService: DriverService, private http: HttpClient) {}
 
   selectedFile: File | null = null;
   selectedDocumentType: string = '';
@@ -56,18 +56,18 @@ export class DriversComponent implements OnInit {
   }
   
   loadDrivers(): void {
-    this.http.get('/api/driver/all').subscribe({
-      next: (data: any) => {
+  this.http.get<any[]>('https://jsonplaceholder.typicode.com/users')
+    .subscribe({
+      next: (data) => {
         console.log('Drivers:', data);
+        this.drivers = data;
       },
-      error: (err: { status: number; }) => {
+      error: (err) => {
         console.error('Error fetching drivers', err);
-        if (err instanceof HttpErrorResponse && err.status === 200) {
-          console.warn('Received unexpected HTML instead of JSON');
-        }
       }
     });
-  }
+}
+
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
