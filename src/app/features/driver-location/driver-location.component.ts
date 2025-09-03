@@ -6,10 +6,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';   
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 
-
-@Component({    
+@Component({
   selector: 'app-driver-location',
   imports: [
     CommonModule, 
@@ -29,9 +27,8 @@ export class DriverLocationComponent {
   longitude: string = '';
   nearbyDrivers: any[] = [];
 
-  private apiUrl = '/api/v1/drivers';
 
-  constructor(private driverService: DriverService, private http: HttpClient) {}
+  constructor(private driverService: DriverService) {}
 
   updateLocation() {
     this.driverService.updateDriverLocation(this.driverId, { latitude: this.latitude, longitude: this.longitude })

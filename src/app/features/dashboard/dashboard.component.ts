@@ -50,8 +50,8 @@ ngOnInit(): void {
   // this.loadDriverLocations();
 }
 
-loadDriverLocations(): void {
-  this.http.get<DriverLocation[]>('assets/mock/driver-location.json')
+loadDriverLocations(driverId: number): void {
+  this.http.get<DriverLocation[]>(`${this.apiUrl}/assets/mock/driver-location/${driverId}`)
     .subscribe({
       next: (data) => {
         console.log('Driver locations:', data);
@@ -65,8 +65,10 @@ loadDriverLocations(): void {
 }
 
 
-loadNearbyDrivers(): void {
-  this.http.get<Driver[]>('/api/nearby-drivers').subscribe({
+loadNearbyDrivers(lat: number, lng: number, radius: number): void {
+  this.http.get<Driver[]>(`${this.apiUrl}/nearby-drivers`, {
+    params: { lat, lng, radius }
+  }).subscribe({
     next: (data) => {
       this.nearbyDrivers = data;
       console.log('Nearby Drivers:', data);
@@ -77,17 +79,22 @@ loadNearbyDrivers(): void {
   });
 }
 
-// updateDriverLocation(id: string, location: any):void {
-//   this.http.put<DriverLocation>(`/api/v1/drivers/location/${id}`, location).subscribe({
-//     next: (data) => {
-//       this.driverLocation = data;
-//       console.log('Driver Location Updated:', data);
-//     },
-//     error: (err: HttpErrorResponse) => {
-//       console.error('Error updating driver location:', err.message);
-//     }
-//   });
-// }
+updateDriverLocation(id: string, location: any):void {
+  this.http.put<DriverLocation>(`${this.apiUrl}/location/${id}`, location).subscribe({
+    next: (data) => {
+      console.log('Driver Location Updated:', data);
+      const index = this.driverLocations.findIndex(loc => loc.id === data.id);
+      if (index !== -1) {
+        this.driverLocations[index] = data;
+      } else {
+        this.driverLocations.push(data);
+      }
+    },
+    error: (err: HttpErrorResponse) => {
+      console.error('Error updating driver location:', err.message);
+    }
+  });
+}
 
   private loadDashboardData(): void {
     this.isLoading = true;
