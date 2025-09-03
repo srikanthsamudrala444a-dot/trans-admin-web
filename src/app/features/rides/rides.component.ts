@@ -8,6 +8,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { RideService } from '../../core/services/rides.service';
 import { Ride } from '../../core/models/ride.model';
 
 @Component({
@@ -29,39 +30,22 @@ import { Ride } from '../../core/models/ride.model';
 })
 export class RidesComponent implements OnInit {
   displayedColumns = ['id', 'driver', 'passenger', 'pickup', 'status', 'fare', 'actions'];
-  rides: any[] = [];
+  rides: Ride[] = [];
+
+  constructor(private rideService: RideService) {}
 
   ngOnInit(): void {
     this.loadRides();
   }
 
   private loadRides(): void {
-    // Mock data
-    this.rides = [
-      {
-        id: '001',
-        driverName: 'John Smith',
-        passengerName: 'Alice Johnson',
-        pickupLocation: { address: '123 Main St, Downtown' },
-        status: 'completed',
-        fare: 25.50
+    this.rideService.getAllRides().subscribe(
+      (data) => {
+        this.rides = data.rides;
       },
-      {
-        id: '002',
-        driverName: 'Mike Wilson',
-        passengerName: 'Bob Brown',
-        pickupLocation: { address: '456 Park Ave, Midtown' },
-        status: 'started',
-        fare: 18.75
-      },
-      {
-        id: '003',
-        driverName: 'Sarah Davis',
-        passengerName: 'Carol White',
-        pickupLocation: { address: '789 Oak Rd, Suburbs' },
-        status: 'pending',
-        fare: 32.00
+      (error) => {
+        console.error('Error fetching rides:', error);
       }
-    ];
+    );
   }
 }
