@@ -1,18 +1,16 @@
 [
   {
-    "driverId": "driver123",
-    "name": "John Doe",
-    "latitude": 34.0522,
-    "longitude": -118.2437,
-    "status": "available",
-    "distanceKm": 1.2
+    "driverId": "D124",
+    "name": "Jane Smith",
+    "latitude": 12.9721,
+    "longitude": 77.5939,
+    "status": "active"
   },
   {
-    "driverId": "driver456",
-    "name": "Jane Smith",
-    "latitude": 34.0530,
-    "longitude": -118.2440,
-    "status": "busy",
-    "distanceKm": 2.5
+    "driverId": "D125",
+    "name": "Mark Johnson",
+    "latitude": 12.9735,
+    "longitude": 77.5962,
+    "status": "inactive"
   }
 ]

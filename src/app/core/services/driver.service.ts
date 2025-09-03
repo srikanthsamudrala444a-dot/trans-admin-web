@@ -60,14 +60,13 @@ private apiUrl = '/api/v1/drivers';
     return this.http.get(`${this.apiUrl}/driver/docs/${driverId}/getDocumentList`);
   }
 
-getDriverLocation(driverId: string): Observable<any> {
-  return this.http.get<any>('assets/mock/driver-location.json');
-}
+  getDriverLocation(driverId: string): Observable<Driver> {
+    return this.http.get<Driver>(`${this.apiUrl}/location/${driverId}`);
+  }
 
-
-getNearbyDrivers(lat: number, lon: number, radius: number): Observable<any> {
-  return this.http.get<any>('assets/mock/nearby-drivers.json');
-}
+  getNearbyDrivers(lat: number, lng: number, radius: number): Observable<Driver[]> {
+    return this.http.get<Driver[]>(`${this.apiUrl}/nearby?lat=${lat}&lng=${lng}&radius=${radius}`);
+  }
 
 getMockDriverLocation(): Observable<Driver> {
   return this.http.get<Driver>('assets/mock/driver-location.json');

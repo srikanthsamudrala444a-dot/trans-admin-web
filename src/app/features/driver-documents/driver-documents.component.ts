@@ -8,7 +8,8 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-driver-documents',
   imports: [CommonModule, ReactiveFormsModule, FormsModule ],
   templateUrl: './driver-documents.component.html',
-  styleUrls: ['./driver-documents.component.scss']
+  styleUrls: ['./driver-documents.component.scss'],
+  providers: [DriverService]
 })
 
 export class DriverDocumentsComponent { 

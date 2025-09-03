@@ -1,7 +1,8 @@
 {
-  "driverId": "driver123",
+  "driverId": "D123",
   "name": "John Doe",
-  "latitude": 34.0522,
-  "longitude": -118.2437,
-  "status": "available"
+  "latitude": 12.9716,
+  "longitude": 77.5946,
+  "status": "active",
+  "distanceKm?": 5.2
 }

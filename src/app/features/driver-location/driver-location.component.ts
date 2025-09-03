@@ -19,6 +19,7 @@ import { HttpClient } from '@angular/common/http';
     MatInputModule, 
     FormsModule,
   ],
+  providers: [DriverService],
   templateUrl: './driver-location.component.html',
   styleUrls: ['./driver-location.component.scss']
 })
@@ -27,6 +28,8 @@ export class DriverLocationComponent {
   latitude: string = '';
   longitude: string = '';
   nearbyDrivers: any[] = [];
+
+  private apiUrl = '/api/v1/drivers';
 
   constructor(private driverService: DriverService, private http: HttpClient) {}
 
