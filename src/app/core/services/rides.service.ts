@@ -14,7 +14,9 @@ export class RideService {
   getAllRides(): Observable<any> {
     return this.http.get(`${this.baseUrl}/v1/rides/all`);
   }
-
+  getRidesByQuery(queryData: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/v1/rides/query`, queryData);
+  }
 
   // ✅ 2. Get ride by ID
   getRideById(rideId: string): Observable<any> {
@@ -25,7 +27,7 @@ export class RideService {
   createRide(rideData: any): Observable<any> {
     return this.http.post(`${this.baseUrl}/rides/create`, rideData);
   }
-
+  
   // ✅ 4. Update ride status (pending → accepted → completed/cancelled)
   updateRideStatus(rideId: string, status: string): Observable<any> {
     return this.http.put(`${this.baseUrl}/rides/${rideId}/status`, { status });

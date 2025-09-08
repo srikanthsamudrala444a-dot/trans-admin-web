@@ -8,7 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AuthService } from '../../../core/services/auth.service';
+import { LoginService} from '../../../core/services/login.service';
 
 @Component({
   selector: 'app-login',
@@ -35,26 +35,41 @@ export class LoginComponent {
 
   constructor(
     private fb: FormBuilder,
-    private authService: AuthService,
+    private loginService: LoginService,
     private router: Router
   ) {
     this.loginForm = this.fb.group({
-      email: ['admin@cabservice.com', [Validators.required, Validators.email]],
+      email: ['admin@cabservice.com', [Validators.required]],
       password: ['admin123', Validators.required]
     });
   }
 
-  onSubmit(): void {
+  onSubmit(email:string,password:string): void {
+    this.loginForm=this.fb.group({
+      email: [email, [Validators.required]],
+      password: [password, Validators.required]
+    });
     if (this.loginForm.valid) {
       this.isLoading = true;
       this.errorMessage = '';
-      
-      this.authService.login(this.loginForm.value).subscribe({
-        next: () => {
+
+      const credentials = {
+        contactNumber:email,
+        pin:password
+      };
+      console.log(credentials);
+      this.loginService.login(credentials).subscribe({
+        next: (response) => {
+          console.log(response);
+          // 👇 store JWT token if backend sends it
+          //if (response?.accesstoken) {
+            //localStorage.setItem('token', response.accesstoken);
+         // }
+
           this.router.navigate(['/dashboard']);
         },
         error: (error) => {
-          this.errorMessage = error.message || 'Login failed. Please try again.';
+          this.errorMessage = error.error?.message || 'Login failed. Please try again.';
           this.isLoading = false;
         },
         complete: () => {

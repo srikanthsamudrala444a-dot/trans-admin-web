@@ -24,8 +24,10 @@
             
             <mat-form-field appearance="outline">
               <mat-label>Search</mat-label>
-              <input matInput placeholder="Search by ID, driver, or passenger">
-              <mat-icon matSuffix>search</mat-icon>
+              <button mat-icon-button matSuffix (click)="loadRidesBySearch(searchInput.value)">
+                <mat-icon>search</mat-icon>
+              </button>
+              <input #searchInput matInput placeholder="Search by ID, driver, or passenger">
             </mat-form-field>
           </div>
         </mat-card-content>
@@ -64,18 +66,17 @@
           
           <ng-container matColumnDef="fare">
             <mat-header-cell *matHeaderCellDef>Fare</mat-header-cell>
-            <mat-cell *matCellDef="let ride">\${{ride.fare}}</mat-cell>
+            <mat-cell *matCellDef="let ride">\₹{{ride.fare}}</mat-cell>
           </ng-container>
           
           <ng-container matColumnDef="actions">
             <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
             <mat-cell *matCellDef="let ride">
-              <button mat-icon-button color="primary">
+              <button mat-icon-button color="primary" (click)="showRideDetails(ride)">
                 <mat-icon>visibility</mat-icon>
-              </button>
-              <button mat-icon-button>
+              </button>  <button mat-icon-button></button>
                 <mat-icon>edit</mat-icon>
-              </button>
+              
             </mat-cell>
           </ng-container>
           
@@ -83,4 +84,14 @@
           <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
         </mat-table>
       </mat-card>
+      
     </div>
+     <div class="pagination-controls" style="display: flex; justify-content: flex-end; align-items: center; margin-top: 16px;">
+    <button style="color: #000 !important;" mat-button (click)="loadRidesByQuery(searchInput.value, currentPage - 1)" [disabled]="currentPage === 1">
+      Previous
+    </button>
+    <span style="margin: 0 8px; color: #000 !important;">Page {{currentPage}} of {{totalPages}}</span>
+    <button style="color: #000 !important;" mat-button (click)="loadRidesByQuery(searchInput.value, currentPage + 1)" [disabled]="currentPage === totalPages">
+      Next
+    </button>
+   </div>
