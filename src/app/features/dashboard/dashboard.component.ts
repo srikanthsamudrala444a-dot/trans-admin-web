@@ -6,14 +6,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DashboardStats } from '../../core/models/dashboard.model';
 import { HttpClient } from '@angular/common/http';
+import { DriverService } from '../../core/services/driver.service';
+import { Driver } from '../../core/models/ride.model';
+import { HttpErrorResponse } from '@angular/common/http';
 
-interface Driver {
-  driverId: string;
-  name: string;
-  latitude: number;
-  longitude: number;
-  status: string;
-  distanceKm?: number;
+
+interface DriverLocation {
+  id: number;
+  lat: number;
+  lng: number;
 }
 
 @Component({
@@ -33,67 +34,67 @@ export class DashboardComponent implements OnInit {
   stats: DashboardStats | null = null;
   isLoading = false;
 
-  driverLocation: Driver | null = null;
+
   nearbyDrivers: Driver[] = [];
-  driverService: any;
+  driverLocations: DriverLocation[] = [];
+  driver: any;
 
-  constructor(private http: HttpClient) {}
 
-  // ngOnInit(): void {
-  //   this.loadDashboardData();
-  //   this.loadDriverLocation();
-  //   this.loadNearbyDrivers();
-  // }
+  constructor(private http: HttpClient, private driverService: DriverService ) {}
 
-  ngOnInit(): void {
-    this.loadDashboardData();
-    this.driverService.getMockDriverLocation().subscribe({
-      next: (data: Driver | null) => {
-        this.driverLocation = data;
-        console.log('Driver Location:', data);
+  private apiUrl = '/api/v1/drivers';
+
+ngOnInit(): void {
+  this.loadDashboardData();
+  // this.loadNearbyDrivers();
+  // this.loadDriverLocations();
+}
+
+loadDriverLocations(driverId: number): void {
+  this.http.get<DriverLocation[]>(`${this.apiUrl}/assets/mock/driver-location/${driverId}`)
+    .subscribe({
+      next: (data) => {
+        console.log('Driver locations:', data);
+         this.driverLocations = data;
       },
-      error: (err: any) => {
-        console.error('Error fetching driver location:', err);
+      error: (err) => {
+        console.error('Parsing error:', err.message);
+        console.error('Full error object:', err);
       }
     });
-    
-    this.driverService.getMockNearbyDrivers().subscribe({
-      next: (data: Driver[]) => {
-        this.nearbyDrivers = data;
-        console.log('Nearby Drivers:', data);
-      },
-      error: (err: any) => {
-        console.error('Error fetching nearby drivers:', err);
+}
+
+
+loadNearbyDrivers(lat: number, lng: number, radius: number): void {
+  this.http.get<Driver[]>(`${this.apiUrl}/nearby-drivers`, {
+    params: { lat, lng, radius }
+  }).subscribe({
+    next: (data) => {
+      this.nearbyDrivers = data;
+      console.log('Nearby Drivers:', data);
+    },
+    error: (err: HttpErrorResponse) => {
+      console.error('Error fetching nearby drivers:', err);
+    }
+  });
+}
+
+updateDriverLocation(id: string, location: any):void {
+  this.http.put<DriverLocation>(`${this.apiUrl}/location/${id}`, location).subscribe({
+    next: (data) => {
+      console.log('Driver Location Updated:', data);
+      const index = this.driverLocations.findIndex(loc => loc.id === data.id);
+      if (index !== -1) {
+        this.driverLocations[index] = data;
+      } else {
+        this.driverLocations.push(data);
       }
-    });
-  }
-
-  loadDriverLocation(): void {
-    this.http.get<Driver>('assets/mock/driver-location.json')
-      .subscribe({
-        next: (data) => {
-          this.driverLocation = data;
-          console.log('Driver Location:', data);
-        },
-        error: (err) => {
-          console.error('Error fetching driver location:', err);
-        }
-      });
-  }
-
-  // Fetch nearby drivers from mock JSON
-  loadNearbyDrivers(): void {
-    this.http.get<Driver[]>('assets/mock/nearby-drivers.json')
-      .subscribe({
-        next: (data) => {
-          this.nearbyDrivers = data;
-          console.log('Nearby Drivers:', data);
-        },
-        error: (err) => {
-          console.error('Error fetching nearby drivers:', err);
-        }
-      });
-  }
+    },
+    error: (err: HttpErrorResponse) => {
+      console.error('Error updating driver location:', err.message);
+    }
+  });
+}
 
   private loadDashboardData(): void {
     this.isLoading = true;
