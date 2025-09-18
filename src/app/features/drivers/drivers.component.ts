@@ -15,8 +15,7 @@ import { DriverService } from '../../core/services/driver.service';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { HttpClient } from '@angular/common/http';
-
-
+import { RouterModule } from '@angular/router';
 @Component({
   selector: 'app-drivers',
   standalone: true,
@@ -32,14 +31,20 @@ import { HttpClient } from '@angular/common/http';
     MatFormFieldModule,
     MatBadgeModule,
     FormsModule,
+    RouterModule
   ],
   templateUrl: './drivers.component.html',
   styleUrls: ['./drivers.component.scss']
 })
 export class DriversComponent implements OnInit {
   displayedColumns = ['name', 'phone', 'status', 'rating', 'documents', 'earnings', 'actions'];
-  drivers: any[] = [];
   
+  drivers: Driver[] = [];
+  currentPage: number = 1;
+  totalPages: number = 1;
+  totalItems: number = 0;
+  itemsPerPage: number = 10;
+
   onlineDrivers = 0;
   offlineDrivers = 0;
   pendingApprovals = 0;
@@ -52,22 +57,35 @@ export class DriversComponent implements OnInit {
   uploadError: string = '';
 
   ngOnInit(): void {
-    this.loadDrivers();
+    this.loadDrivers();  // initial load
+    //this.loadDriversByQuery("",this.currentPage);
   }
-  
-  loadDrivers(): void {
-  this.http.get<any[]>('https://jsonplaceholder.typicode.com/users')
-    .subscribe({
-      next: (data) => {
-        console.log('Drivers:', data);
-        this.drivers = data;
+
+  loadDrivers(page: number = 1): void {
+    this.currentPage = page;
+    this.driverService.getAllDrivers({ pageNumber: page, itemsPerPage: this.itemsPerPage }).subscribe({
+      next: (data: any) => {
+        if (data && Array.isArray(data.driver)) {
+          this.drivers = data.driver;
+          this.totalItems = data.totalCount || data.driver.length;
+          this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+        } else {
+          this.drivers = [];
+          this.totalItems = 0;
+          this.totalPages = 1;
+        }
       },
-      error: (err) => {
+      error: (err:any) => {
         console.error('Error fetching drivers', err);
       }
     });
-}
+  }
 
+  goToPage(page: number | string): void {
+    if (typeof page === 'number' && page >= 1 && page <= this.totalPages) {
+      this.loadDrivers(page);
+    }
+  }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -93,7 +111,7 @@ export class DriversComponent implements OnInit {
   }
 
   getDriverDocuments(driverId: string): void {
-    this.driverService.getDocumentList(driverId).subscribe({
+    this.driverService.getDriverDocuments(driverId).subscribe({
       next: (documents: any) => {
         console.log('Documents for driver:', documents);
       },
@@ -135,6 +153,34 @@ export class DriversComponent implements OnInit {
         console.error('Error registering driver:', err);
       }
     });
+  }
+
+  // Pagination controls for template
+  getPageNumbers(): (number | string)[] {
+    const pages: (number | string)[] = [];
+    const maxPagesToShow = 5;
+    let startPage = Math.max(1, this.currentPage - Math.floor(maxPagesToShow / 2));
+    let endPage = startPage + maxPagesToShow - 1;
+    if (endPage > this.totalPages) {
+      endPage = this.totalPages;
+      startPage = Math.max(1, endPage - maxPagesToShow + 1);
+    }
+    if (startPage > 1) {
+      pages.push(1);
+      if (startPage > 2) {
+        pages.push('...');
+      }
+    }
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    if (endPage < this.totalPages) {
+      if (endPage < this.totalPages - 1) {
+        pages.push('...');
+      }
+      pages.push(this.totalPages);
+    }
+    return pages;
   }
 
     private calculateStats(): void {

@@ -9,12 +9,12 @@ export interface User {
 }
 
 export interface LoginRequest {
-  email: string;
-  password: string;
+  contactNumber: string;
+  pin: string;
 }
 
 export interface AuthResponse {
-  token: string;
+  accessToken: string;
   user: User;
   refreshToken: string;
 }

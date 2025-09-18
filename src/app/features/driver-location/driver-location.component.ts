@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { DriverService } from '../../core/services/driver.service';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
@@ -6,18 +6,19 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';   
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
   selector: 'app-driver-location',
-  imports: [
-    CommonModule, 
-    MatCardModule, 
-    MatButtonModule, 
-    MatIconModule, 
-    MatInputModule, 
-    FormsModule,
-  ],
   providers: [DriverService],
+  imports: [
+    MatFormFieldModule,
+    MatInputModule,
+    MatCardModule,
+    MatIconModule,
+    FormsModule,
+    CommonModule
+  ],
   templateUrl: './driver-location.component.html',
   styleUrls: ['./driver-location.component.scss']
 })
@@ -26,7 +27,7 @@ export class DriverLocationComponent {
   latitude: string = '';
   longitude: string = '';
   nearbyDrivers: any[] = [];
-
+ 
 
   constructor(private driverService: DriverService) {}
 

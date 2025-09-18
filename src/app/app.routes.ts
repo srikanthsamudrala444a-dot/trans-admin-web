@@ -1,7 +1,8 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
 import { RoleGuard } from './core/guards/role.guard';
-
+import { RidesComponent } from './features/rides/rides.component';
+import { RideDetailsComponent } from './rides/ride-details/ride-details.component';
 export const routes: Routes = [
   {
     path: '',
@@ -65,6 +66,14 @@ export const routes: Routes = [
         loadComponent: () => import('./features/audit-logs/audit-logs.component').then(c => c.AuditLogsComponent),
         canActivate: [RoleGuard],
         data: { roles: ['admin'] }
+      },
+      {
+        path: 'passengers/:passengerId',
+        loadComponent: () => import('./features/passengers/passenger-details.component').then(c => c.PassengerDetailsComponent)
+      },
+      {
+        path: 'drivers/:driverId',
+        loadComponent: () => import('./features/drivers/driver-details.component').then(c => c.DriverDetailsComponent)
       }
     ]
   },
@@ -83,5 +92,8 @@ export const routes: Routes = [
   {
     path: 'driver-documents',
     loadComponent: () => import('./features/driver-documents/driver-documents.component').then(c => c.DriverDocumentsComponent)
-  }
+  },
+  { path: 'rides', component: RidesComponent },
+  { path: 'rides/:rideId', component: RideDetailsComponent }, // 👈 detail page
+  { path: '', redirectTo: 'rides', pathMatch: 'full' }
 ];

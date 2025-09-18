@@ -1,5 +1,6 @@
 export interface Ride {
   id: string;
+  rideId: string;
   driverId: string;
   passengerId: string;
   vehicleId: string;
@@ -25,11 +26,13 @@ export interface Location {
 
 export interface Driver {
   id: string;
-  name: string;
+  userId: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  phone: string;
+  contactNumber: string;
   licenseNumber: string;
-  status: 'online' | 'offline' | 'busy';
+  status: 'online' | 'offline' | 'busy'|'active'|'inactive';
   rating: number;
   totalRides: number;
   earnings: number;

@@ -6,7 +6,8 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class RideService {
-  private baseUrl = 'https://dev.glaciersoft.in.net/ride/api/';
+  // Remove trailing slash
+  private baseUrl = 'https://dev.glaciersoft.in.net/ride/api';
 
   constructor(private http: HttpClient) {}
 
@@ -15,6 +16,7 @@ export class RideService {
     return this.http.get(`${this.baseUrl}/v1/rides/all`);
   }
   getRidesByQuery(queryData: any): Observable<any> {
+    // Remove stray '}' and leading slash
     return this.http.post(`${this.baseUrl}/v1/rides/query`, queryData);
   }
 
@@ -40,7 +42,7 @@ export class RideService {
 
   // ✅ 6. Get rides by passenger (customer)
   getRidesByPassenger(passengerId: string): Observable<any> {
-    return this.http.get(`${this.baseUrl}/rides/passenger/${passengerId}`);
+    return this.http.get(`${this.baseUrl}/rides/history/passenger/${passengerId}`);
   }
 
   // ✅ 7. Get rides by driver
@@ -67,4 +69,5 @@ export class RideService {
   getRideHistory(userId: string): Observable<any> {
     return this.http.get(`${this.baseUrl}/rides/history/${userId}`);
   }
+  
 }

@@ -10,6 +10,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { RideService } from '../../core/services/rides.service';
 import { Ride } from '../../core/models/ride.model';
+import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 @Component({
   selector: 'app-rides',
   standalone: true,
@@ -22,7 +25,10 @@ import { Ride } from '../../core/models/ride.model';
     MatChipsModule,
     MatInputModule,
     MatSelectModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    FormsModule,
+    ReactiveFormsModule,
+    RouterModule
   ],
   templateUrl: './rides.component.html',
   styleUrls: ['./rides.component.scss']
@@ -34,13 +40,78 @@ export class RidesComponent implements OnInit {
   constructor(private rideService: RideService) {}
   totalPages: number = 5;
   ngOnInit(): void {
+    
+    this.loadRides();
     this.loadRidesByQuery("", this.currentPage);
+
   }
+  
+totalItems: number = 0;
+
+// ... other properties and methods
+
+getPageNumbers(): (number | string)[] {
+const pages: (number | string)[] = [];
+const maxPagesToShow = 5;
+let startPage = Math.max(1, this.currentPage - Math.floor(maxPagesToShow / 2));
+let endPage = startPage + maxPagesToShow - 1;
+
+if (endPage > this.totalPages) {
+endPage = this.totalPages;
+startPage = Math.max(1, endPage - maxPagesToShow + 1);
+}
+
+if (startPage > 1) {
+pages.push(1);
+if (startPage > 2) {
+pages.push('...');
+}
+}
+
+for (let i = startPage; i <= endPage; i++) {
+pages.push(i);
+}
+
+if (endPage < this.totalPages) {
+if (endPage < this.totalPages - 1) {
+pages.push('...');
+}
+pages.push(this.totalPages);
+}
+
+return pages;
+}
+
+  goToPage = (page: number | string): void => {
+    if (typeof page === 'number') {
+      this.currentPage = page;
+      this.loadRidesByQuery("", this.currentPage);
+    }
+  }
+  
+  gotoPage: number = 1;
+  get canGoToPage(): boolean {
+    return this.currentPage > 1 && this.currentPage <= this.totalPages;
+  }
+  ride: Ride | null = null;
+
+  openRideDetails: { [rideId: string]: boolean } = {};
+
+
+
+
+
+
+
+
 
   private loadRides(): void {
     this.rideService.getAllRides().subscribe(
       (data) => {
-        this.rides = data.rides;
+        //this.rides = data.rides;
+        this.totalItems = data.rides.length;
+        this.totalPages = Math.ceil(this.totalItems / 10);
+        console.log(data);
       },
       (error) => {
         console.error('Error fetching rides:', error);
@@ -57,6 +128,26 @@ export class RidesComponent implements OnInit {
       }
     );
   }
+  /*public loadRidesByQuery(searchTerm: string, currentPage: number): void {
+  this.currentPage = currentPage;
+  this.rideService.getRidesByQuery({
+    pageNumber: currentPage,
+    itemsPerPage: 10,
+    retrieveInactive: false
+  }).subscribe(
+    (data) => {
+      console.log("Rides API response:", data);  // 👀 log full response
+      // adapt here after seeing actual API structure
+      this.rides = data.rides || data;  
+      this.totalItems = data.totalItems || this.rides.length;
+      this.totalPages = data.totalPages || Math.ceil(this.totalItems / 10);
+    },
+    (error) => {
+      console.error('Error fetching rides:', error);
+    }
+  );
+}*/
+
   public loadRidesByQuery(searchTerm: string, currentPage: number): void {
     this.currentPage = currentPage;
     this.rideService.getRidesByQuery({
@@ -89,6 +180,7 @@ export class RidesComponent implements OnInit {
   showRideDetails(ride: Ride): void {
     this.selectedRide = this.selectedRide === ride ? null : ride;
   }
+  
 }
 
 

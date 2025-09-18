@@ -1,0 +1,41 @@
+.passenger-details-card {
+  max-width: 500px;
+  margin: 32px auto;
+}
+
+mat-card-title, mat-card-subtitle {
+  color: #fff;
+}
+
+mat-card {
+  background: #222 !important;
+}
+
+.label {
+  font-weight: 600;
+  color: #fff;
+  text-align: right;
+}
+
+.value {
+  color: #fff;
+  text-align: left;
+}
+
+.ride-details-card {
+  max-width: 600px;
+  margin: 32px auto;
+  padding: 24px;
+  background: #fff;
+}
+
+.ride-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 12px 24px;
+  margin-top: 16px;
+}
+
+.ride-detail-row {
+  display: contents;
+}

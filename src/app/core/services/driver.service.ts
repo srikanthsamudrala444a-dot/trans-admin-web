@@ -3,96 +3,109 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Driver } from '../models/ride.model';
 
-
 @Injectable({
   providedIn: 'root'
 })
 export class DriverService {
- 
 
-private apiUrl = '/api/v1/drivers';
+  private apiUrl = 'https://dev.glaciersoft.in.net/driver/api';
 
   getDocumentList: any;
 
   constructor(private http: HttpClient) {}
-
-  getAllDrivers() {
-     return this.http.get('/api/v1/drivers/all');
- }
-
+//https://dev.glaciersoft.in.net/driver/api/v1/driver/all
+//getAllDriversSimple(): Observable<any> {
+    //return this.http.get(`${this.apiUrl}/v1/driver/all`);
+  //}
+  // Update: Accept pagination params for drivers
+  getAllDrivers(params?: { pageNumber?: number; itemsPerPage?: number }): Observable<any> {
+    if (params) {
+      const httpParams = new HttpParams()
+        .set('pageNumber', params.pageNumber?.toString() || '1')
+        .set('itemsPerPage', params.itemsPerPage?.toString() || '10');
+      return this.http.get(`${this.apiUrl}/v1/driver/all`, { params: httpParams });
+    }
+    return this.http.get(`${this.apiUrl}/v1/driver/all`);
+  }
+//https://dev.glaciersoft.in.net/driver/api/v1/driver/{id}
   getDriverById(id: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/driver/${id}`);
+    return this.http.get(`${this.apiUrl}/v1/driver/${id}`);
   }
-
+//https://dev.glaciersoft.in.net/driver/api/v1/driver/register
   registerDriver(driverData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/driver/register`, driverData);
+    return this.http.post(`${this.apiUrl}/v1/driver/register`, driverData);
   }
-
+//https://dev.glaciersoft.in.net/driver/api/v1/plan/create
   createDriver(driverData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/driver/create`, driverData);
+    return this.http.post(`${this.apiUrl}/v1/plan/create`, driverData);
   }
+//https://dev.glaciersoft.in.net/driver/api/v1/driver/{id}/availability?available=true
 
   updateAvailability(id: string, availability: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/driver/${id}/availability`, availability);
+    return this.http.put(`${this.apiUrl}/v1/driver/${id}/availability?available=true`, availability);
   }
-
+//https://dev.glaciersoft.in.net/driver/api/v1/driver/available
   getAvailableDrivers(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/driver/available`);
+    return this.http.get(`${this.apiUrl}/v1/driver/available`);
   }
-
+//
   getDrivers(): Observable<any> {
-    return this.http.get('https://jsonplaceholder.typicode.com/users');
+    return this.http.get(`${this.apiUrl}/v1/driver`);
   }
-
-
+//https://dev.glaciersoft.in.net/driver/api/v1/drivers/location/0?lat=0&lon=0
   updateDriverLocation(id: string, location: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/drivers/location/${id}`, location);
+    return this.http.post(`${this.apiUrl}v1/driver/location/${id}`, location);
   }
 
   uploadDriverDocument(driverId: string, selectedDocumentType: string, file: File): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);
+    // Optionally add document type if needed by backend
+    // formData.append('documentType', selectedDocumentType);
 
-    return this.http.put(`${this.apiUrl}/driver/docs/${driverId}/uploadDriverDocument`, formData);
+    return this.http.put(`${this.apiUrl}/docs/${driverId}/uploadDriverDocument`, formData);
   }
-
+//https://dev.glaciersoft.in.net/driver/api/v1/driver/docs/{driverId}/getDocumentList///api/v1/driver/docs/{driverId}/getDocumentList
   getDriverDocuments(driverId: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/driver/docs/${driverId}/getDocumentList`);
+    return this.http.get(`${this.apiUrl}v1/driver/docs/${driverId}/getDocumentList`);
   }
-
+///api/v1/drivers/location/nearby  //https://dev.glaciersoft.in.net/driver/api/v1/drivers/location/nearby?lat=0&lon=0&radius=0
   getDriverLocation(driverId: string): Observable<Driver> {
-    return this.http.get<Driver>(`${this.apiUrl}/location/${driverId}`);
+    return this.http.get<Driver>(`${this.apiUrl}v1/drivers/location/nearby`);
   }
 
   getNearbyDrivers(lat: number, lng: number, radius: number): Observable<Driver[]> {
     return this.http.get<Driver[]>(`${this.apiUrl}/nearby?lat=${lat}&lng=${lng}&radius=${radius}`);
   }
 
-getMockDriverLocation(): Observable<Driver> {
-  return this.http.get<Driver>('assets/mock/driver-location.json');
-}
+  // Updated to fetch real data from backend
+  loadNearbyDrivers(lat: number, lng: number, radius: number): Observable<any> {
+    const params = new HttpParams()
+      .set('lat', lat.toString())
+      .set('lng', lng.toString())
+      .set('radius', radius.toString());
+    return this.http.get(`${this.apiUrl}/nearby`, { params });
+  }
 
-getMockNearbyDrivers(): Observable<Driver[]> {
-  return this.http.get<Driver[]>('assets/mock/nearby-drivers.json');
-}
+  loadDriverLocation(driverId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/location/${driverId}`);
+  }
 
-
-loadNearbyDrivers(lat: number, lng: number, radius: number): Observable<any> {
-  return this.http.get(`/api/v1/drivers/location/nearby`, {
+  loadDriverDocuments(driverId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/docs/${driverId}/getDocumentList`);
+  }
+  loadAllDrivers(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/v1/drivers/all`);
+  }
+  // pagination
+  getDriversByQuery(search: string, page: number): Observable<any> {
+  return this.http.get(`${this.apiUrl}/v1/driver/all`, {
     params: {
-      latitude: lat,
-      longitude: lng,
-      radius: radius
+      search: search || '',
+      page: page.toString()
     }
   });
 }
 
-loadDriverLocation(driverId: string): Observable<any> {
-  return this.http.get(`/api/v1/drivers/location/${driverId}`);
-}
-
-loadDriverDocuments(driverId: string): Observable<any> {
-  return this.http.get(`/api/v1/drivers/docs/${driverId}`);
-}
 
 }

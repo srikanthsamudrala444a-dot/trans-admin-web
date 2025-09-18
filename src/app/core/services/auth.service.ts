@@ -11,13 +11,15 @@ import { isPlatformBrowser } from '@angular/common';
   providedIn: 'root'
 })
 export class AuthService {
-  private token: string | null = null;
+  private baseUrl = 'https://dev.glaciersoft.in.net/authentication/api/v1/auth';
+  
+  private accessToken: string | null = null;
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   private tokenSubject = new BehaviorSubject<string | null>(null);
   private jwtHelper = new JwtHelperService();
 
   public currentUser$ = this.currentUserSubject.asObservable();
-  public token$ = this.tokenSubject.asObservable();
+  public accessToken$ = this.tokenSubject.asObservable();
   isBrowser: boolean;
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
@@ -30,34 +32,24 @@ export class AuthService {
 
   login(credentials: LoginRequest): Observable<AuthResponse> {
     // Mock login - replace with actual API call
-    return new Observable(observer => {
-      setTimeout(() => {
-        if (credentials.email === 'admin@cabservice.com' && credentials.password === 'admin123') {
-          const mockResponse: AuthResponse = {
-            token: 'mock-jwt-token-' + Date.now(),
-            user: {
-              id: '1',
-              email: credentials.email,
-              name: 'Admin User',
-              role: 'admin',
-              isActive: true,
-              lastLogin: new Date()
-            },
-            refreshToken: 'mock-refresh-token'
-          };
-          
-          this.setAuthData(mockResponse);
-          observer.next(mockResponse);
-          observer.complete();
-        } else {
-          observer.error({ message: 'Invalid credentials' });
-        }
-      }, 1000);
-    });
-  }
+    return this.http.post<AuthResponse>(`${this.baseUrl}/login`, credentials).pipe(
+      map((response: AuthResponse) => {
+        // Mock user object for testing
+         
+    
+        this.setAuthData(response);
+        
+        return response;
 
+      }),
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
+  }
+ 
   logout(): void {
-    localStorage.removeItem('token');
+    localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
     this.currentUserSubject.next(null);
@@ -65,17 +57,18 @@ export class AuthService {
     this.router.navigate(['/auth/login']);
   }
 
-  isAuthenticated(): boolean {
-    const token = this.getToken();
-    return !!token; // adjust if decoding JWT
+  getToken(): string | null {
+    if (isPlatformBrowser(this.platformId)) {
+      return localStorage.getItem('accessToken');
+    }
+    return this.accessToken;
   }
 
-   getToken(): string | null {
-    if (isPlatformBrowser(this.platformId)) {
-      return localStorage.getItem('token');
-    }
-    return null;
+  isAuthenticated(): boolean {
+    const accessToken = this.getToken();
+    return !!accessToken; // adjust if decoding JWT
   }
+
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
   }
@@ -91,36 +84,36 @@ export class AuthService {
   }
 
   private setAuthData(authResponse: AuthResponse): void {
-    localStorage.setItem('token', authResponse.token);
+    localStorage.setItem('accessToken', authResponse.accessToken);
     localStorage.setItem('refreshToken', authResponse.refreshToken);
     localStorage.setItem('user', JSON.stringify(authResponse.user));
     
     this.currentUserSubject.next(authResponse.user);
-    this.tokenSubject.next(authResponse.token);
+    this.tokenSubject.next(authResponse.accessToken);
   }
 
   private loadStoredAuth() {
     if (isPlatformBrowser(this.platformId)) {   // ✅ only run in browser
-      this.token = localStorage.getItem('token');
+      this.accessToken = localStorage.getItem('accessToken');
     }
   }
 
-  saveToken(token: string) {
-    this.token = token;
+  saveToken(accessToken: string) {
+    this.accessToken = accessToken;
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('token', token);
+      localStorage.setItem('accessToken', accessToken);
     }
   }
 
   clearAuth() {
-    this.token = null;
+    this.accessToken = null;
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.removeItem('token');
+      localStorage.removeItem('accessToken');
     }
   }
 
-  private isValidJwt(token: string): boolean {
-  return token.split('.').length === 3;
+  private isValidJwt(accessToken: string): boolean {
+  return accessToken.split('.').length === 3;
   }
 
   private getLocalStorage(key: string): string | null {
@@ -132,8 +125,8 @@ export class AuthService {
 
   clearToken() {
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.removeItem('token');
+      localStorage.removeItem('accessToken');
     }
   }
-  
+
 }

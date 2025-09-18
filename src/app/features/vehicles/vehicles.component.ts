@@ -8,12 +8,16 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { VehicleService } from '../../core/services/vehicles.service';
+import { FormsModule } from '@angular/forms';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-vehicles',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MatTableModule,
     MatCardModule,
     MatButtonModule,
@@ -21,58 +25,55 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatChipsModule,
     MatInputModule,
     MatSelectModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    MatProgressSpinnerModule,
+    
   ],
   templateUrl: './vehicles.component.html',
   styleUrls: ['./vehicles.component.scss']
 })
 export class VehiclesComponent implements OnInit {
-  displayedColumns = ['vehicle', 'plateNumber', 'driver', 'type', 'status', 'documents', 'lastService', 'actions'];
+  displayedColumns = [
+    'vehicle',
+    'plateNumber',
+    'driver',
+    'type',
+    'status',
+    'documents',
+    'lastService',
+    'actions'
+  ];
   vehicles: any[] = [];
+  loading = false;
+
+  // ✅ Filters
+  type: string = 'all';
+  status: string = 'all';
+  search: string = '';
+
+  constructor(private vehicleService: VehicleService) {}
 
   ngOnInit(): void {
     this.loadVehicles();
   }
 
-  private loadVehicles(): void {
-    // Mock data
-    this.vehicles = [
-      {
-        make: 'Toyota',
-        model: 'Camry',
-        year: 2022,
-        color: 'White',
-        plateNumber: 'ABC-1234',
-        driverName: 'John Smith',
-        type: 'sedan',
-        status: 'active',
-        documentsStatus: 'approved',
-        lastServiceDate: new Date('2023-12-15')
+  loadVehicles(): void {
+    this.loading = true;
+    const filters: any = {};
+
+    if (this.type !== 'all') filters.type = this.type;
+    if (this.status !== 'all') filters.status = this.status;
+    if (this.search.trim()) filters.search = this.search.trim();
+
+    this.vehicleService.queryVehicles(filters).subscribe({
+      next: (res:any) => {
+        this.vehicles = res.data || res; // ✅ depends on API response
+        this.loading = false;
       },
-      {
-        make: 'Honda',
-        model: 'CR-V',
-        year: 2021,
-        color: 'Silver',
-        plateNumber: 'XYZ-5678',
-        driverName: null,
-        type: 'suv',
-        status: 'inactive',
-        documentsStatus: 'pending',
-        lastServiceDate: new Date('2023-11-20')
-      },
-      {
-        make: 'Hyundai',
-        model: 'Elantra',
-        year: 2020,
-        color: 'Blue',
-        plateNumber: 'DEF-9012',
-        driverName: 'Mike Wilson',
-        type: 'sedan',
-        status: 'maintenance',
-        documentsStatus: 'approved',
-        lastServiceDate: new Date('2023-10-05')
+      error: (err:any) => {
+        console.error('Error fetching vehicles:', err);
+        this.loading = false;
       }
-    ];
+    });
   }
 }

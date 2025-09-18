@@ -1,4 +1,4 @@
- .drivers-container {
+.drivers-container {
       max-width: 1200px;
       margin: 0 auto;
     }
@@ -149,6 +149,33 @@
       font-size: 16px;
       width: 16px;
       height: 16px;
+    }
+    
+    .pagination-controls {
+      background: #111;
+      color: #fff;
+      border-radius: 8px;
+      padding: 8px 16px;
+    }
+    
+    .pagination-controls button,
+    .pagination-controls mat-icon,
+    .pagination-controls span,
+    .pagination-controls input,
+    .pagination-controls mat-form-field {
+      color: #fff !important;
+    }
+    
+    .pagination-controls mat-form-field {
+      background: #222;
+      border-radius: 4px;
+    }
+    
+    .pagination-controls input {
+      background: #222;
+      border: none;
+      color: #fff;
+      text-align: center;
     }
     
     @media (max-width: 768px) {
