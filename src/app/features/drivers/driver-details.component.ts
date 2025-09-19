@@ -29,7 +29,8 @@ export class DriverDetailsComponent implements OnInit {
           this.isLoading = false;
         },
         error: (err: any) => {
-          this.errorMessage = 'Failed to load driver details';
+          console.error('Failed to load driver details:', err); // Debug log
+          this.errorMessage = err?.error?.message || err?.message || 'Failed to load driver details';
           this.isLoading = false;
         }
       });

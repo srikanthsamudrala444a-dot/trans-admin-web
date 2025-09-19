@@ -1,0 +1,51 @@
+<mat-card *ngIf="!isLoading && ride; else loadingOrError" class="ride-details-card">
+  <mat-card-header>
+    <mat-card-title>Ride Details</mat-card-title>
+    <mat-card-subtitle>ID: <strong>{{ ride.rideId }}</strong></mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="ride-details-grid">
+      <div class="ride-detail-row">
+        <span class="label">Driver:</span>
+        <span class="value">{{ ride.driverName }}</span>
+      </div>
+      <div class="ride-detail-row">
+        <span class="label">Passenger:</span>
+        <span class="value">{{ ride.passengerId }}</span>
+      </div>
+      <div class="ride-detail-row">
+        <span class="label">Pickup:</span>
+        <span class="value">{{ ride.pickupLocation?.address }}</span>
+      </div>
+      <div class="ride-detail-row">
+        <span class="label">Dropoff:</span>
+        <span class="value">{{ ride.dropoffLocation?.address }}</span>
+      </div>
+      <div class="ride-detail-row">
+        <span class="label">Status:</span>
+        <span class="value">{{ ride.status }}</span>
+      </div>
+      <div class="ride-detail-row">
+        <span class="label">Fare:</span>
+        <span class="value">₹{{ ride.fare }}</span>
+      </div>
+      <div class="ride-detail-row">
+        <span class="label">Requested At:</span>
+        <span class="value">{{ ride.requestedAt | date:'medium' }}</span>
+      </div>
+      <div class="ride-detail-row">
+        <span class="label">Completed At:</span>
+        <span class="value">{{ ride.completedAt | date:'medium' }}</span>
+      </div>
+    </div>
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-raised-button color="primary" (click)="backToRides()">
+      <mat-icon>arrow_back</mat-icon> Back
+    </button>
+  </mat-card-actions>
+</mat-card>
+<ng-template #loadingOrError>
+  <div *ngIf="isLoading">Loading ride details...</div>
+  <div *ngIf="!isLoading && errorMessage">{{ errorMessage }}</div>
+</ng-template>

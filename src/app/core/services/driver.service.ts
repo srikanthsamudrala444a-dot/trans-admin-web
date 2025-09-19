@@ -19,17 +19,38 @@ export class DriverService {
   //}
   // Update: Accept pagination params for drivers
   getAllDrivers(params?: { pageNumber?: number; itemsPerPage?: number }): Observable<any> {
+    const accessToken = localStorage.getItem('accessToken');
+    const headers = accessToken
+      ? { Authorization: `Bearer ${accessToken}` }
+      : undefined;
+
+    let options: any = {};
     if (params) {
       const httpParams = new HttpParams()
         .set('pageNumber', params.pageNumber?.toString() || '1')
         .set('itemsPerPage', params.itemsPerPage?.toString() || '10');
-      return this.http.get(`${this.apiUrl}/v1/driver/all`, { params: httpParams });
+      options.params = httpParams;
     }
-    return this.http.get(`${this.apiUrl}/v1/driver/all`);
+    if (headers) {
+      options.headers = headers;
+    }
+    return this.http.get(`${this.apiUrl}/v1/driver/all`, options);
   }
 //https://dev.glaciersoft.in.net/driver/api/v1/driver/{id}
   getDriverById(id: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/v1/driver/${id}`);
+    const accessToken = localStorage.getItem('accessToken');
+    const headers = accessToken
+      ? { Authorization: `Bearer ${accessToken}` }
+      : undefined;
+
+    let options: any = {};
+    if (headers) {
+      options.headers = headers;
+    }
+    return this.http.get(`${this.apiUrl}/v1/driver/${id}`, options);
+    //return this.http.get(`${this.apiUrl}/v1/driver/${id}`);
+  
+    //return this.http.get(`${this.apiUrl}/v1/driver/${id}`);
   }
 //https://dev.glaciersoft.in.net/driver/api/v1/driver/register
   registerDriver(driverData: any): Observable<any> {

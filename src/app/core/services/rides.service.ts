@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -13,16 +13,31 @@ export class RideService {
 
   // ✅ 1. Get all rides
   getAllRides(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/v1/rides/all`);
+    const accessToken = localStorage.getItem('accessToken');
+    console.log('Access Token:', accessToken); // Debug log
+    const headers = accessToken
+      ? new HttpHeaders({ Authorization: `Bearer ${accessToken}` })
+      : undefined;
+    return this.http.get(`${this.baseUrl}/v1/rides/all`, { headers });
+
   }
   getRidesByQuery(queryData: any): Observable<any> {
-    // Remove stray '}' and leading slash
-    return this.http.post(`${this.baseUrl}/v1/rides/query`, queryData);
+    const accessToken = localStorage.getItem('accessToken');
+    console.log('Access Token:', accessToken);
+    const headers = accessToken
+      ? new HttpHeaders({ Authorization: `Bearer ${accessToken}` })
+      : undefined;
+    return this.http.post(`${this.baseUrl}/v1/rides/query`, queryData, { headers });
   }
 
   // ✅ 2. Get ride by ID
   getRideById(rideId: string): Observable<any> {
-    return this.http.get(`${this.baseUrl}/rides/${rideId}`);
+    const accessToken = localStorage.getItem('accessToken');
+    console.log('Access Token:', accessToken); // Debug log
+    const headers = accessToken
+      ? new HttpHeaders({ Authorization: `Bearer ${accessToken}` })
+      : undefined;
+    return this.http.get(`${this.baseUrl}/rides/${rideId}`, { headers });
   }
 
   // ✅ 3. Create a new ride (e.g. booking request)
@@ -42,7 +57,14 @@ export class RideService {
 
   // ✅ 6. Get rides by passenger (customer)
   getRidesByPassenger(passengerId: string): Observable<any> {
-    return this.http.get(`${this.baseUrl}/rides/history/passenger/${passengerId}`);
+    const accessToken = localStorage.getItem('accessToken');
+    console.log('Access Token:', accessToken); // Debug log
+    const headers = accessToken
+      ? new HttpHeaders({ Authorization: `Bearer ${accessToken}` })
+      : undefined;
+    return this.http.get(`${this.baseUrl}/rides/history/passenger/${passengerId}`, { headers });
+    //
+    //return this.http.get(`${this.baseUrl}/rides/history/passenger/${passengerId}`);
   }
 
   // ✅ 7. Get rides by driver

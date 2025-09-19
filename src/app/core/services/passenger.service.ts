@@ -11,6 +11,13 @@ export class PassengerService {
   constructor(private http: HttpClient) {}
 
   getPassengerById(passengerId: string): Observable<any> {
-    return this.http.get(`${this.baseUrl}/passenger/${passengerId}`);
+    const accessToken = localStorage.getItem('accessToken');
+    console.log('Access Token:', accessToken); // Debug log
+    const headers = accessToken
+      ? { Authorization: `Bearer ${accessToken}` }
+      : undefined;
+    return this.http.get(`${this.baseUrl}/passenger/${passengerId}`, { headers });
+    //
+    //return this.http.get(`${this.baseUrl}/passenger/${passengerId}`);
   }
 }

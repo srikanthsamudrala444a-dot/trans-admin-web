@@ -37,7 +37,16 @@ export class VehicleService {
   // ✅ 5. Query vehicles (advanced search/filter)
   //https://dev.glaciersoft.in.net/driver/api/vehicles/query
   queryVehicles(queryData: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}/vehicles/query`, queryData);
+    const accessToken = localStorage.getItem('accessToken');
+    console.log('Access Token:', accessToken);
+    const headers = accessToken
+      ? { Authorization: `Bearer ${accessToken}` }
+      : undefined;
+    return this.http.post(`${this.baseUrl}/vehicles/query`, queryData, { headers });
+    //return this.http.post(`${this.baseUrl}/vehicles/query`, queryData); --- IGNORE ---
+    // Remove stray '}' --- IGNORE ---
+    //
+    //return this.http.post(`${this.baseUrl}/vehicles/query`, queryData);
   }
 
   // ✅ 6. Get vehicles by driver ID

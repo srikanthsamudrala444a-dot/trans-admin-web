@@ -91,3 +91,50 @@
       background-color: #ffebee;
       color: #c62828;
     }
+    .pagination-controls {
+      background: #111;
+      color: #fff;
+      border-radius: 8px;
+      padding: 8px 16px;
+    }
+    
+    .pagination-controls button,
+    .pagination-controls mat-icon,
+    .pagination-controls span,
+    .pagination-controls input,
+    .pagination-controls mat-form-field {
+      color: #fff !important;
+    }
+    
+    .pagination-controls mat-form-field {
+      background: #222;
+      border-radius: 4px;
+    }
+    
+    .pagination-controls input {
+      background: #222;
+      border: none;
+      color: #fff;
+      text-align: center;
+    }
+    
+    @media (max-width: 768px) {
+      .page-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: stretch;
+      }
+      
+      .stats-cards {
+        grid-template-columns: 1fr;
+      }
+      
+      .filters {
+        flex-direction: column;
+      }
+      
+      .filters mat-form-field {
+        min-width: auto;
+        width: 100%;
+      }
+    }

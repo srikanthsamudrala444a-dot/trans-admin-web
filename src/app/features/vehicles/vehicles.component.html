@@ -9,33 +9,33 @@
       
       <mat-card class="filter-card">
         <mat-card-content>
-          <div class="filters">
-            <mat-form-field appearance="outline">
-              <mat-label>Type</mat-label>
+<div class="filters">
+  <mat-form-field appearance="outline">
+    <mat-label>Type</mat-label>
               <mat-select>
-                <mat-option value="all">All Types</mat-option>
-                <mat-option value="sedan">Sedan</mat-option>
-                <mat-option value="suv">SUV</mat-option>
-                <mat-option value="hatchback">Hatchback</mat-option>
-              </mat-select>
-            </mat-form-field>
-            
-            <mat-form-field appearance="outline">
-              <mat-label>Status</mat-label>
+      <mat-option value="all">All Types</mat-option>
+      <mat-option value="sedan">Sedan</mat-option>
+      <mat-option value="suv">SUV</mat-option>
+      <mat-option value="hatchback">Hatchback</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Status</mat-label>
               <mat-select>
-                <mat-option value="all">All Status</mat-option>
-                <mat-option value="active">Active</mat-option>
-                <mat-option value="maintenance">Maintenance</mat-option>
-                <mat-option value="inactive">Inactive</mat-option>
-              </mat-select>
-            </mat-form-field>
-            
-            <mat-form-field appearance="outline">
-              <mat-label>Search</mat-label>
+      <mat-option value="all">All Status</mat-option>
+      <mat-option value="active">Active</mat-option>
+      <mat-option value="maintenance">Maintenance</mat-option>
+      <mat-option value="inactive">Inactive</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Search</mat-label>
               <input matInput placeholder="Search by plate number or model">
               <mat-icon matSuffix>search</mat-icon>
-            </mat-form-field>
-          </div>
+  </mat-form-field>
+</div>
         </mat-card-content>
       </mat-card>
       
@@ -50,7 +50,7 @@
                   <div class="vehicle-model">{{vehicle.make}} {{vehicle.model}}</div>
                   <div class="vehicle-year">{{vehicle.year}} • {{vehicle.color}}</div>
                 </div>
-              </div>
+</div>
             </mat-cell>
           </ng-container>
           
@@ -120,4 +120,28 @@
           <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
         </mat-table>
       </mat-card>
+    </div>
+    <!-- Pagination -->
+    <div class="pagination-controls" style="display: flex; justify-content: flex-end; align-items: center; margin-top: 16px; gap: 8px;">
+      <button mat-button style="color: #000 !important;" (click)="loadVehicles(currentPage - 1)" [disabled]="currentPage === 1">
+        Previous
+      </button>
+
+      <span style="margin: 0 8px; color: #fff !important;">Page</span>
+
+      <mat-form-field appearance="outline" style="width: 70px; margin: 0; color: #fff !important;">
+        <input matInput type="number" min="1" [max]="totalPages" [(ngModel)]="currentPage" name="gotoPage" (keyup.enter)="goToPage(currentPage)" placeholder="Page">
+      </mat-form-field>
+
+      <button mat-icon-button (click)="goToPage(currentPage)">
+        <mat-icon>arrow_forward</mat-icon>
+      </button>
+
+      <span style="margin: 0 8px; color: #fff !important;">of {{ totalPages }}</span>
+
+      <button mat-button style="color: #fff !important;" (click)="loadVehicles(currentPage + 1)" [disabled]="currentPage === totalPages">
+        Next
+      </button>
+
+      <span style="margin-left: 16px; color: #fff !important;">Total: {{ totalItems }}</span>
     </div>

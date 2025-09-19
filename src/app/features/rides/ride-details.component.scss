@@ -1,0 +1,23 @@
+.ride-details-card {
+  background: #23272f;
+  color: #fff;
+  max-width: 600px;
+  margin: 32px auto;
+}
+.ride-details-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ride-detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+.label {
+  font-weight: 600;
+  color: #90caf9;
+}
+.value {
+  color: #fff;
+}
