@@ -11,7 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { VehicleService } from '../../core/services/vehicles.service';
 import { FormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-
+import { RouterModule } from '@angular/router';
 @Component({
   selector: 'app-vehicles',
   standalone: true,
@@ -27,7 +27,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatSelectModule,
     MatFormFieldModule,
     MatProgressSpinnerModule,
-    
+    RouterModule
   ],
   templateUrl: './vehicles.component.html',
   styleUrls: ['./vehicles.component.scss']
@@ -82,9 +82,9 @@ export class VehiclesComponent implements OnInit {
     this.vehicleService.queryVehicles(filters).subscribe({
       next: (res: any) => {
         // Adjust according to your API response structure
-        if (res && Array.isArray(res.data)) {
-          this.vehicles = res.data;
-          this.totalItems = res.totalCount || res.data.length;
+        if (res && Array.isArray(res.vehicle)) {
+          this.vehicles = res.vehicle;
+          this.totalItems = res.totalCount || res.vehicle.length;
           this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
         } else if (Array.isArray(res)) {
           this.vehicles = res;
@@ -100,6 +100,7 @@ export class VehiclesComponent implements OnInit {
       error: (err: any) => {
         console.error('Error fetching vehicles:', err);
         this.vehicles = [];
+        this.loading = false;
       }
     });
  }

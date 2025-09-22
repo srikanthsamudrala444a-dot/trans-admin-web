@@ -25,7 +25,7 @@
       </mat-card>
       
       <mat-card>
-        <mat-table [dataSource]="passengers">
+        <mat-table [dataSource]="passenger">
           <ng-container matColumnDef="name">
             <mat-header-cell *matHeaderCellDef>Passenger</mat-header-cell>
             <mat-cell *matCellDef="let passenger">
@@ -76,7 +76,7 @@
           <ng-container matColumnDef="actions">
             <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
             <mat-cell *matCellDef="let passenger">
-              <button mat-icon-button color="primary">
+              <button mat-icon-button color="primary" [routerLink]="['/passengers', passenger.id || passenger.passengerId]" matTooltip="View Passenger Details">
                 <mat-icon>visibility</mat-icon>
               </button>
               <button mat-icon-button [color]="passenger.isBanned ? 'accent' : 'warn'">
@@ -90,3 +90,29 @@
         </mat-table>
       </mat-card>
     </div>
+    <!-- Pagination (Go to Page + Prev/Next) -->
+    <div class="pagination-controls" style="display: flex; justify-content: flex-end; align-items: center; margin-top: 16px; gap: 8px;">
+      <button mat-button style="color: #fff !important;" (click)="loadPassengers(currentPage - 1)" [disabled]="currentPage === 1">
+        Previous
+      </button>
+
+      <span style="margin: 0 8px; color: #fff !important;">Page</span>
+
+      <mat-form-field appearance="outline" style="width: 70px; margin: 0; color: #fff !important;">
+        <input matInput type="number" min="1" [max]="totalPages" [(ngModel)]="currentPage" name="gotoPage" (keyup.enter)="goToPage(currentPage)" placeholder="Page">
+      </mat-form-field>
+
+      <button mat-icon-button (click)="goToPage(currentPage)">
+        <mat-icon>arrow_forward</mat-icon>
+      </button>
+
+      <span style="margin: 0 8px; color: #fff !important;">of {{ totalPages }}</span>
+
+      <button mat-button style="color: #fff !important;" (click)="loadPassengers(currentPage + 1)" [disabled]="currentPage === totalPages">
+        Next
+      </button>
+
+      <span style="margin-left: 16px; color: #fff !important;">Total: {{ totalItems }}</span>
+    </div>
+
+    

@@ -13,7 +13,13 @@ export class VehicleService {
   // ✅ 1. Get vehicle by ID
   //https://dev.glaciersoft.in.net/driver/api/vehicles/{id}
   getVehicleById(id: string): Observable<any> {
-    return this.http.get(`${this.baseUrl}/vehicles/${id}`);
+    const accessToken = localStorage.getItem('accessToken');
+    console.log('Access Token:', accessToken); // Debug log
+    const headers = accessToken
+      ? { Authorization: `Bearer ${accessToken}` }
+      : undefined;
+    //return this.http.get(`${this.baseUrl}/vehicles/${id}`, { headers });
+    return this.http.get(`${this.baseUrl}/vehicles/${id}`, { headers });
   }
 
   // ✅ 2. Update vehicle details by ID

@@ -1,59 +1,19 @@
-<mat-card *ngIf="!isLoading && ride; else loadingOrError" class="ride-details-card">
+<mat-card *ngIf="!isLoading && passenger; else loadingOrError" class="passenger-details-card">
   <mat-card-header>
-    <mat-card-title>Ride Details</mat-card-title>
-    <mat-card-subtitle>Ride ID: <strong>{{ ride.rideId }}</strong></mat-card-subtitle>
+    <mat-card-title>Passenger Details</mat-card-title>
+    <mat-card-subtitle>ID: <strong>{{ passenger.id  }}</strong></mat-card-subtitle>
   </mat-card-header>
   <mat-card-content>
-    <div class="ride-details-grid">
-      <div class="ride-detail-row">
-        <span class="label">Driver:</span>
-        <span class="value">{{ ride.driverId }}</span>
-      </div>
-      <div class="ride-detail-row">
-        <span class="label">Passenger:</span>
-        <span class="value">{{ ride.passengerId }}</span>
-      </div>
-      <div class="ride-detail-row">
-        <span class="label">Pickup:</span>
-        <span class="value">{{ ride.pickupLocation?.address }}</span>
-      </div>
-      <div class="ride-detail-row">
-        <span class="label">Dropoff:</span>
-        <span class="value">{{ ride.dropoffLocation?.address }}</span>
-      </div>
-      <div class="ride-detail-row">
-        <span class="label">Status:</span>
-        <span class="value">{{ ride.status | titlecase }}</span>
-      </div>
-      <div class="ride-detail-row">
-        <span class="label">Fare:</span>
-        <span class="value">₹{{ ride.fare }}</span>
-      </div>
-      <div class="ride-detail-row">
-        <span class="label">Distance:</span>
-        <span class="value">{{ ride.distance }} km</span>
-      </div>
-      <div class="ride-detail-row">
-        <span class="label">Duration:</span>
-        <span class="value">{{ ride.duration }} min</span>
-      </div>
-      <div class="ride-detail-row">
-        <span class="label">Payment Status:</span>
-        <span class="value">{{ ride.paymentStatus }}</span>
-      </div>
-      <div class="ride-detail-row">
-        <span class="label">Rating:</span>
-        <span class="value">{{ ride.rating || 'N/A' }}</span>
-      </div>
-      <div class="ride-detail-row">
-        <span class="label">Created At:</span>
-        <span class="value">{{ ride.createdAt | date:'medium' }}</span>
-      </div>
-      <div class="ride-detail-row">
-        <span class="label">Updated At:</span>
-        <span class="value">{{ ride.updatedAt | date:'medium' }}</span>
-      </div>
+    <div class="passenger-details-list">
+      <div class="passenger-detail-row"><span class="label">Name:</span> <span class="value">{{ passenger.name }}</span></div>
+      <div class="passenger-detail-row"><span class="label">Email:</span> <span class="value">{{ passenger.email }}</span></div>
+      <div class="passenger-detail-row"><span class="label">Phone:</span> <span class="value">{{ passenger.phone }}</span></div>
+      <div class="passenger-detail-row"><span class="label">Status:</span> <span class="value">{{ passenger.isBanned ? 'Banned' : 'Active' }}</span></div>
+      <div class="passenger-detail-row"><span class="label">Total Rides:</span> <span class="value">{{ passenger.totalRides }}</span></div>
+      <div class="passenger-detail-row"><span class="label">Rating:</span> <span class="value">{{ passenger.rating }}</span></div>
+      <div class="passenger-detail-row"><span class="label">Joined At:</span> <span class="value">{{ passenger.createdAt | date:'medium' }}</span></div>
     </div>
+    
   </mat-card-content>
   <mat-card-actions>
     <button mat-raised-button color="primary" (click)="backToPassengers()">
@@ -62,6 +22,6 @@
   </mat-card-actions>
 </mat-card>
 <ng-template #loadingOrError>
-  <div *ngIf="isLoading">Loading ride details...</div>
+  <div *ngIf="isLoading">Loading passenger details...</div>
   <div *ngIf="!isLoading && errorMessage">{{ errorMessage }}</div>
 </ng-template>

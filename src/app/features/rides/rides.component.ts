@@ -97,14 +97,6 @@ return pages;
 
   openRideDetails: { [rideId: string]: boolean } = {};
 
-
-
-
-
-
-
-
-
   private loadRides(): void {
     this.rideService.getAllRides().subscribe(
       (data) => {

@@ -68,7 +68,8 @@ export class DriversComponent implements OnInit {
         if (data && Array.isArray(data.driver)) {
           this.drivers = data.driver;
           this.totalItems = data.totalCount || data.driver.length;
-          this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+          this.totalPages = Math.ceil((data.totalCount || data.driver.length || data.totalItems) / this.itemsPerPage);
+          
         } else {
           this.drivers = [];
           this.totalItems = 0;
@@ -77,6 +78,9 @@ export class DriversComponent implements OnInit {
       },
       error: (err:any) => {
         console.error('Error fetching drivers', err);
+        this.drivers = [];
+        this.totalItems = 0;
+        this.totalPages = 1;
       }
     });
   }

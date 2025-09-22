@@ -1,41 +1,64 @@
 .passenger-details-card {
-  max-width: 500px;
+  max-width: 600px;
   margin: 32px auto;
-}
-
-mat-card-title, mat-card-subtitle {
+  padding: 24px;
+  background: #222;
   color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
-mat-card {
-  background: #222 !important;
+mat-card-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #fff;
+  text-align: center;
+  width: 100%;
+}
+
+mat-card-subtitle {
+  color: #ccc;
+  font-size: 1rem;
+  margin-bottom: 8px;
+  text-align: center;
+  width: 100%;
+}
+
+.passenger-details-list {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 16px 24px;
+  margin-top: 16px;
+  align-items: center;
+  justify-items: center;
+}
+
+.passenger-detail-row {
+  display: contents;
 }
 
 .label {
   font-weight: 600;
   color: #fff;
   text-align: right;
+  justify-self: end;
 }
 
 .value {
   color: #fff;
   text-align: left;
+  justify-self: start;
 }
 
-.ride-details-card {
-  max-width: 600px;
-  margin: 32px auto;
-  padding: 24px;
-  background: #fff;
+img.passenger-details-photo {
+  border-radius: 8px;
+  margin-top: 8px;
+  max-width: 120px;
+  height: auto;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.10);
 }
 
-.ride-details-grid {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 12px 24px;
-  margin-top: 16px;
-}
-
-.ride-detail-row {
-  display: contents;
+mat-card-actions {
+  display: flex;
+  justify-content: left;
 }

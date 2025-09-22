@@ -74,6 +74,14 @@ export const routes: Routes = [
       {
         path: 'drivers/:driverId',
         loadComponent: () => import('./features/drivers/driver-details.component').then(c => c.DriverDetailsComponent)
+      },
+      {
+        path: 'vehicles/:vehicleId',
+        loadComponent: () => import('./features/vehicles/vehicle-details.component').then(c => c.VehicleDetailsComponent)
+      },
+      {
+        path: 'rides/:rideId',
+        loadComponent: () => import('./features/rides/ride-details.component').then(c => c.RideDetailsComponent)
       }
     ]
   },
@@ -93,7 +101,5 @@ export const routes: Routes = [
     path: 'driver-documents',
     loadComponent: () => import('./features/driver-documents/driver-documents.component').then(c => c.DriverDocumentsComponent)
   },
-  { path: 'rides', component: RidesComponent },
-  { path: 'rides/:rideId', component: RideDetailsComponent }, // 👈 detail page
   { path: '', redirectTo: 'rides', pathMatch: 'full' }
 ];

@@ -5,7 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Passenger } from '../../core/models/ride.model';
-import { PassengerService } from '../../core/services/passenger.service';
+import { PassengersService } from '../../core/services/passengers.service';
 import { RideService } from '../../core/services/rides.service';
 
 @Component({
@@ -25,23 +25,20 @@ export class PassengerDetailsComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private passengerService: PassengerService,
+    private passengersService: PassengersService,
     private rideService: RideService
   ) {}
 
   ngOnInit(): void {
     const passengerId = this.route.snapshot.paramMap.get('passengerId');
     if (passengerId) {
-      this.rideService.getRidesByPassenger(passengerId).subscribe({
+      this.passengersService.getPassengerById(passengerId).subscribe({
         next: (data: any) => {
-          // Debug: log the API response
-          console.log('getRidesByPassenger response:', data);
-          this.ride = Array.isArray(data.rides) ? data.rides[0] : null;
+          this.passenger = data.passenger || data;
           this.isLoading = false;
-          if (!this.ride) this.errorMessage = 'No rides found for this passenger.';
         },
         error: (err: any) => {
-          this.errorMessage = 'Failed to load ride details for this passenger';
+          this.errorMessage = 'Failed to load passenger details';
           this.isLoading = false;
           console.error(err);
         }

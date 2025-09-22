@@ -1,29 +1,68 @@
-/*.ride-details-card {
-  background: #23272f;
-  color: #fff;
-  max-width: 600px;
+.vehicle-details-card {
+  max-width: 500px;
   margin: 32px auto;
+  padding: 24px;
+  background: #000;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
-.ride-details-grid {
+
+mat-card-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+mat-card-subtitle {
+  color: #fff;
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+mat-card-content p {
+  margin: 8px 0;
+  color: #fff;
+}
+
+.vehicle-details-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+  margin-top: 16px;
 }
-.ride-detail-row {
+
+.vehicle-detail-row {
   display: flex;
-  justify-content: space-between;
-  padding: 4px 0;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 16px;
 }
+
 .label {
   font-weight: 600;
-  color: #90caf9;
+  color: #fff;
+  min-width: 160px;
   text-align: right;
 }
+
 .value {
   color: #fff;
-  
-}*/
-.ride-details-card {
+  text-align: left;
+}
+
+img.vehicle-details-photo {
+  border-radius: 8px;
+  margin-top: 8px;
+  max-width: 120px;
+  height: auto;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+mat-card-actions {
+  display: flex;
+  justify-content: left;
+}
+/*.passenger-details-card {
     max-width: 500px;
     margin: 32px auto;
     padding: 24px;
@@ -68,18 +107,18 @@ img {
     text-align: left;
 }
 
-.ride-details-grid {
+.passenger-details-grid {
     display: grid;
     grid-template-columns: 1fr 2fr;
     gap: 12px 24px;
     margin-top: 16px;
 }
 
-.ride-detail-row {
+.passenger-detail-row {
     display: contents;
 }
 
-.ride-details-card {
+.driver-details-card {
   max-width: 600px;
   margin: 32px auto;
   padding: 24px;
@@ -87,7 +126,7 @@ img {
   color: #fff;
 }
 
-.ride-details-grid {
+.driver-details-grid {
   display: grid;
   grid-template-columns: 1fr 2fr;
   gap: 16px 24px;
@@ -96,7 +135,7 @@ img {
   justify-items: center;
 }
 
-.ride-detail-row {
+.driver-detail-row {
   display: contents;
 }
 
@@ -121,10 +160,11 @@ mat-card-title, mat-card-subtitle {
 
 mat-card-actions {
   display: flex;
-  justify-content: left;
+  justify-content: center;
 }
 
 .driver-details-photo {
   border-radius: 8px;
   margin-top: 8px;
 }
+*/
