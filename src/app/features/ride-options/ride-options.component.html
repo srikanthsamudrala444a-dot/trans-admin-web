@@ -1,0 +1,210 @@
+<div class="ride-options-container">
+  <form
+    [formGroup]="rideOptionsForm"
+    class="ride-options-form mat-elevation-z4"
+    (ngSubmit)="submitOptionsForm()"
+  >
+    <div class="form-sections">
+      <!-- Ride Details Section -->
+      <div class="form-section">
+        <h3 class="section-title">Ride Details</h3>
+
+        <div class="form-row">
+          <!-- Ride Type -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Ride Type</mat-label>
+            <input
+              matInput
+              formControlName="rideType"
+              placeholder="Ex. Standard Ride"
+            />
+            @if (rideOptionsForm.get('rideType')?.invalid &&
+            rideOptionsForm.get('rideType')?.touched) {
+            <mat-error>
+              @if (rideOptionsForm.get('rideType')?.errors?.['required']) { Ride
+              Type is required }
+            </mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Vehicle Category -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Vehicle Category</mat-label>
+            <mat-select formControlName="vehicleCategory">
+              <mat-select-trigger>
+                {{ rideOptionsForm.get("vehicleCategory")?.value }}
+              </mat-select-trigger>
+              <mat-option value="economy">Economy</mat-option>
+              <mat-option value="standard">Standard</mat-option>
+              <mat-option value="luxury">Luxury</mat-option>
+              <mat-option value="suv">SUV</mat-option>
+              <mat-option value="van">Van</mat-option>
+            </mat-select>
+            @if (rideOptionsForm.get('vehicleCategory')?.invalid &&
+            rideOptionsForm.get('vehicleCategory')?.touched) {
+            <mat-error>
+              @if (rideOptionsForm.get('vehicleCategory')?.errors?.['required'])
+              { Vehicle Category is required }
+            </mat-error>
+            }
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Pricing Section -->
+      <div class="form-section">
+        <h3 class="section-title">Pricing Configuration</h3>
+
+        <div class="form-row">
+          <!-- Base Fare -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>$Base Fare</mat-label>
+            <input
+              matInput
+              type="number"
+              min="0"
+              step="0.01"
+              formControlName="baseFare"
+              placeholder="20.00"
+            />
+            <span matTextPrefix></span>
+            @if (rideOptionsForm.get('baseFare')?.invalid &&
+            rideOptionsForm.get('baseFare')?.touched) {
+            <mat-error>
+              @if (rideOptionsForm.get('baseFare')?.errors?.['required']) { Base
+              Fare is required } @else if
+              (rideOptionsForm.get('baseFare')?.errors?.['min']) { Base Fare
+              must be greater than 0 }
+            </mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Per Km -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Rate Per Kilometer</mat-label>
+            <input
+              matInput
+              type="number"
+              min="0"
+              step="0.01"
+              formControlName="perKm"
+              placeholder="1.50"
+            />
+            <span matTextPrefix>$</span>
+            <span matTextSuffix>/km</span>
+            @if (rideOptionsForm.get('perKm')?.invalid &&
+            rideOptionsForm.get('perKm')?.touched) {
+            <mat-error>
+              @if (rideOptionsForm.get('perKm')?.errors?.['required']) { Per Km
+              rate is required } @else if
+              (rideOptionsForm.get('perKm')?.errors?.['min']) { Per Km rate must
+              be greater than 0 }
+            </mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <!-- Per Min -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Rate Per Minute</mat-label>
+            <input
+              matInput
+              type="number"
+              min="0"
+              step="0.01"
+              formControlName="perMin"
+              placeholder="0.25"
+            />
+            <span matTextPrefix>$</span>
+            <span matTextSuffix>/min</span>
+            @if (rideOptionsForm.get('perMin')?.invalid &&
+            rideOptionsForm.get('perMin')?.touched) {
+            <mat-error>
+              @if (rideOptionsForm.get('perMin')?.errors?.['required']) { Per
+              Minute rate is required } @else if
+              (rideOptionsForm.get('perMin')?.errors?.['min']) { Per Minute rate
+              must be greater than 0 }
+            </mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Seat Capacity -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Seat Capacity</mat-label>
+            <input
+              matInput
+              type="number"
+              min="1"
+              max="20"
+              formControlName="seatCapacity"
+              placeholder="4"
+            />
+            <span matTextSuffix>seats</span>
+            @if (rideOptionsForm.get('seatCapacity')?.invalid &&
+            rideOptionsForm.get('seatCapacity')?.touched) {
+            <mat-error>
+              @if (rideOptionsForm.get('seatCapacity')?.errors?.['required']) {
+              Seat Capacity is required } @else if
+              (rideOptionsForm.get('seatCapacity')?.errors?.['min']) { Minimum 1
+              seat required } @else if
+              (rideOptionsForm.get('seatCapacity')?.errors?.['max']) { Maximum
+              20 seats allowed }
+            </mat-error>
+            }
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Vehicle Details Section -->
+      <div class="form-section">
+        <h3 class="section-title">Vehicle Appearance</h3>
+
+        <!-- Icon URL -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Vehicle Icon URL</mat-label>
+          <input
+            matInput
+            type="url"
+            formControlName="iconUrl"
+            placeholder="https://example.com/vehicle-icon.svg"
+          />
+          <mat-hint> Provide a URL to an SVG or PNG icon </mat-hint>
+          @if (rideOptionsForm.get('iconUrl')?.invalid &&
+          rideOptionsForm.get('iconUrl')?.touched) {
+          <mat-error>
+            @if (rideOptionsForm.get('iconUrl')?.errors?.['required']) { Icon
+            URL is required } @else if
+            (rideOptionsForm.get('iconUrl')?.errors?.['url']) { Please enter a
+            valid URL }
+          </mat-error>
+          }
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="form-actions">
+      <button
+        mat-stroked-button
+        type="button"
+        class="cancel-btn"
+        (click)="resetForm()"
+      >
+        Reset Form
+      </button>
+
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        class="submit-btn"
+        [disabled]="rideOptionsForm.invalid || isSubmitting"
+      >
+        @if (isSubmitting) {
+        <mat-spinner diameter="20" class="spinner"></mat-spinner>
+        Saving... } @else { Save Ride Option }
+      </button>
+    </div>
+  </form>
+</div>

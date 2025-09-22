@@ -3,7 +3,7 @@ import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class RideService {
   // Remove trailing slash
@@ -19,7 +19,6 @@ export class RideService {
       ? new HttpHeaders({ Authorization: `Bearer ${accessToken}` })
       : undefined;
     return this.http.get(`${this.baseUrl}/v1/rides/all`, { headers });
-
   }
   getRidesByQuery(queryData: any): Observable<any> {
     const accessToken = localStorage.getItem('accessToken');
@@ -27,7 +26,9 @@ export class RideService {
     const headers = accessToken
       ? new HttpHeaders({ Authorization: `Bearer ${accessToken}` })
       : undefined;
-    return this.http.post(`${this.baseUrl}/v1/rides/query`, queryData, { headers });
+    return this.http.post(`${this.baseUrl}/v1/rides/query`, queryData, {
+      headers,
+    });
   }
 
   // ✅ 2. Get ride by ID
@@ -44,7 +45,7 @@ export class RideService {
   createRide(rideData: any): Observable<any> {
     return this.http.post(`${this.baseUrl}/rides/create`, rideData);
   }
-  
+
   // ✅ 4. Update ride status (pending → accepted → completed/cancelled)
   updateRideStatus(rideId: string, status: string): Observable<any> {
     return this.http.put(`${this.baseUrl}/rides/${rideId}/status`, { status });
@@ -52,7 +53,9 @@ export class RideService {
 
   // ✅ 5. Assign a driver to a ride
   assignDriver(rideId: string, driverId: string): Observable<any> {
-    return this.http.put(`${this.baseUrl}/rides/${rideId}/assign`, { driverId });
+    return this.http.put(`${this.baseUrl}/rides/${rideId}/assign`, {
+      driverId,
+    });
   }
 
   // ✅ 6. Get rides by passenger (customer)
@@ -62,7 +65,10 @@ export class RideService {
     const headers = accessToken
       ? new HttpHeaders({ Authorization: `Bearer ${accessToken}` })
       : undefined;
-    return this.http.get(`${this.baseUrl}/rides/history/passenger/${passengerId}`, { headers });
+    return this.http.get(
+      `${this.baseUrl}/rides/history/passenger/${passengerId}`,
+      { headers }
+    );
     //
     //return this.http.get(`${this.baseUrl}/rides/history/passenger/${passengerId}`);
   }
@@ -91,5 +97,9 @@ export class RideService {
   getRideHistory(userId: string): Observable<any> {
     return this.http.get(`${this.baseUrl}/rides/history/${userId}`);
   }
-  
+
+  // ✅ 11. Create ride options
+  createRideOptions(rideData: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/rides/ride-options`, rideData);
+  }
 }
