@@ -8,16 +8,19 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { VehicleService } from '../../core/services/vehicles.service';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
+import { AddVehicleDialogComponent } from './add-vehicle-dialog.component';
 @Component({
   selector: 'app-vehicles',
   standalone: true,
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     MatTableModule,
     MatCardModule,
     MatButtonModule,
@@ -26,6 +29,7 @@ import { RouterModule } from '@angular/router';
     MatInputModule,
     MatSelectModule,
     MatFormFieldModule,
+    MatDialogModule,
     MatProgressSpinnerModule,
     RouterModule
   ],
@@ -57,7 +61,10 @@ export class VehiclesComponent implements OnInit {
   status: string = 'all';
   search: string = '';
 
-  constructor(private vehicleService: VehicleService) {}
+  constructor(
+    private vehicleService: VehicleService,
+    private dialog: MatDialog
+  ) {}
 
   ngOnInit(): void {
     this.loadVehicles();
@@ -140,6 +147,73 @@ export class VehiclesComponent implements OnInit {
       pages.push(this.totalPages);
     }
     return pages;
+  }
+
+  openAddVehicleDialog(): void {
+    const dialogRef = this.dialog.open(AddVehicleDialogComponent, {
+      width: '800px',
+      maxHeight: '90vh',
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.addNewVehicle(result);
+      }
+    });
+  }
+
+  addNewVehicle(vehicleData: any): void {
+    console.log('Attempting to register vehicle with data:', vehicleData);
+    
+    this.vehicleService.registerVehicle(vehicleData).subscribe({
+      next: (response: any) => {
+        console.log('New vehicle registered successfully:', response);
+        alert('Vehicle registered successfully!');
+        
+        // Reload the vehicles list to show the new vehicle
+        this.loadVehicles(this.currentPage);
+      },
+      error: (err: any) => {
+        console.error('Error registering vehicle:', err);
+        console.error('Full error details:', {
+          status: err.status,
+          statusText: err.statusText,
+          error: err.error,
+          message: err.message,
+          url: err.url
+        });
+        
+        // Log the complete error response body
+        if (err.error) {
+          console.error('API Error Response Body:', JSON.stringify(err.error, null, 2));
+        }
+        
+        // Show detailed error message
+        let errorMessage = 'Failed to register vehicle.';
+        if (err.error && err.error.messages && err.error.messages.length > 0) {
+          const message = err.error.messages[0];
+          if (message.key === 'Driver Id Not Exists') {
+            const driverIdParam = message.parameters[0];
+            if (driverIdParam === null || driverIdParam === 'null') {
+              errorMessage = `Driver ID cannot be null. Please leave the Driver ID field completely empty or enter a valid driver ID.`;
+            } else {
+              errorMessage = `Driver ID "${driverIdParam}" does not exist. Please leave the Driver ID field empty or enter a valid driver ID.`;
+            }
+          } else {
+            errorMessage = message.key;
+          }
+        } else if (err.error && err.error.message) {
+          errorMessage = err.error.message;
+        } else if (err.error && typeof err.error === 'string') {
+          errorMessage = err.error;
+        } else if (err.message) {
+          errorMessage = err.message;
+        }
+        
+        alert(`Registration failed: ${errorMessage}`);
+      }
+    });
   }
 
 }

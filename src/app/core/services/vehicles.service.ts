@@ -37,7 +37,14 @@ export class VehicleService {
   // ✅ 4. Register a new vehicle
   //https://dev.glaciersoft.in.net/driver/api/vehicles
   registerVehicle(vehicleData: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}/vehicles`, vehicleData);
+    const accessToken = localStorage.getItem('accessToken');
+    console.log('Access Token:', accessToken); // Debug log
+    const headers = accessToken
+      ? { Authorization: `Bearer ${accessToken}` }
+      : undefined;
+    //return this.http.post(`${this.baseUrl}/vehicles`, vehicleData, { headers });
+    return this.http.post(`${this.baseUrl}/vehicles`, vehicleData, { headers });
+    //return this.http.post(`${this.baseUrl}/vehicles`, vehicleData);
   }
 
   // ✅ 5. Query vehicles (advanced search/filter)
