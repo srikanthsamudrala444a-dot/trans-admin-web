@@ -7,7 +7,7 @@
     <div class="form-sections">
       <!-- Ride Details Section -->
       <div class="form-section">
-        <h3 class="section-title">Ride Details</h3>
+        <h3 class="section-title">Ride Options</h3>
 
         <div class="form-row">
           <!-- Ride Type -->
@@ -30,16 +30,19 @@
           <!-- Vehicle Category -->
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>Vehicle Category</mat-label>
-            <mat-select formControlName="vehicleCategory">
-              <mat-select-trigger>
-                {{ rideOptionsForm.get("vehicleCategory")?.value }}
-              </mat-select-trigger>
-              <mat-option value="economy">Economy</mat-option>
-              <mat-option value="standard">Standard</mat-option>
-              <mat-option value="luxury">Luxury</mat-option>
-              <mat-option value="suv">SUV</mat-option>
-              <mat-option value="van">Van</mat-option>
-            </mat-select>
+            <input
+              type="text"
+              matInput
+              [matAutocomplete]="auto"
+              formControlName="vehicleCategory"
+            />
+
+            <mat-autocomplete #auto="matAutocomplete">
+              @for (option of vehicleCategories; track option.value) {
+              <mat-option [value]="option.value">{{ option.label }}</mat-option>
+              }
+            </mat-autocomplete>
+
             @if (rideOptionsForm.get('vehicleCategory')?.invalid &&
             rideOptionsForm.get('vehicleCategory')?.touched) {
             <mat-error>

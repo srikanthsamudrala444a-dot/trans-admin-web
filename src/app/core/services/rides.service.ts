@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class RideService {
   // Remove trailing slash
-  private baseUrl = 'https://dev.glaciersoft.in.net/ride/api';
+  private baseUrl = 'https://dev.glaciersoft.in.net/ride/api/v1';
 
   constructor(private http: HttpClient) {}
 
@@ -100,6 +100,28 @@ export class RideService {
 
   // ✅ 11. Create ride options
   createRideOptions(rideData: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}/rides/ride-options`, rideData);
+    const accessToken = localStorage.getItem('accessToken');
+    console.log('Access Token:', accessToken);
+    const headers = accessToken
+      ? new HttpHeaders({ Authorization: `Bearer ${accessToken}` })
+      : undefined;
+    console.log(`${this.baseUrl}/ride/options/all`);
+    return this.http.post(`${this.baseUrl}/ride/options`, rideData, {
+      headers,
+    });
+  }
+
+  // ✅ 12. Get All Ride Options
+  getAllRideOptions(): Observable<any> {
+    const accessToken = localStorage.getItem('accessToken');
+    console.log('Access Token:', accessToken);
+    const headers = accessToken
+      ? new HttpHeaders({ Authorization: `Bearer ${accessToken}` })
+      : undefined;
+    console.log(`${this.baseUrl}/ride/options/all`);
+
+    return this.http.get(`${this.baseUrl}/ride/options/all`, {
+      headers,
+    });
   }
 }

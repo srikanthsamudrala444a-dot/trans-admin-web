@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {
   Validators,
   ReactiveFormsModule,
@@ -13,6 +13,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RideService } from '../../core/services/rides.service';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatOptionModule } from '@angular/material/core';
+import { RideOptions, VehicleCategory } from '../../core/models/ride.model';
 
 @Component({
   selector: 'app-ride-options',
@@ -24,6 +27,8 @@ import { RideService } from '../../core/services/rides.service';
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatAutocompleteModule,
+    MatOptionModule,
   ],
   templateUrl: './ride-options.component.html',
   styleUrl: './ride-options.component.scss',
@@ -34,6 +39,14 @@ export class RideOptionsComponent {
   private readonly _snackBar = inject(MatSnackBar);
 
   isSubmitting = false;
+  vehicleCategories = [
+    { value: VehicleCategory.BIKE, label: 'Bike' },
+    { value: VehicleCategory.CAB, label: 'Cab' },
+    { value: VehicleCategory.AUTO, label: 'Auto Rickshaw' },
+    { value: VehicleCategory.BUS, label: 'Bus' },
+    { value: VehicleCategory.TRACTOR, label: 'Tractor' },
+    { value: VehicleCategory.TRUCK, label: 'Truck' },
+  ];
 
   rideOptionsForm: FormGroup = this._formBuilder.group({
     rideType: ['', [Validators.required, Validators.minLength(2)]],
@@ -69,15 +82,6 @@ export class RideOptionsComponent {
     iconUrl: ['', [Validators.required, this.urlValidator]],
   });
 
-  // Custom URL validator
-  urlValidator(control: any) {
-    const url = control.value;
-    if (!url) return null;
-
-    const urlPattern = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
-    return urlPattern.test(url) ? null : { url: true };
-  }
-
   submitOptionsForm() {
     if (this.rideOptionsForm.valid) {
       this.isSubmitting = true;
@@ -90,6 +94,12 @@ export class RideOptionsComponent {
           next: (res) => {
             console.log('Ride submit res:', res);
             this.isSubmitting = false;
+            this._snackBar.open('Option added successfully!', 'Close', {
+              duration: 3000,
+              panelClass: ['success-snackbar'],
+              horizontalPosition: 'right',
+              verticalPosition: 'top',
+            });
 
             // Reset form after successful submission
             this.resetForm();
@@ -113,13 +123,24 @@ export class RideOptionsComponent {
     }
   }
 
+  // Custom URL validator
+  urlValidator(control: any) {
+    const url = control.value;
+    if (!url) return null;
+
+    const urlPattern = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
+    return urlPattern.test(url) ? null : { url: true };
+  }
+
   resetForm() {
     this.rideOptionsForm.reset();
     this.isSubmitting = false;
 
     // Reset form validation state
     Object.keys(this.rideOptionsForm.controls).forEach((key) => {
-      this.rideOptionsForm.get(key)?.setErrors(null);
+      this.rideOptionsForm.get(key)?.setErrors({ required: true });
+      this.rideOptionsForm.get(key)?.markAsPristine();
+      this.rideOptionsForm.get(key)?.markAsUntouched();
     });
 
     this._snackBar.open('Form has been reset', 'Close', {

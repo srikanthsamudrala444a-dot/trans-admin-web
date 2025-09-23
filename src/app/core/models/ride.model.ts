@@ -32,7 +32,7 @@ export interface Driver {
   email: string;
   contactNumber: string;
   licenseNumber: string;
-  status: 'online' | 'offline' | 'busy'|'active'|'inactive';
+  status: 'online' | 'offline' | 'busy' | 'active' | 'inactive';
   rating: number;
   totalRides: number;
   earnings: number;
@@ -61,4 +61,23 @@ export interface Document {
   fileUrl: string;
   status: 'pending' | 'approved' | 'rejected';
   uploadedAt: Date;
+}
+
+export interface RideOptions {
+  id: string;
+  type: VehicleCategory;
+  baseFare: number;
+  perKm: number;
+  perMin: number;
+  seatCapacity: number;
+  iconUrl: string;
+}
+
+export enum VehicleCategory {
+  BIKE = 'BIKE',
+  CAB = 'CAB',
+  AUTO = 'AUTO',
+  BUS = 'BUS',
+  TRACTOR = 'TRACTOR',
+  TRUCK = 'TRUCK',
 }
