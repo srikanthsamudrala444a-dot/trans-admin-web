@@ -10,12 +10,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { Driver } from '../../core/models/ride.model';
 import { DriverService } from '../../core/services/driver.service';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
+import { AddDriverDialogComponent } from './add-driver-dialog.component';
 @Component({
   selector: 'app-drivers',
   standalone: true,
@@ -30,7 +32,9 @@ import { RouterModule } from '@angular/router';
     MatSelectModule,
     MatFormFieldModule,
     MatBadgeModule,
+    MatDialogModule,
     FormsModule,
+    ReactiveFormsModule,
     RouterModule
   ],
   templateUrl: './drivers.component.html',
@@ -49,7 +53,12 @@ export class DriversComponent implements OnInit {
   offlineDrivers = 0;
   pendingApprovals = 0;
 
-  constructor(private driverService: DriverService, private http: HttpClient) {}
+  constructor(
+    private driverService: DriverService, 
+    private http: HttpClient,
+    private dialog: MatDialog,
+    private fb: FormBuilder
+  ) {}
 
   selectedFile: File | null = null;
   selectedDocumentType: string = '';
@@ -146,15 +155,58 @@ export class DriversComponent implements OnInit {
       }
     });
   }
-  addNewDriver(newDriverData: Omit<Driver, 'id' | 'createdAt' | 'updatedAt'>): void {
+  addNewDriver(newDriverData: any): void {
+    console.log('Attempting to register driver with data:', newDriverData);
+    
     this.driverService.registerDriver(newDriverData).subscribe({
-      next: (createdDriver: Driver) => {
-        console.log('New driver registered:', createdDriver);
-        this.drivers.push(createdDriver); 
+      next: (response: any) => {
+        console.log('New driver registered successfully:', response);
+        // Show success message (you can add a snackbar here if needed)
+        alert('Driver registered successfully!');
+        
+        // Reload the drivers list to show the new driver
+        this.loadDrivers(this.currentPage);
         this.calculateStats();
       },
       error: (err: any) => {
         console.error('Error registering driver:', err);
+        console.error('Full error details:', {
+          status: err.status,
+          statusText: err.statusText,
+          error: err.error,
+          message: err.message,
+          url: err.url
+        });
+        
+        // Log the complete error response body
+        if (err.error) {
+          console.error('API Error Response Body:', JSON.stringify(err.error, null, 2));
+        }
+        
+        // Show detailed error message
+        let errorMessage = 'Failed to register driver.';
+        if (err.error && err.error.message) {
+          errorMessage = err.error.message;
+        } else if (err.error && typeof err.error === 'string') {
+          errorMessage = err.error;
+        } else if (err.message) {
+          errorMessage = err.message;
+        }
+        
+        alert(`Registration failed: ${errorMessage}`);
+      }
+    });
+  }
+
+  openAddDriverDialog(): void {
+    const dialogRef = this.dialog.open(AddDriverDialogComponent, {
+      width: '500px',
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.addNewDriver(result);
       }
     });
   }

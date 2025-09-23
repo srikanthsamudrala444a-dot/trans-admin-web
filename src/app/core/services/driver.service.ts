@@ -54,7 +54,19 @@ export class DriverService {
   }
 //https://dev.glaciersoft.in.net/driver/api/v1/driver/register
   registerDriver(driverData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/v1/driver/register`, driverData);
+    console.log('Sending driver data to API:', driverData); // Debug log
+    
+    const accessToken = localStorage.getItem('accessToken');
+    const headers = accessToken
+      ? { Authorization: `Bearer ${accessToken}` }
+      : undefined;
+
+    let options: any = {};
+    if (headers) {
+      options.headers = headers;
+    }
+    
+    return this.http.post(`${this.apiUrl}/v1/driver/register`, driverData, options);
   }
 //https://dev.glaciersoft.in.net/driver/api/v1/plan/create
   createDriver(driverData: any): Observable<any> {
