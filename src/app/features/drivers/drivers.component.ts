@@ -1,4 +1,3 @@
-import { NgModule } from '@angular/core';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
@@ -13,8 +12,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { Driver } from '../../core/models/ride.model';
 import { DriverService } from '../../core/services/driver.service';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { HttpErrorResponse } from '@angular/common/http';
+import { FormsModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { AddDriverDialogComponent } from './add-driver-dialog.component';
@@ -35,26 +33,40 @@ import { AddDriverDialogComponent } from './add-driver-dialog.component';
     MatDialogModule,
     FormsModule,
     ReactiveFormsModule,
-    RouterModule
+    RouterModule,
   ],
   templateUrl: './drivers.component.html',
-  styleUrls: ['./drivers.component.scss']
+  styleUrls: ['./drivers.component.scss'],
 })
 export class DriversComponent implements OnInit {
-  displayedColumns = ['name', 'phone', 'status', 'rating', 'documents', 'earnings', 'actions'];
-  
+  // Problems to be fixed:
+  // 1 - Fix arrow forward + Next button conditions
+  // 2 - Fix Limit
+
+  displayedColumns = [
+    'name',
+    'phone',
+    'status',
+    'rating',
+    'documents',
+    'earnings',
+    'actions',
+  ];
+
   drivers: Driver[] = [];
   currentPage: number = 1;
   totalPages: number = 1;
   totalItems: number = 0;
   itemsPerPage: number = 10;
+  searchTerm: string = '';
+  totalNumberOfRecords: number = 0;
 
   onlineDrivers = 0;
   offlineDrivers = 0;
   pendingApprovals = 0;
 
   constructor(
-    private driverService: DriverService, 
+    private driverService: DriverService,
     private http: HttpClient,
     private dialog: MatDialog,
     private fb: FormBuilder
@@ -66,38 +78,54 @@ export class DriversComponent implements OnInit {
   uploadError: string = '';
 
   ngOnInit(): void {
-    this.loadDrivers();  // initial load
-    //this.loadDriversByQuery("",this.currentPage);
+    this.loadDrivers(); // initial load
   }
 
-  loadDrivers(page: number = 1): void {
+  loadDrivers(page: number = 1, itemsPerPage: number = 10): void {
     this.currentPage = page;
-    this.driverService.getAllDrivers({ pageNumber: page, itemsPerPage: this.itemsPerPage }).subscribe({
-      next: (data: any) => {
-        if (data && Array.isArray(data.driver)) {
-          this.drivers = data.driver;
-          this.totalItems = data.totalCount || data.driver.length;
-          this.totalPages = Math.ceil((data.totalCount || data.driver.length || data.totalItems) / this.itemsPerPage);
-          
-        } else {
+    this.itemsPerPage = itemsPerPage;
+    this.driverService
+      .getDriversByQuery(this.currentPage, this.itemsPerPage)
+      .subscribe({
+        next: (data: any) => {
+          console.log('Drivers data:', data);
+
+          if (data && Array.isArray(data.driver)) {
+            this.totalNumberOfRecords = data.pagination.totalNumberOfRecords;
+            this.drivers = data.driver;
+            this.totalItems = data.totalCount || data.driver.length;
+            this.totalPages = Math.ceil(
+              (data.totalCount || data.driver.length || data.totalItems) /
+                this.itemsPerPage
+            );
+          } else {
+            this.drivers = [];
+            this.totalItems = 0;
+            this.totalPages = 1;
+          }
+        },
+        error: (err: any) => {
+          console.error('Error fetching drivers', err);
           this.drivers = [];
           this.totalItems = 0;
           this.totalPages = 1;
-        }
-      },
-      error: (err:any) => {
-        console.error('Error fetching drivers', err);
-        this.drivers = [];
-        this.totalItems = 0;
-        this.totalPages = 1;
-      }
-    });
+        },
+      });
   }
 
-  goToPage(page: number | string): void {
-    if (typeof page === 'number' && page >= 1 && page <= this.totalPages) {
-      this.loadDrivers(page);
+  goToPage(page: number): void {
+    console.log('going to page:', page);
+
+    // && page >= 1 && page <= this.totalPages
+    if (typeof page === 'number') {
+      this.loadDrivers(page, this.itemsPerPage);
     }
+  }
+
+  onItemsPerPageChange() {
+    this.currentPage = 1;
+    console.log('items per page', this.itemsPerPage);
+    this.loadDrivers(this.currentPage, this.itemsPerPage);
   }
 
   onFileSelected(event: Event): void {
@@ -112,15 +140,21 @@ export class DriversComponent implements OnInit {
       this.uploadError = 'Please select a file and document type.';
       return;
     }
-    this.driverService.uploadDriverDocument(driverId, this.selectedDocumentType, this.selectedFile).subscribe({
-      next: (response: any) => {
-        this.uploadMessage = 'Document uploaded successfully!';
-        this.loadDrivers(); 
-      },
-      error: (err: { message: any; }) => {
-        this.uploadError = `Upload failed: ${err.message || 'Unknown error'}`;
-      }
-    });
+    this.driverService
+      .uploadDriverDocument(
+        driverId,
+        this.selectedDocumentType,
+        this.selectedFile
+      )
+      .subscribe({
+        next: (response: any) => {
+          this.uploadMessage = 'Document uploaded successfully!';
+          this.loadDrivers();
+        },
+        error: (err: { message: any }) => {
+          this.uploadError = `Upload failed: ${err.message || 'Unknown error'}`;
+        },
+      });
   }
 
   getDriverDocuments(driverId: string): void {
@@ -130,7 +164,7 @@ export class DriversComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('Error fetching documents:', err);
-      }
+      },
     });
   }
 
@@ -142,28 +176,31 @@ export class DriversComponent implements OnInit {
       newStatus = 'online';
     }
     this.driverService.updateAvailability(driver.id, newStatus).subscribe({
-      next: (updatedDriver: { id: string; status: string; }) => {
+      next: (updatedDriver: { id: string; status: string }) => {
         console.log('Driver status updated:', updatedDriver);
-        const index = this.drivers.findIndex(d => d.id === updatedDriver.id);
+        const index = this.drivers.findIndex((d) => d.id === updatedDriver.id);
         if (index !== -1) {
-          this.drivers[index].status = updatedDriver.status as 'online' | 'offline' | 'busy';
-          this.calculateStats(); 
+          this.drivers[index].status = updatedDriver.status as
+            | 'online'
+            | 'offline'
+            | 'busy';
+          this.calculateStats();
         }
       },
       error: (err: any) => {
         console.error('Error updating driver status:', err);
-      }
+      },
     });
   }
   addNewDriver(newDriverData: any): void {
     console.log('Attempting to register driver with data:', newDriverData);
-    
+
     this.driverService.registerDriver(newDriverData).subscribe({
       next: (response: any) => {
         console.log('New driver registered successfully:', response);
         // Show success message (you can add a snackbar here if needed)
         alert('Driver registered successfully!');
-        
+
         // Reload the drivers list to show the new driver
         this.loadDrivers(this.currentPage);
         this.calculateStats();
@@ -175,14 +212,17 @@ export class DriversComponent implements OnInit {
           statusText: err.statusText,
           error: err.error,
           message: err.message,
-          url: err.url
+          url: err.url,
         });
-        
+
         // Log the complete error response body
         if (err.error) {
-          console.error('API Error Response Body:', JSON.stringify(err.error, null, 2));
+          console.error(
+            'API Error Response Body:',
+            JSON.stringify(err.error, null, 2)
+          );
         }
-        
+
         // Show detailed error message
         let errorMessage = 'Failed to register driver.';
         if (err.error && err.error.message) {
@@ -192,19 +232,19 @@ export class DriversComponent implements OnInit {
         } else if (err.message) {
           errorMessage = err.message;
         }
-        
+
         alert(`Registration failed: ${errorMessage}`);
-      }
+      },
     });
   }
 
   openAddDriverDialog(): void {
     const dialogRef = this.dialog.open(AddDriverDialogComponent, {
       width: '500px',
-      data: {}
+      data: {},
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.addNewDriver(result);
       }
@@ -215,7 +255,10 @@ export class DriversComponent implements OnInit {
   getPageNumbers(): (number | string)[] {
     const pages: (number | string)[] = [];
     const maxPagesToShow = 5;
-    let startPage = Math.max(1, this.currentPage - Math.floor(maxPagesToShow / 2));
+    let startPage = Math.max(
+      1,
+      this.currentPage - Math.floor(maxPagesToShow / 2)
+    );
     let endPage = startPage + maxPagesToShow - 1;
     if (endPage > this.totalPages) {
       endPage = this.totalPages;
@@ -239,9 +282,15 @@ export class DriversComponent implements OnInit {
     return pages;
   }
 
-    private calculateStats(): void {
-    this.onlineDrivers = this.drivers.filter(d => d.status === 'online').length;
-    this.offlineDrivers = this.drivers.filter(d => d.status === 'offline').length;
-    this.pendingApprovals = this.drivers.filter(d => d.documentsStatus === 'pending').length;
+  private calculateStats(): void {
+    this.onlineDrivers = this.drivers.filter(
+      (d) => d.status === 'online'
+    ).length;
+    this.offlineDrivers = this.drivers.filter(
+      (d) => d.status === 'offline'
+    ).length;
+    this.pendingApprovals = this.drivers.filter(
+      (d) => d.documentsStatus === 'pending'
+    ).length;
   }
 }
