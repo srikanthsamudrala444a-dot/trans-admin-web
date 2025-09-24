@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
@@ -16,6 +16,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { AddDriverDialogComponent } from './add-driver-dialog.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 @Component({
   selector: 'app-drivers',
   standalone: true,
@@ -34,6 +35,7 @@ import { AddDriverDialogComponent } from './add-driver-dialog.component';
     FormsModule,
     ReactiveFormsModule,
     RouterModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './drivers.component.html',
   styleUrls: ['./drivers.component.scss'],
@@ -60,6 +62,7 @@ export class DriversComponent implements OnInit {
   itemsPerPage: number = 10;
   searchTerm: string = '';
   totalNumberOfRecords: number = 0;
+  isLoading: WritableSignal<boolean> = signal(false);
 
   onlineDrivers = 0;
   offlineDrivers = 0;
@@ -84,6 +87,7 @@ export class DriversComponent implements OnInit {
   loadDrivers(page: number = 1, itemsPerPage: number = 10): void {
     this.currentPage = page;
     this.itemsPerPage = itemsPerPage;
+    this.isLoading.set(true);
     this.driverService
       .getDriversByQuery(this.currentPage, this.itemsPerPage)
       .subscribe({
@@ -98,13 +102,16 @@ export class DriversComponent implements OnInit {
               (data.totalCount || data.driver.length || data.totalItems) /
                 this.itemsPerPage
             );
+            this.isLoading.set(false);
           } else {
             this.drivers = [];
             this.totalItems = 0;
             this.totalPages = 1;
+            this.isLoading.set(false);
           }
         },
         error: (err: any) => {
+          this.isLoading.set(false);
           console.error('Error fetching drivers', err);
           this.drivers = [];
           this.totalItems = 0;
