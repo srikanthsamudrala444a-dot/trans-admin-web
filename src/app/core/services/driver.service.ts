@@ -156,16 +156,9 @@ export class DriverService {
   }
   // pagination
   getDriversByQuery(pageNumber: number, itemsPerPage: number): Observable<any> {
-    const accessToken = localStorage.getItem('accessToken');
-
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${accessToken}`,
-    });
-
     return this.http.post(
       `${this.apiUrl}/v1/driver/query`,
       { pageNumber, itemsPerPage },
-      { headers }
     );
   }
 }
