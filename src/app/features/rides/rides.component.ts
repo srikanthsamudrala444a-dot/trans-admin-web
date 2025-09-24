@@ -8,11 +8,13 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { RideService } from '../../core/services/rides.service';
 import { Ride } from '../../core/models/ride.model';
 import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { ManualAssignmentDialogComponent } from './manual-assignment-dialog.component';
 @Component({
   selector: 'app-rides',
   standalone: true,
@@ -26,6 +28,7 @@ import { RouterModule } from '@angular/router';
     MatInputModule,
     MatSelectModule,
     MatFormFieldModule,
+    MatDialogModule,
     FormsModule,
     ReactiveFormsModule,
     RouterModule
@@ -37,16 +40,19 @@ export class RidesComponent implements OnInit {
   displayedColumns = ['id', 'driver', 'passenger', 'pickup', 'status', 'fare', 'actions'];
   rides: Ride[] = [];
   currentPage: number = 1;
-  constructor(private rideService: RideService) {}
   totalPages: number = 5;
+  totalItems: number = 0;
+
+  constructor(
+    private rideService: RideService,
+    private dialog: MatDialog
+  ) {}
   ngOnInit(): void {
     
     this.loadRides();
     this.loadRidesByQuery("", this.currentPage);
 
   }
-  
-totalItems: number = 0;
 
 // ... other properties and methods
 
@@ -171,6 +177,41 @@ return pages;
 
   showRideDetails(ride: Ride): void {
     this.selectedRide = this.selectedRide === ride ? null : ride;
+  }
+  openManualAssignmentDialog(): void {
+    const dialogRef = this.dialog.open(ManualAssignmentDialogComponent, {
+      width: '800px',
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Manual ride assignment data:', result);
+        this.rideService.createRide(result).subscribe({
+          next: (response: any) => {
+            console.log('Ride created successfully:', response);
+            alert('Ride assigned successfully!');
+            this.loadRides(); // Refresh the rides list
+            this.loadRidesByQuery("", this.currentPage);
+          },
+          error: (err: any) => {
+            console.error('Error creating ride:', err);
+            
+            // Show detailed error message
+            let errorMessage = 'Failed to create ride.';
+            if (err.error && err.error.message) {
+              errorMessage = err.error.message;
+            } else if (err.error && typeof err.error === 'string') {
+              errorMessage = err.error;
+            } else if (err.message) {
+              errorMessage = err.message;
+            }
+            
+            alert(`Ride creation failed: ${errorMessage}`);
+          }
+        });
+      }
+    });
   }
   
 }

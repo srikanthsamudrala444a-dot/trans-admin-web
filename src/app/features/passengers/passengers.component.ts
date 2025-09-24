@@ -8,11 +8,13 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { PassengersService } from '../../core/services/passengers.service';
 //import { selctedPassenger } from '../../core/models/passenger.model';
 import { RouterModule } from '@angular/router';
 import { NgModel } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
+import { AddPassengerDialogComponent } from './add-passenger-dialog.component';
 @Component({
   selector: 'app-passengers',
   standalone: true,
@@ -26,6 +28,7 @@ import { FormsModule } from '@angular/forms';
     MatInputModule,
     MatSelectModule,
     MatFormFieldModule,
+    MatDialogModule,
     RouterModule,
     FormsModule
   ],
@@ -44,7 +47,10 @@ export class PassengersComponent implements OnInit {
   selectPassenger: any = null;
   error: string | null = null;
 
-  constructor(private passengersService: PassengersService) {}
+  constructor(
+    private passengersService: PassengersService,
+    private dialog: MatDialog
+  ) {}
   ngOnInit(): void {
     this.loadPassengers();
     this.getAllPassengers();
@@ -187,5 +193,47 @@ export class PassengersComponent implements OnInit {
       pages.push(this.totalPages);
     }
     return pages;
+  }
+
+  openAddPassengerDialog(): void {
+    const dialogRef = this.dialog.open(AddPassengerDialogComponent, {
+      width: '600px',
+      data: {},
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.addNewPassenger(result);
+      }
+    });
+  }
+
+  addNewPassenger(newPassengerData: any): void {
+    console.log('Attempting to register passenger with data:', newPassengerData);
+
+    this.passengersService.registerPassenger(newPassengerData).subscribe({
+      next: (response: any) => {
+        console.log('New passenger registered successfully:', response);
+        // Show success message
+        alert('Passenger registered successfully!');
+
+        // Reload the passengers list to show the new passenger
+        this.loadPassengers();
+        this.getAllPassengers();
+      },
+      error: (err: any) => {
+        console.error('Error registering passenger:', err);
+        console.error('Full error details:', {
+          status: err.status,
+          statusText: err.statusText,
+          error: err.error,
+          message: err.message,
+          url: err.url,
+        });
+
+        // Show error message to user
+        alert('Error registering passenger. Please try again.');
+      }
+    });
   }
 }
