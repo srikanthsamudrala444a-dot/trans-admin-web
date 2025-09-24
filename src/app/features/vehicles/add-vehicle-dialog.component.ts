@@ -121,14 +121,12 @@ import { DriverService } from '../../core/services/driver.service';
           </mat-form-field>
           
           <mat-form-field appearance="outline" class="half-width">
-            <mat-label>Assign to Driver (Optional)</mat-label>
-            <mat-select formControlName="driverId">
-              <mat-option value="">-- No Driver Assignment --</mat-option>
-              <mat-option *ngFor="let driver of availableDrivers" [value]="driver.userId">
-                {{driver.firstName}} {{driver.lastName}} (ID: {{driver.userId}})
-              </mat-option>
-            </mat-select>
-            <mat-hint>Leave empty if not assigning to a specific driver</mat-hint>
+            <mat-label>Driver ID</mat-label>
+            <input matInput formControlName="driverId" placeholder="Enter driver ID (e.g., 68d163ab27c1ec731c730dc8)">
+            <mat-hint>Enter the unique driver ID to assign this vehicle</mat-hint>
+            <mat-error *ngIf="vehicleForm.get('driverId')?.hasError('required')">
+              Driver ID is required
+            </mat-error>
           </mat-form-field>
         </div>
 
@@ -193,6 +191,29 @@ import { DriverService } from '../../core/services/driver.service';
             </mat-error>
           </mat-form-field>
         </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Created By</mat-label>
+            <input matInput formControlName="createdBy" placeholder="Enter created by">
+            <mat-error *ngIf="vehicleForm.get('createdBy')?.hasError('required')">
+              Created by is required
+            </mat-error>
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Modified By</mat-label>
+            <input matInput formControlName="modifiedBy" placeholder="Enter modified by">
+            <mat-error *ngIf="vehicleForm.get('modifiedBy')?.hasError('required')">
+              Modified by is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Photo URLs</mat-label>
+          <textarea matInput formControlName="photoUrls" rows="2" placeholder="Enter photo URLs (one per line)"></textarea>
+        </mat-form-field>
       </form>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
@@ -248,22 +269,27 @@ export class AddVehicleDialogComponent implements OnInit {
     private driverService: DriverService
   ) {
     this.vehicleForm = this.fb.group({
-      make: ['', [Validators.required]],
-      model: ['', [Validators.required]],
+      createdBy: ['', [Validators.required]],
+      modifiedBy: ['', [Validators.required]],
       registrationNumber: ['', [Validators.required]],
+      model: ['', [Validators.required]],
+      make: ['', [Validators.required]],
       yearOfManufacture: ['', [Validators.required, Validators.min(1900), Validators.max(new Date().getFullYear())]],
       type: ['', [Validators.required]],
       color: ['', [Validators.required]],
       fuelType: ['PETROL', [Validators.required]],
-      driverId: [''], // Optional - leave empty if not assigning
+      driverId: ['', [Validators.required]], // Driver ID is important as per requirement
       passengerCapacity: ['', [Validators.required, Validators.min(1)]],
+      active: [true],
       insurancePolicyNumber: ['', [Validators.required]],
       insuranceExpiryDate: ['', [Validators.required]],
-      category: ['BIKE', [Validators.required]],
+      photoUrls: [''], // Photo URLs as comma separated values
       ownershipStatus: ['DRIVER_OWNED', [Validators.required]],
       ownerName: ['', [Validators.required]],
       ownerId: ['', [Validators.required]],
-      ownerType: ['INDIVIDUAL', [Validators.required]]
+      ownerType: ['INDIVIDUAL', [Validators.required]],
+      category: ['BIKE', [Validators.required]],
+      verified: [true]
     });
   }
 
@@ -295,33 +321,40 @@ export class AddVehicleDialogComponent implements OnInit {
       
       console.log('Form data from user:', formData);
       
-      // Create payload with only the most essential required fields
-      const vehicleData: any = {
+      // Process photo URLs - convert from textarea to array
+      const photoUrlsArray = formData.photoUrls 
+        ? formData.photoUrls.split('\n').filter((url: string) => url.trim() !== '')
+        : [];
+      
+      // Create payload matching the exact API format
+      const vehicleData = {
+        createdBy: formData.createdBy,
+        modifiedBy: formData.modifiedBy,
         registrationNumber: formData.registrationNumber,
-        make: formData.make,
         model: formData.model,
+        make: formData.make,
         yearOfManufacture: parseInt(formData.yearOfManufacture),
         type: formData.type,
         color: formData.color,
         fuelType: formData.fuelType,
+        driverId: formData.driverId,
         passengerCapacity: parseInt(formData.passengerCapacity),
-        category: formData.category,
+        active: formData.active,
+        insurancePolicyNumber: formData.insurancePolicyNumber,
+        insuranceExpiryDate: formData.insuranceExpiryDate,
+        registeredAt: new Date().toISOString(),
+        photoUrls: photoUrlsArray,
         ownershipStatus: formData.ownershipStatus,
         owner: {
           ownerName: formData.ownerName,
           ownerId: formData.ownerId,
           ownerType: formData.ownerType
         },
-        insurancePolicyNumber: formData.insurancePolicyNumber,
-        insuranceExpiryDate: formData.insuranceExpiryDate
+        category: formData.category,
+        verified: formData.verified
       };
       
-      // Only include driverId if it's provided and not empty
-      if (formData.driverId && formData.driverId.trim() !== '') {
-        vehicleData.driverId = formData.driverId;
-      }
-      
-      console.log('Minimal payload being sent to API:', vehicleData);
+      console.log('Payload being sent to API:', vehicleData);
       
       this.dialogRef.close(vehicleData);
     }

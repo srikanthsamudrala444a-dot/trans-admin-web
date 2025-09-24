@@ -1,6 +1,10 @@
 <div class="passengers-container">
       <div class="page-header">
         <h1>Passengers Management</h1>
+        <button mat-raised-button color="primary" (click)="openAddPassengerDialog()">
+          <mat-icon>add</mat-icon>
+          Add Passenger
+        </button>
       </div>
       
       <mat-card class="filter-card">
@@ -39,9 +43,9 @@
             </mat-cell>
           </ng-container>
           
-          <ng-container matColumnDef="phone">
-            <mat-header-cell *matHeaderCellDef>Phone</mat-header-cell>
-            <mat-cell *matCellDef="let passenger">{{passenger.phone}}</mat-cell>
+          <ng-container matColumnDef="contactNumber">
+            <mat-header-cell *matHeaderCellDef>Contact Number</mat-header-cell>
+            <mat-cell *matCellDef="let passenger">{{passenger.contactNumber}}</mat-cell>
           </ng-container>
           
           <ng-container matColumnDef="totalRides">

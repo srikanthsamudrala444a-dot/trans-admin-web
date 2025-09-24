@@ -117,7 +117,49 @@ export class VehiclesComponent implements OnInit {
       this.loadVehicles(page);
      }
   }
- 
+  
+  openAddVehicleDialog(): void {
+    const dialogRef = this.dialog.open(AddVehicleDialogComponent, {
+      width: '800px',
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Vehicle data from dialog:', result);
+        this.vehicleService.registerVehicle(result).subscribe({
+          next: (response: any) => {
+            console.log('Vehicle registered successfully:', response);
+            alert('Vehicle registered successfully!');
+            this.loadVehicles(); // Refresh the vehicles list
+          },
+          error: (err: any) => {
+            console.error('Error registering vehicle:', err);
+            
+            // Show detailed error message
+            let errorMessage = 'Failed to register vehicle.';
+            if (err.error && err.error.messages && err.error.messages.length > 0) {
+              const message = err.error.messages[0];
+              if (message.key === 'Driver Id Not Exists') {
+                const driverIdParam = message.parameters[0];
+                if (driverIdParam === null || driverIdParam === 'null') {
+                  errorMessage = `Driver ID cannot be null. Please ensure the driver ID field is properly filled.`;
+                } else {
+                  errorMessage = `Driver ID "${driverIdParam}" does not exist. Please enter a valid driver ID.`;
+                }
+              } else {
+                errorMessage = message.key;
+              }
+            } else if (err.error && err.error.message) {
+              errorMessage = err.error.message;
+            }
+            
+            alert(`Registration failed: ${errorMessage}`);
+          }
+        });
+      }
+    });
+  }
 
   
   
@@ -147,73 +189,6 @@ export class VehiclesComponent implements OnInit {
       pages.push(this.totalPages);
     }
     return pages;
-  }
-
-  openAddVehicleDialog(): void {
-    const dialogRef = this.dialog.open(AddVehicleDialogComponent, {
-      width: '800px',
-      maxHeight: '90vh',
-      data: {}
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.addNewVehicle(result);
-      }
-    });
-  }
-
-  addNewVehicle(vehicleData: any): void {
-    console.log('Attempting to register vehicle with data:', vehicleData);
-    
-    this.vehicleService.registerVehicle(vehicleData).subscribe({
-      next: (response: any) => {
-        console.log('New vehicle registered successfully:', response);
-        alert('Vehicle registered successfully!');
-        
-        // Reload the vehicles list to show the new vehicle
-        this.loadVehicles(this.currentPage);
-      },
-      error: (err: any) => {
-        console.error('Error registering vehicle:', err);
-        console.error('Full error details:', {
-          status: err.status,
-          statusText: err.statusText,
-          error: err.error,
-          message: err.message,
-          url: err.url
-        });
-        
-        // Log the complete error response body
-        if (err.error) {
-          console.error('API Error Response Body:', JSON.stringify(err.error, null, 2));
-        }
-        
-        // Show detailed error message
-        let errorMessage = 'Failed to register vehicle.';
-        if (err.error && err.error.messages && err.error.messages.length > 0) {
-          const message = err.error.messages[0];
-          if (message.key === 'Driver Id Not Exists') {
-            const driverIdParam = message.parameters[0];
-            if (driverIdParam === null || driverIdParam === 'null') {
-              errorMessage = `Driver ID cannot be null. Please leave the Driver ID field completely empty or enter a valid driver ID.`;
-            } else {
-              errorMessage = `Driver ID "${driverIdParam}" does not exist. Please leave the Driver ID field empty or enter a valid driver ID.`;
-            }
-          } else {
-            errorMessage = message.key;
-          }
-        } else if (err.error && err.error.message) {
-          errorMessage = err.error.message;
-        } else if (err.error && typeof err.error === 'string') {
-          errorMessage = err.error;
-        } else if (err.message) {
-          errorMessage = err.message;
-        }
-        
-        alert(`Registration failed: ${errorMessage}`);
-      }
-    });
   }
 
 }

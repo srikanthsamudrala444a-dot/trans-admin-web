@@ -46,7 +46,7 @@ export interface Passenger {
   id: string;
   name: string;
   email: string;
-  phone: string;
+  contactNumber: string;
   totalRides: number;
   rating: number;
   isBanned: boolean;

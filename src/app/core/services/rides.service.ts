@@ -43,7 +43,18 @@ export class RideService {
 
   // ✅ 3. Create a new ride (e.g. booking request)
   createRide(rideData: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}/rides/create`, rideData);
+    const accessToken = localStorage.getItem('accessToken');
+    console.log('Access Token:', accessToken); // Debug log
+    const headers = accessToken
+      ? new HttpHeaders({ Authorization: `Bearer ${accessToken}` })
+      : undefined;
+    console.log('Creating ride with data:', rideData);
+    console.log(`${this.baseUrl}/rides/create`);
+    return this.http.post(`${this.baseUrl}/rides/create`, rideData, {
+      headers,
+    });
+    //
+   // return this.http.post(`${this.baseUrl}/rides/create`, rideData);
   }
 
   // ✅ 4. Update ride status (pending → accepted → completed/cancelled)

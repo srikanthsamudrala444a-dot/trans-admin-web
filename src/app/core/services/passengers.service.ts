@@ -39,7 +39,12 @@ export class PassengersService {
 
   // Register new passenger
   registerPassenger(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/passenger/register`, data);
+    const accessToken = localStorage.getItem('accessToken');
+    console.log('Access Token:', accessToken); // Debug log
+    const headers = accessToken
+      ? { Authorization: `Bearer ${accessToken}` }
+      : undefined;
+    return this.http.post(`${this.apiUrl}/passenger/register`, data, { headers });
   }
 
   // Update passenger by ID

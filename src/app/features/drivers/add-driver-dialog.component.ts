@@ -82,6 +82,14 @@ import { MatIconModule } from '@angular/material/icon';
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
+          <mat-label>User ID</mat-label>
+          <input matInput formControlName="userId" placeholder="Enter user ID">
+          <mat-error *ngIf="driverForm.get('userId')?.hasError('required')">
+            User ID is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
           <mat-label>Photo URL (Optional)</mat-label>
           <input matInput formControlName="photoUrl" placeholder="Enter photo URL">
         </mat-form-field>
@@ -134,6 +142,7 @@ export class AddDriverDialogComponent {
     private fb: FormBuilder
   ) {
     this.driverForm = this.fb.group({
+      userId: ['', [Validators.required]],
       firstName: ['', [Validators.required]],
       lastName: ['', [Validators.required]],
       dateOfBirth: ['', [Validators.required]],
@@ -154,8 +163,9 @@ export class AddDriverDialogComponent {
       
       console.log('Form data from user:', formData);
       
-      // Create payload without userId - let the API create/assign one
+      // Create payload matching the exact API format
       const driverData = {
+        userId: formData.userId,
         firstName: formData.firstName,
         lastName: formData.lastName,
         dateOfBirth: formData.dateOfBirth,

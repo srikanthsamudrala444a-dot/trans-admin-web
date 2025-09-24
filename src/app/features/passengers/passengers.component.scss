@@ -3,8 +3,15 @@
       margin: 0 auto;
     }
     
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    
     .page-header h1 {
-      margin: 0 0 24px 0;
+      margin: 0;
       color: #333;
     }
     
