@@ -1,6 +1,12 @@
-import { Component, OnInit, signal, WritableSignal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  signal,
+  ViewChild,
+  WritableSignal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,13 +16,19 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatSortModule, Sort } from '@angular/material/sort';
 import { DriverService } from '../../core/services/driver.service';
 import { FormsModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { AddDriverDialogComponent } from './add-driver-dialog.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Driver } from '../../core/models/driver.model';
+import {
+  Driver,
+  DriverQuery,
+  SortOption,
+} from '../../core/models/driver.model';
+
 @Component({
   selector: 'app-drivers',
   standalone: true,
@@ -32,6 +44,7 @@ import { Driver } from '../../core/models/driver.model';
     MatFormFieldModule,
     MatBadgeModule,
     MatDialogModule,
+    MatSortModule,
     FormsModule,
     ReactiveFormsModule,
     RouterModule,
@@ -44,6 +57,7 @@ export class DriversComponent implements OnInit {
   // Problems to be fixed:
   // 1 - Fix arrow forward + Next button conditions
   // 2 - Fix Limit
+  // 3 - DESC In Sorting is not working
 
   displayedColumns = [
     'name',
@@ -55,6 +69,8 @@ export class DriversComponent implements OnInit {
     'actions',
   ];
 
+  dataSource = new MatTableDataSource<Driver>([]);
+
   drivers: Driver[] = [];
   currentPage: number = 1;
   totalPages: number = 1;
@@ -64,15 +80,15 @@ export class DriversComponent implements OnInit {
   totalNumberOfRecords: number = 0;
   isLoading: WritableSignal<boolean> = signal(false);
 
+  currentSort: SortOption[] = [];
+
   onlineDrivers = 0;
   offlineDrivers = 0;
   pendingApprovals = 0;
 
   constructor(
     private driverService: DriverService,
-    private http: HttpClient,
-    private dialog: MatDialog,
-    private fb: FormBuilder
+    private dialog: MatDialog
   ) {}
 
   selectedFile: File | null = null;
@@ -81,52 +97,84 @@ export class DriversComponent implements OnInit {
   uploadError: string = '';
 
   ngOnInit(): void {
-    this.loadDrivers(); // initial load
+    this.loadDrivers();
   }
 
   loadDrivers(page: number = 1, itemsPerPage: number = 10): void {
     this.currentPage = page;
     this.itemsPerPage = itemsPerPage;
     this.isLoading.set(true);
-    this.driverService
-      .getDriversByQuery({
-        pageNumber: this.currentPage,
-        itemsPerPage: this.itemsPerPage,
-      })
-      .subscribe({
-        next: (data: any) => {
-          console.log('Drivers data:', data);
 
-          if (data && Array.isArray(data.driver)) {
-            this.totalNumberOfRecords = data.pagination.totalNumberOfRecords;
-            this.drivers = data.driver;
-            this.totalItems = data.totalCount || data.driver.length;
-            this.totalPages = Math.ceil(
-              (data.totalCount || data.driver.length || data.totalItems) /
-                this.itemsPerPage
-            );
-            this.isLoading.set(false);
-          } else {
-            this.drivers = [];
-            this.totalItems = 0;
-            this.totalPages = 1;
-            this.isLoading.set(false);
-          }
-        },
-        error: (err: any) => {
-          this.isLoading.set(false);
-          console.error('Error fetching drivers', err);
+    const query: DriverQuery = {
+      pageNumber: this.currentPage,
+      itemsPerPage: this.itemsPerPage,
+      retrieveInactive: false,
+      sort: this.currentSort,
+    };
+
+    this.driverService.getDriversByQuery(query).subscribe({
+      next: (data: any) => {
+        console.log("Drivers data:",data)
+        if (data && Array.isArray(data.driver)) {
+          this.totalNumberOfRecords = data.pagination.totalNumberOfRecords;
+          this.dataSource.data = data.driver || [];
+          this.totalItems = data.totalCount || data.driver.length;
+          this.totalPages = Math.ceil(
+            (data.totalCount || data.driver.length || data.totalItems) /
+              this.itemsPerPage
+          );
+
+          this.calculateStats();
+        } else {
           this.drivers = [];
           this.totalItems = 0;
           this.totalPages = 1;
-        },
-      });
+        }
+        this.isLoading.set(false);
+      },
+      error: (err: any) => {
+        this.isLoading.set(false);
+        console.error('Error fetching drivers', err);
+        this.drivers = [];
+        this.totalItems = 0;
+        this.totalPages = 1;
+      },
+    });
+  }
+
+  announceSortChange(sortState: Sort) {
+    console.log('Sort changed:', sortState);
+
+    // Clear previous sort
+    this.currentSort = [];
+
+    if (sortState.direction) {
+      const sortOption: SortOption = {
+        fieldName: this.mapSortFieldName(sortState.active),
+        sortDirection:
+          sortState.direction === 'asc' ? 'ASCENDING' : 'DESCENDING',
+      };
+      this.currentSort.push(sortOption);
+    }
+
+    this.currentPage = 1;
+    this.loadDrivers(this.currentPage, this.itemsPerPage);
+  }
+
+  // Map frontend column names to backend field names
+  private mapSortFieldName(columnName: string): string {
+    const fieldMapping: { [key: string]: string } = {
+      name: 'firstName',
+      phone: 'contactNumber',
+      status: 'status',
+      rating: 'averageRating',
+      documents: 'documentsStatus',
+      earnings: 'earnings',
+    };
+    return fieldMapping[columnName] || columnName;
   }
 
   goToPage(page: number): void {
-    console.log('going to page:', page);
-
-    // && page >= 1 && page <= this.totalPages
     if (typeof page === 'number') {
       this.loadDrivers(page, this.itemsPerPage);
     }
@@ -134,7 +182,6 @@ export class DriversComponent implements OnInit {
 
   onItemsPerPageChange() {
     this.currentPage = 1;
-    console.log('items per page', this.itemsPerPage);
     this.loadDrivers(this.currentPage, this.itemsPerPage);
   }
 
@@ -157,7 +204,7 @@ export class DriversComponent implements OnInit {
         this.selectedFile
       )
       .subscribe({
-        next: (response: any) => {
+        next: () => {
           this.uploadMessage = 'Document uploaded successfully!';
           this.loadDrivers();
         },
@@ -180,14 +227,9 @@ export class DriversComponent implements OnInit {
 
   toggleDriverStatus(driver: Driver): void {
     let newStatus: 'online' | 'offline' | 'busy';
-    if (driver.status === 'online') {
-      newStatus = 'offline';
-    } else {
-      newStatus = 'online';
-    }
+    newStatus = driver.status === 'online' ? 'offline' : 'online';
     this.driverService.updateAvailability(driver.id, newStatus).subscribe({
       next: (updatedDriver: { id: string; status: string }) => {
-        console.log('Driver status updated:', updatedDriver);
         const index = this.drivers.findIndex((d) => d.id === updatedDriver.id);
         if (index !== -1) {
           this.drivers[index].status = updatedDriver.status as
@@ -202,38 +244,15 @@ export class DriversComponent implements OnInit {
       },
     });
   }
+
   addNewDriver(newDriverData: any): void {
-    console.log('Attempting to register driver with data:', newDriverData);
-
     this.driverService.registerDriver(newDriverData).subscribe({
-      next: (response: any) => {
-        console.log('New driver registered successfully:', response);
-        // Show success message (you can add a snackbar here if needed)
+      next: () => {
         alert('Driver registered successfully!');
-
-        // Reload the drivers list to show the new driver
         this.loadDrivers(this.currentPage);
         this.calculateStats();
       },
       error: (err: any) => {
-        console.error('Error registering driver:', err);
-        console.error('Full error details:', {
-          status: err.status,
-          statusText: err.statusText,
-          error: err.error,
-          message: err.message,
-          url: err.url,
-        });
-
-        // Log the complete error response body
-        if (err.error) {
-          console.error(
-            'API Error Response Body:',
-            JSON.stringify(err.error, null, 2)
-          );
-        }
-
-        // Show detailed error message
         let errorMessage = 'Failed to register driver.';
         if (err.error && err.error.message) {
           errorMessage = err.error.message;
@@ -242,7 +261,6 @@ export class DriversComponent implements OnInit {
         } else if (err.message) {
           errorMessage = err.message;
         }
-
         alert(`Registration failed: ${errorMessage}`);
       },
     });
@@ -261,7 +279,7 @@ export class DriversComponent implements OnInit {
     });
   }
 
-  // Pagination controls for template
+  // Pagination controls
   getPageNumbers(): (number | string)[] {
     const pages: (number | string)[] = [];
     const maxPagesToShow = 5;
