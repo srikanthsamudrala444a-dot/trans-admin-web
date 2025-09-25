@@ -10,13 +10,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { Driver } from '../../core/models/ride.model';
 import { DriverService } from '../../core/services/driver.service';
 import { FormsModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { AddDriverDialogComponent } from './add-driver-dialog.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Driver } from '../../core/models/driver.model';
 @Component({
   selector: 'app-drivers',
   standalone: true,
@@ -89,7 +89,10 @@ export class DriversComponent implements OnInit {
     this.itemsPerPage = itemsPerPage;
     this.isLoading.set(true);
     this.driverService
-      .getDriversByQuery(this.currentPage, this.itemsPerPage)
+      .getDriversByQuery({
+        pageNumber: this.currentPage,
+        itemsPerPage: this.itemsPerPage,
+      })
       .subscribe({
         next: (data: any) => {
           console.log('Drivers data:', data);

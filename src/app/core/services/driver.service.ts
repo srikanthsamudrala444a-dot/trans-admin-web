@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Driver } from '../models/ride.model';
+import { Driver, DriverQuery } from '../models/driver.model';
 
 @Injectable({
   providedIn: 'root',
@@ -155,10 +155,7 @@ export class DriverService {
     return this.http.get(`${this.apiUrl}/v1/drivers/all`);
   }
   // pagination
-  getDriversByQuery(pageNumber: number, itemsPerPage: number): Observable<any> {
-    return this.http.post(
-      `${this.apiUrl}/v1/driver/query`,
-      { pageNumber, itemsPerPage },
-    );
+  getDriversByQuery(query: DriverQuery): Observable<any> {
+    return this.http.post(`${this.apiUrl}/v1/driver/query`, query);
   }
 }

@@ -6,6 +6,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { DriverService } from '../../core/services/driver.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Driver } from '../../core/models/driver.model';
+import { VehicleService } from '../../core/services/vehicles.service';
+import { Vehicle } from '../../core/models/vehicle.model';
 
 @Component({
   selector: 'app-driver-details',
@@ -22,14 +25,16 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   styleUrls: ['./driver-details.component.scss'],
 })
 export class DriverDetailsComponent implements OnInit {
-  driver: any = null;
+  driver!: Driver;
+  driverVehicles: Vehicle[] = [];
   isLoading = true;
   errorMessage = '';
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private driverService: DriverService
+    private driverService: DriverService,
+    private vehicleService: VehicleService
   ) {}
 
   ngOnInit(): void {
@@ -37,7 +42,9 @@ export class DriverDetailsComponent implements OnInit {
     if (driverId) {
       this.driverService.getDriverById(driverId).subscribe({
         next: (data: any) => {
-          this.driver = data.driver || data;
+          console.log('Driver details:', data);
+
+          this.driver = data.driver;
           this.isLoading = false;
         },
         error: (err: any) => {
@@ -47,6 +54,16 @@ export class DriverDetailsComponent implements OnInit {
             err?.message ||
             'Failed to load driver details';
           this.isLoading = false;
+        },
+      });
+
+      this.vehicleService.getVehiclesByDriver(driverId).subscribe({
+        next: (res) => {
+          console.log('Driver vehicles:', res.vehicles);
+          this.driverVehicles = res.vehicles;
+        },
+        error(err) {
+          console.log(err);
         },
       });
     }

@@ -1,25 +1,43 @@
 <mat-card class="driver-details-card">
-  @if(isLoading){
+  @if (isLoading) {
   <div class="loader">
     <mat-spinner></mat-spinner>
   </div>
-  } @else if(!isLoading && errorMessage){
+  } @else if (!isLoading && errorMessage) {
   <div>
     {{ errorMessage }}
   </div>
-  }@else if(driver) {
+  } @else if (driver) {
   <mat-card-header>
     <mat-card-title>Driver Details</mat-card-title>
-    <mat-card-subtitle
-      >ID: <strong>{{ driver.id || driver.userId }}</strong></mat-card-subtitle
-    >
+    <mat-card-subtitle>
+      ID: <strong>{{ driver.id || driver.userId }}</strong>
+    </mat-card-subtitle>
   </mat-card-header>
+
   <mat-card-content>
     <div class="driver-details-grid">
+      <!-- Basic Info -->
+      <h3 class="section-title">Basic Information</h3>
       <div class="driver-detail-row">
         <span class="label">Name:</span>
         <span class="value">{{ driver.firstName }} {{ driver.lastName }}</span>
       </div>
+      <div class="driver-detail-row">
+        <span class="label">Date of Birth:</span>
+        <span class="value">{{ driver.dateOfBirth | date : "longDate" }}</span>
+      </div>
+      <div class="driver-detail-row">
+        <span class="label">Driving License:</span>
+        <span class="value">{{ driver.drivingLicense }}</span>
+      </div>
+      <div class="driver-detail-row">
+        <span class="label">Joined At:</span>
+        <span class="value">{{ driver.joinedAt | date : "medium" }}</span>
+      </div>
+
+      <!-- Contact -->
+      <h3 class="section-title">Contact</h3>
       <div class="driver-detail-row">
         <span class="label">Email:</span>
         <span class="value">{{ driver.email }}</span>
@@ -28,29 +46,35 @@
         <span class="label">Phone:</span>
         <span class="value">{{ driver.contactNumber }}</span>
       </div>
+
+      <!-- Rating -->
+      <h3 class="section-title">Rating</h3>
+      <div class="driver-detail-row">
+        <span class="label">Current Rating:</span>
+        <span class="value">{{ driver.rating }}</span>
+      </div>
+      <div class="driver-detail-row">
+        <span class="label">Total Rating Points:</span>
+        <span class="value">{{ driver.totalRatingPoints }}</span>
+      </div>
+      <div class="driver-detail-row">
+        <span class="label">Rating Count:</span>
+        <span class="value">{{ driver.ratingCount }}</span>
+      </div>
+      <div class="driver-detail-row">
+        <span class="label">Average Rating:</span>
+        <span class="value">{{ driver.averageRating | number : "1.1-2" }}</span>
+      </div>
+
+      <!-- Status -->
+      <h3 class="section-title">Status</h3>
       <div class="driver-detail-row">
         <span class="label">Status:</span>
         <span class="value">{{ driver.status }}</span>
       </div>
       <div class="driver-detail-row">
-        <span class="label">Rating:</span>
-        <span class="value">{{ driver.averageRating || driver.rating }}</span>
-      </div>
-      <div class="driver-detail-row">
-        <span class="label">Vehicle Number:</span>
-        <span class="value">{{ driver.vehicleNumber }}</span>
-      </div>
-      <div class="driver-detail-row">
-        <span class="label">Driving License:</span>
-        <span class="value">{{ driver.drivingLicense }}</span>
-      </div>
-      <div class="driver-detail-row">
-        <span class="label">Date of Birth:</span>
-        <span class="value">{{ driver.dateOfBirth }}</span>
-      </div>
-      <div class="driver-detail-row">
-        <span class="label">Joined At:</span>
-        <span class="value">{{ driver.joinedAt | date : "medium" }}</span>
+        <span class="label">Documents Status:</span>
+        <span class="value">{{ driver.documentsStatus }}</span>
       </div>
       <div class="driver-detail-row">
         <span class="label">On Duty:</span>
@@ -64,19 +88,118 @@
         <span class="label">Subscription:</span>
         <span class="value">{{ driver.subscription ? "Yes" : "No" }}</span>
       </div>
-      <div class="driver-detail-row" *ngIf="driver.photoUrl">
+
+      <!-- Vehicles -->
+      <h3 class="section-title">Vehicles</h3>
+      @if (driverVehicles) { @for (vehicle of driverVehicles; track vehicle.id)
+      {
+      <div class="vehicle-separator"></div>
+      <div class="driver-detail-row">
+        <span class="label">Vehicle ID:</span>
+        <span class="value">{{ vehicle.id }}</span>
+      </div>
+      <div class="driver-detail-row">
+        <span class="label">Reg. Number:</span>
+        <span class="value">{{ vehicle.registrationNumber }}</span>
+      </div>
+      <div class="driver-detail-row">
+        <span class="label">Make/Model:</span>
+        <span class="value">{{ vehicle.make }} {{ vehicle.model }}</span>
+      </div>
+      <div class="driver-detail-row">
+        <span class="label">Year:</span>
+        <span class="value">{{ vehicle.yearOfManufacture }}</span>
+      </div>
+      <div class="driver-detail-row">
+        <span class="label">Type:</span>
+        <span class="value">{{ vehicle.type }}</span>
+      </div>
+      <div class="driver-detail-row">
+        <span class="label">Color:</span>
+        <span class="value">{{ vehicle.color }}</span>
+      </div>
+      <div class="driver-detail-row">
+        <span class="label">Fuel:</span>
+        <span class="value">{{ vehicle.fuelType }}</span>
+      </div>
+      <div class="driver-detail-row">
+        <span class="label">Capacity:</span>
+        <span class="value">{{ vehicle.passengerCapacity }} passengers</span>
+      </div>
+      <div class="driver-detail-row">
+        <span class="label">Insurance:</span>
+        <span class="value">
+          {{ vehicle.insurancePolicyNumber }} (expires:
+          {{ vehicle.insuranceExpiryDate | date : "mediumDate" }})
+        </span>
+      </div>
+      <div class="driver-detail-row">
+        <span class="label">Ownership:</span>
+        <span class="value">{{ vehicle.ownershipStatus }}</span>
+      </div>
+      @if(vehicle.owner){
+      <div class="driver-detail-row">
+        <span class="label">Owner:</span>
+        <span class="value">
+          {{ vehicle.owner.ownerName }} ({{ vehicle.owner.ownerType }})
+        </span>
+      </div>
+      }
+      <div class="driver-detail-row">
+        <span class="label">Status:</span>
+        <span class="value">
+          {{ vehicle.active ? "Active" : "Inactive" }} - Verified:
+          {{ vehicle.verified ? "Yes" : "No" }}
+        </span>
+      </div>
+      }@empty {
+      <div class="driver-detail-row">
+        <span class="label">Vehicles:</span>
+        <span class="value">No vehicles assigned</span>
+      </div>
+      } }
+
+      <!-- Meta -->
+      <h3 class="section-title">Metadata</h3>
+      <div class="driver-detail-row">
+        <span class="label">Created By:</span>
+        <span class="value">{{ driver.createdBy }}</span>
+      </div>
+      <div class="driver-detail-row">
+        <span class="label">Created Date:</span>
+        <span class="value">{{ driver.createdDate | date : "medium" }}</span>
+      </div>
+      <div class="driver-detail-row">
+        <span class="label">Modified By:</span>
+        <span class="value">{{ driver.modifiedBy }}</span>
+      </div>
+      <div class="driver-detail-row">
+        <span class="label">Modified Date:</span>
+        <span class="value">{{ driver.modifiedDate | date : "medium" }}</span>
+      </div>
+      <div class="driver-detail-row">
+        <span class="label">Tenant:</span>
+        <span class="value">{{ driver.tenant }}</span>
+      </div>
+
+      <!-- Photo -->
+      @if (driver.photoUrl) {
+      <h3 class="section-title">Photo</h3>
+      <div class="driver-detail-row">
         <span class="label">Photo:</span>
         <span class="value">
           <img
             [src]="driver.photoUrl"
             alt="Driver Photo"
             class="driver-details-photo"
-            width="80"
+            width="120"
           />
         </span>
       </div>
+      }
     </div>
   </mat-card-content>
+
   <mat-card-actions>
     <button mat-raised-button color="primary" (click)="backToDrivers()">
       <mat-icon>arrow_back</mat-icon> Back

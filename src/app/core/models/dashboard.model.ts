@@ -24,12 +24,3 @@ export interface ChartData {
     borderColor?: string;
   }[];
 }
-
-export interface Driver {
-  driverId: string;
-  name: string;
-  latitude: number;
-  longitude: number;
-  status: string;
-  distanceKm?: number;
-}

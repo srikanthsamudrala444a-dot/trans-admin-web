@@ -1,74 +1,37 @@
-.passenger-details-card {
-    max-width: 500px;
-    margin: 32px auto;
-    padding: 24px;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-
-mat-card-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #222;
+.driver-details-card {
+  max-width: 700px;
+  margin: 32px auto;
+  padding: 24px;
+  background: #1e1e1e;
+  color: #f5f5f5;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 mat-card-subtitle {
-    color: #666;
-    font-size: 1rem;
-    margin-bottom: 8px;
-}
-
-mat-card-content p {
-    margin: 8px 0;
-    color: #333;
-}
-
-img {
-    border-radius: 8px;
-    margin-top: 8px;
-    max-width: 120px;
-    height: auto;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.10);
-}
-
-.label {
-    font-weight: 600;
-    color: #555;
-    text-align: right;
-}
-
-.value {
-    color: #222;
-    text-align: left;
-}
-
-.passenger-details-grid {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 12px 24px;
-    margin-top: 16px;
-}
-
-.passenger-detail-row {
-    display: contents;
-}
-
-.driver-details-card {
-  max-width: 600px;
-  margin: 32px auto;
-  padding: 24px;
-  background: #222;
   color: #fff;
+  text-align: center;
+  width: 100%;
+}
+
+mat-card-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+mat-card-subtitle {
+  font-size: 1rem;
+  color: #bbb;
+  margin-bottom: 12px;
 }
 
 .driver-details-grid {
   display: grid;
   grid-template-columns: 1fr 2fr;
-  gap: 16px 24px;
+  gap: 12px 20px;
   margin-top: 16px;
   align-items: center;
-  justify-items: center;
 }
 
 .driver-detail-row {
@@ -77,7 +40,7 @@ img {
 
 .label {
   font-weight: 600;
-  color: #fff;
+  color: #ccc;
   text-align: right;
   justify-self: end;
 }
@@ -86,20 +49,40 @@ img {
   color: #fff;
   text-align: left;
   justify-self: start;
+  word-break: break-word;
 }
 
-mat-card-title, mat-card-subtitle {
-  color: #fff;
-  text-align: center;
-  width: 100%;
+.section-title {
+  grid-column: 1 / -1;
+  margin: 24px 0 8px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: white;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 4px;
 }
 
-mat-card-actions {
-  display: flex;
-  justify-content: left;
+.vehicle-separator {
+  grid-column: 1 / -1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 16px 0;
 }
 
 .driver-details-photo {
   border-radius: 8px;
   margin-top: 8px;
+  max-width: 120px;
+  height: auto;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+mat-card-actions {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 16px;
+}
+
+button[mat-raised-button] {
+  font-weight: 600;
 }

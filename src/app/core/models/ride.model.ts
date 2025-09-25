@@ -24,24 +24,6 @@ export interface Location {
   address: string;
 }
 
-export interface Driver {
-  id: string;
-  userId: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  contactNumber: string;
-  licenseNumber: string;
-  status: 'online' | 'offline' | 'busy' | 'active' | 'inactive';
-  rating: number;
-  totalRides: number;
-  earnings: number;
-  vehicleId?: string;
-  isApproved: boolean;
-  documentsStatus: 'pending' | 'approved' | 'rejected';
-  createdAt: Date;
-}
-
 export interface Passenger {
   id: string;
   name: string;
