@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,6 +9,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { PassengersService } from '../../core/services/passengers.service';
 //import { selctedPassenger } from '../../core/models/passenger.model';
 import { RouterModule } from '@angular/router';
@@ -29,6 +31,8 @@ import { AddPassengerDialogComponent } from './add-passenger-dialog.component';
     MatSelectModule,
     MatFormFieldModule,
     MatDialogModule,
+    MatProgressSpinnerModule,
+    MatTooltipModule,
     RouterModule,
     FormsModule
   ],
@@ -36,13 +40,14 @@ import { AddPassengerDialogComponent } from './add-passenger-dialog.component';
   styleUrls: ['./passengers.component.scss']
 })
 export class PassengersComponent implements OnInit {
-  displayedColumns = ['name', 'phone', 'totalRides', 'rating', 'status', 'joinDate', 'actions'];
-  passenger: any[] = [];
+  displayedColumns = ['name', 'contactNumber', 'totalRides', 'rating', 'status', 'joinDate', 'actions'];
+  dataSource = new MatTableDataSource<any>([]);
+  passengers: any[] = [];
   loading = false;
   currentPage: number = 1;
   totalPages: number = 1;
   totalItems: number = 0;
-  itemsPerPage: number = 10
+  itemsPerPage: number = 10;
 
   selectPassenger: any = null;
   error: string | null = null;
@@ -72,17 +77,20 @@ export class PassengersComponent implements OnInit {
     this.loading = true;
     this.passengersService.getAllPassengers().subscribe({
       next: (res) => {
-        
-        this.passenger = res.passenger || res.data ||res;
+        console.log('Passengers API response:', res);
+        this.passengers = res.passenger || res.data || res || [];
+        this.dataSource.data = this.passengers;
         this.loading = false;
-        this.totalItems = this.passenger.length;
+        this.totalItems = this.passengers.length;
         this.totalPages = Math.ceil(this.totalItems / 10);
-        console.log(this.passenger);
+        console.log('Passengers loaded:', this.passengers);
       },
       error: (err) => {
         this.error = 'Failed to load passengers';
-        console.error(err);
+        console.error('Error loading passengers:', err);
         this.loading = false;
+        this.passengers = [];
+        this.dataSource.data = [];
       }
     });
   }
@@ -137,16 +145,20 @@ export class PassengersComponent implements OnInit {
     };
     this.passengersService.queryPassengers(filters).subscribe({
       next: (res: any) => {
+        console.log('Passengers pagination response:', res);
         if (res && Array.isArray(res.passenger)) {
-          this.passenger = res.passenger;
+          this.passengers = res.passenger;
+          this.dataSource.data = this.passengers;
           this.totalItems = res.totalCount || res.passenger.length;
           this.totalPages = Math.ceil((res.totalCount || res.passenger.length) / this.itemsPerPage);
         } else if (Array.isArray(res)) {
-          this.passenger = res;
+          this.passengers = res;
+          this.dataSource.data = this.passengers;
           this.totalItems = res.length;
           this.totalPages = Math.ceil(res.length / this.itemsPerPage);
         } else {
-          this.passenger = [];
+          this.passengers = [];
+          this.dataSource.data = [];
           this.totalItems = 0;
           this.totalPages = 1;
         }
@@ -154,7 +166,8 @@ export class PassengersComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('Error fetching passengers:', err);
-        this.passenger = [];
+        this.passengers = [];
+        this.dataSource.data = [];
         this.totalItems = 0;
         this.totalPages = 1;
         this.loading = false;
@@ -162,8 +175,8 @@ export class PassengersComponent implements OnInit {
     });
   }
 
-  goToPage(page: number | string): void {
-    if (typeof page === 'number' && page >= 1 && page <= this.totalPages) {
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
       this.loadPassengers(page);
     }
   }
@@ -193,6 +206,26 @@ export class PassengersComponent implements OnInit {
       pages.push(this.totalPages);
     }
     return pages;
+  }
+
+  getStatusClass(passenger: any): string {
+    if (passenger.isBanned || passenger.status === 'banned' || passenger.status === 'blocked') {
+      return 'status-banned';
+    } else if (passenger.status === 'active' || passenger.isActive || !passenger.isBanned) {
+      return 'status-active';
+    } else {
+      return 'status-inactive';
+    }
+  }
+
+  getStatusText(passenger: any): string {
+    if (passenger.isBanned || passenger.status === 'banned' || passenger.status === 'blocked') {
+      return 'Banned';
+    } else if (passenger.status === 'active' || passenger.isActive || !passenger.isBanned) {
+      return 'Active';
+    } else {
+      return passenger.status ? passenger.status.charAt(0).toUpperCase() + passenger.status.slice(1) : 'Unknown';
+    }
   }
 
   openAddPassengerDialog(): void {

@@ -116,8 +116,18 @@ export class DriverService {
   }
   //https://dev.glaciersoft.in.net/driver/api/v1/driver/docs/{driverId}/getDocumentList///api/v1/driver/docs/{driverId}/getDocumentList
   getDriverDocuments(driverId: string): Observable<any> {
+    const accessToken = localStorage.getItem('accessToken');
+    const headers = accessToken
+      ? { Authorization: `Bearer ${accessToken}` }
+      : undefined;
+
+    let options: any = {};
+    if (headers) {
+      options.headers = headers;
+    }
     return this.http.get(
-      `${this.apiUrl}v1/driver/docs/${driverId}/getDocumentList`
+      `${this.apiUrl}/v1/driver/docs/${driverId}/getDocumentList`,
+      options
     );
   }
   ///api/v1/drivers/location/nearby  //https://dev.glaciersoft.in.net/driver/api/v1/drivers/location/nearby?lat=0&lon=0&radius=0
@@ -157,5 +167,42 @@ export class DriverService {
   // pagination
   getDriversByQuery(query: DriverQuery): Observable<any> {
     return this.http.post(`${this.apiUrl}/v1/driver/query`, query);
+  }
+
+  acceptDocument(driverId: string, documentId: string): Observable<any> {
+    const accessToken = localStorage.getItem('accessToken');
+    const headers = accessToken
+      ? { Authorization: `Bearer ${accessToken}` }
+      : undefined;
+
+    let options: any = {};
+    if (headers) {
+      options.headers = headers;
+    }
+    return this.http.put(
+      `${this.apiUrl}/v1/driver/docs/${driverId}/documents/${documentId}/approve`,
+      {},
+      options
+    );
+  }
+
+  rejectDocument(driverId: string, documentId: string, reason?: string): Observable<any> {
+    const accessToken = localStorage.getItem('accessToken');
+    const headers = accessToken
+      ? { Authorization: `Bearer ${accessToken}` }
+      : undefined;
+
+    let options: any = {};
+    if (headers) {
+      options.headers = headers;
+    }
+
+    const body = reason ? { reason } : {};
+    
+    return this.http.put(
+      `${this.apiUrl}/v1/driver/docs/${driverId}/documents/${documentId}/reject`,
+      body,
+      options
+    );
   }
 }

@@ -178,6 +178,22 @@
       text-align: center;
     }
     
+    // Documents cell styles
+    .documents-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .documents-btn {
+      opacity: 0.7;
+      transition: opacity 0.2s ease;
+    }
+    
+    .documents-btn:hover {
+      opacity: 1;
+    }
+    
     @media (max-width: 768px) {
       .page-header {
         flex-direction: column;

@@ -29,52 +29,78 @@
       </mat-card>
       
       <mat-card>
-        <mat-table [dataSource]="passenger">
+        @if(loading){
+        <div class="loader">
+          <mat-spinner></mat-spinner>
+          <p>Loading passengers...</p>
+        </div>
+        }@else if(error){
+        <div class="error-message">
+          <mat-icon color="warn">error</mat-icon>
+          <p>{{ error }}</p>
+          <button mat-button color="primary" (click)="getAllPassengers()">Retry</button>
+        </div>
+        }@else {
+        
+        <mat-table [dataSource]="dataSource">
           <ng-container matColumnDef="name">
             <mat-header-cell *matHeaderCellDef>Passenger</mat-header-cell>
             <mat-cell *matCellDef="let passenger">
               <div class="passenger-info">
-                <div class="passenger-avatar">{{passenger.name.charAt(0)}}</div>
+                <div class="passenger-avatar">
+                  {{ (passenger.name || passenger.firstName || 'U').charAt(0) }}
+                </div>
                 <div>
-                  <div class="passenger-name">{{passenger.name}}</div>
-                  <div class="passenger-email">{{passenger.email}}</div>
+                  <div class="passenger-name">
+                    {{ passenger.name || passenger.firstName + ' ' + (passenger.lastName || '') }}
+                  </div>
+                  <div class="passenger-email">{{ passenger.email }}</div>
                 </div>
               </div>
             </mat-cell>
           </ng-container>
           
           <ng-container matColumnDef="contactNumber">
-            <mat-header-cell *matHeaderCellDef>Contact Number</mat-header-cell>
-            <mat-cell *matCellDef="let passenger">{{passenger.contactNumber}}</mat-cell>
+            <mat-header-cell *matHeaderCellDef>Phone Number</mat-header-cell>
+            <mat-cell *matCellDef="let passenger">
+              {{ passenger.contactNumber || passenger.phoneNumber || passenger.phone || 'N/A' }}
+            </mat-cell>
           </ng-container>
           
           <ng-container matColumnDef="totalRides">
             <mat-header-cell *matHeaderCellDef>Total Rides</mat-header-cell>
-            <mat-cell *matCellDef="let passenger">{{passenger.totalRides}}</mat-cell>
+            <mat-cell *matCellDef="let passenger">
+              {{ passenger.totalRides || passenger.ridesCount || 0 }}
+            </mat-cell>
           </ng-container>
           
           <ng-container matColumnDef="rating">
             <mat-header-cell *matHeaderCellDef>Rating</mat-header-cell>
             <mat-cell *matCellDef="let passenger">
-              <div class="rating">
+              <div class="rating" *ngIf="passenger.rating || passenger.averageRating">
                 <mat-icon class="star-icon">star</mat-icon>
-                {{passenger.rating}}
+                {{ (passenger.rating || passenger.averageRating || 0) | number:'1.1-1' }}
               </div>
+              <span *ngIf="!passenger.rating && !passenger.averageRating" class="no-rating">
+                No rating
+              </span>
             </mat-cell>
           </ng-container>
           
           <ng-container matColumnDef="status">
             <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
             <mat-cell *matCellDef="let passenger">
-              <mat-chip [class]="passenger.isBanned ? 'status-banned' : 'status-active'">
-                {{passenger.isBanned ? 'Banned' : 'Active'}}
+              <mat-chip [class]="getStatusClass(passenger)">
+                {{ getStatusText(passenger) }}
               </mat-chip>
             </mat-cell>
           </ng-container>
           
           <ng-container matColumnDef="joinDate">
             <mat-header-cell *matHeaderCellDef>Join Date</mat-header-cell>
-            <mat-cell *matCellDef="let passenger">{{passenger.createdAt | date:'shortDate'}}</mat-cell>
+            <mat-cell *matCellDef="let passenger">
+              {{ (passenger.createdAt || passenger.joinDate || passenger.registrationDate) | date:'shortDate' }}
+            </mat-cell>
           </ng-container>
           
           <ng-container matColumnDef="actions">
@@ -92,6 +118,15 @@
           <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
           <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
         </mat-table>
+        
+        @if(passengers.length === 0 && !loading && !error){
+        <div class="no-data">
+          <mat-icon>people_outline</mat-icon>
+          <p>No passengers found</p>
+        </div>
+        }
+        
+        }
       </mat-card>
     </div>
     <!-- Pagination (Go to Page + Prev/Next) -->

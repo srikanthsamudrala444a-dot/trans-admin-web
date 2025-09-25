@@ -22,7 +22,9 @@ import { FormsModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { AddDriverDialogComponent } from './add-driver-dialog.component';
+import { DriverDocumentsDialogComponent } from './driver-documents-dialog.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   Driver,
   DriverQuery,
@@ -49,6 +51,7 @@ import {
     ReactiveFormsModule,
     RouterModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
   ],
   templateUrl: './drivers.component.html',
   styleUrls: ['./drivers.component.scss'],
@@ -214,14 +217,20 @@ export class DriversComponent implements OnInit {
       });
   }
 
-  getDriverDocuments(driverId: string): void {
-    this.driverService.getDriverDocuments(driverId).subscribe({
-      next: (documents: any) => {
-        console.log('Documents for driver:', documents);
-      },
-      error: (err: any) => {
-        console.error('Error fetching documents:', err);
-      },
+  openDocumentsDialog(driver: Driver): void {
+    const dialogRef = this.dialog.open(DriverDocumentsDialogComponent, {
+      width: '800px',
+      maxWidth: '90vw',
+      maxHeight: '90vh',
+      data: {
+        driverId: driver.id || driver.userId,
+        driverName: `${driver.firstName} ${driver.lastName}`
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      // Handle any actions after dialog closes if needed
+      console.log('Documents dialog closed');
     });
   }
 

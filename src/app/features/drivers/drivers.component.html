@@ -180,14 +180,25 @@
           Documents
         </mat-header-cell>
         <mat-cell *matCellDef="let driver">
-          <mat-chip
-            [class]="'docs-' + driver.documentsStatus"
-            [matBadge]="driver.documentsStatus === 'pending' ? '!' : ''"
-            matBadgeColor="warn"
-            [matBadgeHidden]="driver.documentsStatus !== 'pending'"
-          >
-            {{ driver.documentsStatus | titlecase }}
-          </mat-chip>
+          <div class="documents-cell">
+            <mat-chip
+              [class]="'docs-' + driver.documentsStatus"
+              [matBadge]="driver.documentsStatus === 'pending' ? '!' : ''"
+              matBadgeColor="warn"
+              [matBadgeHidden]="driver.documentsStatus !== 'pending'"
+            >
+              {{ driver.documentsStatus | titlecase }}
+            </mat-chip>
+            <button 
+              mat-icon-button 
+              color="primary" 
+              (click)="openDocumentsDialog(driver)"
+              matTooltip="View Documents"
+              class="documents-btn"
+            >
+              <mat-icon>description</mat-icon>
+            </button>
+          </div>
         </mat-cell>
       </ng-container>
 
