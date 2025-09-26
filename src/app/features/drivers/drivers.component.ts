@@ -17,6 +17,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatSortModule, Sort } from '@angular/material/sort';
+import { firstValueFrom } from 'rxjs';
 import { DriverService } from '../../core/services/driver.service';
 import { FormsModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -85,6 +86,10 @@ export class DriversComponent implements OnInit {
 
   currentSort: SortOption[] = [];
 
+  // Filter properties
+  selectedDocumentStatus: string = 'all';
+  selectedDriverStatus: string = 'all';
+
   onlineDrivers = 0;
   offlineDrivers = 0;
   pendingApprovals = 0;
@@ -100,48 +105,33 @@ export class DriversComponent implements OnInit {
   uploadError: string = '';
 
   ngOnInit(): void {
-    this.loadDrivers();
-  }
-
-  loadDrivers(page: number = 1, itemsPerPage: number = 10): void {
-    this.currentPage = page;
-    this.itemsPerPage = itemsPerPage;
-    this.isLoading.set(true);
-
-    const query: DriverQuery = {
-      pageNumber: this.currentPage,
-      itemsPerPage: this.itemsPerPage,
-      retrieveInactive: false,
-      sort: this.currentSort,
-    };
-
-    this.driverService.getDriversByQuery(query).subscribe({
-      next: (data: any) => {
-        console.log("Drivers data:",data)
-        if (data && Array.isArray(data.driver)) {
-          this.totalNumberOfRecords = data.pagination.totalNumberOfRecords;
-          this.dataSource.data = data.driver || [];
-          this.totalItems = data.totalCount || data.driver.length;
-          this.totalPages = Math.ceil(
-            (data.totalCount || data.driver.length || data.totalItems) /
-              this.itemsPerPage
-          );
-
-          this.calculateStats();
-        } else {
-          this.drivers = [];
-          this.totalItems = 0;
-          this.totalPages = 1;
-        }
-        this.isLoading.set(false);
+    console.log('DriversComponent: ngOnInit called');
+    
+    // Check authentication
+    const accessToken = localStorage.getItem('accessToken');
+    console.log('Access token present:', !!accessToken);
+    console.log('Access token length:', accessToken?.length || 0);
+    
+    if (!accessToken) {
+      console.error('No access token found! User may not be logged in.');
+      alert('Authentication Error: No access token found. Please log in again.');
+      return;
+    }
+    
+    // Test API connection first
+    console.log('Testing API connection...');
+    this.driverService.testConnection().subscribe({
+      next: (response) => {
+        console.log('API connection test successful:', response);
+        console.log('Loading drivers...');
+        this.loadDrivers();
       },
-      error: (err: any) => {
-        this.isLoading.set(false);
-        console.error('Error fetching drivers', err);
-        this.drivers = [];
-        this.totalItems = 0;
-        this.totalPages = 1;
-      },
+      error: (error) => {
+        console.error('API connection test failed:', error);
+        alert(`API Connection Failed: ${error.message || error.status || 'Unknown error'}`);
+        // Still try to load drivers
+        this.loadDrivers();
+      }
     });
   }
 
@@ -217,13 +207,208 @@ export class DriversComponent implements OnInit {
       });
   }
 
+  // Filter methods for document and driver status
+  onDocumentStatusFilterChange(): void {
+    console.log('Document status filter changed:', this.selectedDocumentStatus);
+    this.applyFilters();
+  }
+
+  onDriverStatusFilterChange(): void {
+    console.log('Driver status filter changed:', this.selectedDriverStatus);
+    this.applyFilters();
+  }
+
+  private applyFilters(): void {
+    this.currentPage = 1; // Reset to first page when applying filters
+    this.loadDriversWithFilters();
+  }
+
+  private loadDriversWithFilters(): void {
+    this.isLoading.set(true);
+
+    const query: DriverQuery = {
+      pageNumber: this.currentPage,
+      itemsPerPage: this.itemsPerPage,
+      retrieveInactive: false,
+      sort: this.currentSort,
+    };
+
+    // Add driver status filter if not 'all'
+    if (this.selectedDriverStatus !== 'all') {
+      (query as any).status = this.selectedDriverStatus;
+    }
+
+    this.driverService.getDriversByQuery(query).subscribe({
+      next: async (data: any) => {
+        console.log("Filtered drivers data:", data);
+        
+        if (data && Array.isArray(data.driver)) {
+          let filteredDrivers = data.driver;
+          
+          // Apply driver status filter if API doesn't handle it  
+          if (this.selectedDriverStatus !== 'all') {
+            filteredDrivers = filteredDrivers.filter((driver: any) => 
+              driver.status === this.selectedDriverStatus
+            );
+          }
+
+          // Apply document status filter using getDocuementVerificationList
+          if (this.selectedDocumentStatus !== 'all') {
+            const driversWithDocStatus = await this.filterDriversByDocumentStatus(filteredDrivers, this.selectedDocumentStatus);
+            filteredDrivers = driversWithDocStatus;
+          }
+
+          this.totalNumberOfRecords = filteredDrivers.length;
+          this.dataSource.data = filteredDrivers;
+          this.totalItems = filteredDrivers.length;
+          this.totalPages = Math.ceil(filteredDrivers.length / this.itemsPerPage);
+
+          this.calculateStats();
+        } else {
+          this.drivers = [];
+          this.dataSource.data = [];
+          this.totalItems = 0;
+          this.totalPages = 1;
+        }
+        this.isLoading.set(false);
+      },
+      error: (err: any) => {
+        this.isLoading.set(false);
+        console.error('Error fetching filtered drivers', err);
+        this.drivers = [];
+        this.dataSource.data = [];
+        this.totalItems = 0;
+        this.totalPages = 1;
+      },
+    });
+  }
+
+  private async filterDriversByDocumentStatus(drivers: any[], status: string): Promise<any[]> {
+    const filteredDrivers: any[] = [];
+    
+    for (const driver of drivers) {
+      try {
+        const documents = await firstValueFrom(this.driverService.getDocuementVerificationList(driver.id));
+        const documentStatus = this.evaluateDocumentStatus(documents);
+        
+        if (documentStatus === status) {
+          filteredDrivers.push(driver);
+        }
+      } catch (error) {
+        console.error(`Error fetching documents for driver ${driver.id}:`, error);
+        // If we can't fetch documents, exclude from filtered results for document-specific filters
+      }
+    }
+    
+    return filteredDrivers;
+  }
+
+  private evaluateDocumentStatus(documents: any): string {
+    if (!documents || !Array.isArray(documents)) {
+      return 'pending'; // Default to pending if no documents
+    }
+
+    // Check if all documents are approved
+    const allApproved = documents.every(doc => doc.status === 'approved' || doc.verificationStatus === 'approved');
+    if (allApproved && documents.length > 0) {
+      return 'approved';
+    }
+
+    // Check if any document is rejected
+    const anyRejected = documents.some(doc => doc.status === 'rejected' || doc.verificationStatus === 'rejected');
+    if (anyRejected) {
+      return 'rejected';
+    }
+
+    // Default to pending
+    return 'pending';
+  }
+
+  // Override the existing loadDrivers method to use filters
+  loadDrivers(page: number = 1, itemsPerPage: number = 10): void {
+    this.currentPage = page;
+    this.itemsPerPage = itemsPerPage;
+    
+    // Use filtered loading if any filters are active
+    if (this.selectedDocumentStatus !== 'all' || this.selectedDriverStatus !== 'all') {
+      this.loadDriversWithFilters();
+    } else {
+      this.loadDriversOriginal(page, itemsPerPage);
+    }
+  }
+
+  // Rename the original loadDrivers method
+  private loadDriversOriginal(page: number = 1, itemsPerPage: number = 10): void {
+    console.log('DriversComponent: loadDriversOriginal called');
+    console.log('Page:', page, 'ItemsPerPage:', itemsPerPage);
+    
+    this.currentPage = page;
+    this.itemsPerPage = itemsPerPage;
+    this.isLoading.set(true);
+
+    const query: DriverQuery = {
+      pageNumber: this.currentPage,
+      itemsPerPage: this.itemsPerPage,
+      retrieveInactive: false,
+      sort: this.currentSort,
+    };
+
+    console.log('Query object:', query);
+    console.log('Calling driverService.getDriversByQuery...');
+
+    this.driverService.getDriversByQuery(query).subscribe({
+      next: (data: any) => {
+        console.log("Drivers data:",data)
+        if (data && Array.isArray(data.driver)) {
+          this.totalNumberOfRecords = data.pagination.totalNumberOfRecords;
+          this.dataSource.data = data.driver || [];
+          this.totalItems = data.totalCount || data.driver.length;
+          this.totalPages = Math.ceil(
+            (data.totalCount || data.driver.length || data.totalItems) /
+              this.itemsPerPage
+          );
+
+          this.calculateStats();
+        } else {
+          this.drivers = [];
+          this.totalItems = 0;
+          this.totalPages = 1;
+        }
+        this.isLoading.set(false);
+      },
+      error: (err: any) => {
+        this.isLoading.set(false);
+        console.error('Error fetching drivers:', err);
+        console.error('Error status:', err.status);
+        console.error('Error message:', err.message);
+        console.error('Error details:', err.error);
+        
+        // Show user-friendly error message
+        alert(`Failed to load drivers. Error: ${err.status} - ${err.message || 'Unknown error'}`);
+        
+        this.drivers = [];
+        this.dataSource.data = [];
+        this.totalItems = 0;
+        this.totalPages = 1;
+      },
+    });
+  }
+
   openDocumentsDialog(driver: Driver): void {
+    console.log('Opening documents dialog for driver:', driver);
+    console.log('Driver ID:', driver.id);
+    console.log('Driver User ID:', driver.userId);
+    console.log('Driver Name:', `${driver.firstName} ${driver.lastName}`);
+    
+    const driverId = driver.id || driver.userId;
+    console.log('Using driver ID:', driverId);
+    
     const dialogRef = this.dialog.open(DriverDocumentsDialogComponent, {
       width: '800px',
       maxWidth: '90vw',
       maxHeight: '90vh',
       data: {
-        driverId: driver.id || driver.userId,
+        driverId: driverId,
         driverName: `${driver.firstName} ${driver.lastName}`
       }
     });

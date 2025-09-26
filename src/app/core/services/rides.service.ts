@@ -26,7 +26,7 @@ export class RideService {
     const headers = accessToken
       ? new HttpHeaders({ Authorization: `Bearer ${accessToken}` })
       : undefined;
-    return this.http.post(`${this.baseUrl}/v1/rides/query`, queryData, {
+    return this.http.post(`${this.baseUrl}/rides/query`, queryData, {
       headers,
     });
   }
