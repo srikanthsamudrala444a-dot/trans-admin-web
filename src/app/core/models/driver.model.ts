@@ -10,9 +10,9 @@ export interface SortOption {
   sortDirection: 'ASCENDING' | 'DESCENDING';
 }
 export interface DriverFilters {
-  city?: string;
-  state?: string;
-  postalCode?: string;
+  status?: string;
+  firstName?: string;
+  lastName?: string;
 }
 
 export interface Driver {

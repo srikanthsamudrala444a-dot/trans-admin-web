@@ -50,8 +50,11 @@
       <div class="filters">
         <mat-form-field appearance="outline">
           <mat-label>Status</mat-label>
-          <mat-select [(value)]="selectedDriverStatus" (selectionChange)="onDriverStatusFilterChange()">
-            <mat-option value="all">All Status</mat-option>
+          <mat-select
+            [(ngModel)]="selectedDriverStatus"
+            (selectionChange)="applyFilters()"
+          >
+            <mat-option value="">All Status</mat-option>
             <mat-option value="online">Online</mat-option>
             <mat-option value="offline">Offline</mat-option>
             <mat-option value="busy">Busy</mat-option>
@@ -60,17 +63,24 @@
 
         <mat-form-field appearance="outline">
           <mat-label>Document Status</mat-label>
-          <mat-select [(value)]="selectedDocumentStatus" (selectionChange)="onDocumentStatusFilterChange()">
+          <mat-select
+            [(ngModel)]="selectedDocumentStatus"
+            (selectionChange)="applyFilters()"
+          >
             <mat-option value="all">All Documents</mat-option>
             <mat-option value="approved">Approved</mat-option>
             <mat-option value="pending">Pending</mat-option>
             <mat-option value="rejected">Rejected</mat-option>
           </mat-select>
         </mat-form-field>
-
         <mat-form-field appearance="outline">
           <mat-label>Search</mat-label>
-          <input matInput placeholder="Search by name, email, or phone" />
+          <input
+            matInput
+            placeholder="Search by name, email, or phone"
+            [(ngModel)]="searchTerm"
+            (keyup)="applyFilters()"
+          />
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
       </div>
@@ -78,170 +88,162 @@
   </mat-card>
 
   <mat-card>
-    @if(isLoading()){
-    <div class="loader">
-      <mat-spinner></mat-spinner>
-    </div>
-    }@else {
-
-    <mat-table
-      [dataSource]="dataSource"
-      matSort
-      (matSortChange)="announceSortChange($event)"
-    >
-      <!-- Name Column with Sorting -->
-      <ng-container matColumnDef="name">
-        <mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-          sortActionDescription="Sort by name"
-        >
-          Driver
-        </mat-header-cell>
-        <mat-cell *matCellDef="let driver">
-          <div class="driver-info">
-            <div class="driver-avatar">
-              {{ driver.firstName ? driver.firstName.charAt(0) : ""
-              }}{{ driver.lastName ? driver.lastName.charAt(0) : "" }}
-            </div>
-            <div>
-              <div class="driver-name">
-                {{ driver.firstName }} {{ driver.lastName }}
-              </div>
-              <div class="driver-email">{{ driver.email }}</div>
-            </div>
-          </div>
-        </mat-cell>
-      </ng-container>
-
-      <!-- Phone Column with Sorting -->
-      <ng-container matColumnDef="phone">
-        <mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-          sortActionDescription="Sort by phone"
-        >
-          Phone
-        </mat-header-cell>
-        <mat-cell *matCellDef="let driver">{{ driver.contactNumber }}</mat-cell>
-      </ng-container>
-
-      <!-- Status Column with Sorting -->
-      <ng-container matColumnDef="status">
-        <mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-          sortActionDescription="Sort by status"
-        >
-          Status
-        </mat-header-cell>
-        <mat-cell *matCellDef="let driver">
-          <mat-chip [class]="'status-' + driver.status">
-            <mat-icon *ngIf="driver.status === 'online'"
-              >radio_button_checked</mat-icon
-            >
-            <mat-icon *ngIf="driver.status === 'offline'"
-              >radio_button_unchecked</mat-icon
-            >
-            <mat-icon *ngIf="driver.status === 'busy'">local_taxi</mat-icon>
-            <mat-icon *ngIf="driver.status === 'active'">check_circle</mat-icon>
-            <mat-icon *ngIf="driver.status === 'inactive'"
-              >highlight_off</mat-icon
-            >
-            {{ driver.status | titlecase }}
-          </mat-chip>
-        </mat-cell>
-      </ng-container>
-
-      <!-- Rating Column with Sorting -->
-      <ng-container matColumnDef="rating">
-        <mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-          sortActionDescription="Sort by rating"
-        >
-          Rating
-        </mat-header-cell>
-        <mat-cell *matCellDef="let driver">
-          <div class="rating">
-            <mat-icon class="star-icon">star</mat-icon>
-            {{ driver.averageRating }} ({{ driver.ratingCount }})
-          </div>
-        </mat-cell>
-      </ng-container>
-
-      <!-- Documents Column with Sorting -->
-      <ng-container matColumnDef="documents">
-        <mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-          sortActionDescription="Sort by documents status"
-        >
-          Documents
-        </mat-header-cell>
-        <mat-cell *matCellDef="let driver">
-          <div class="documents-cell">
-            <mat-chip
-              [class]="'docs-' + driver.documentsStatus"
-              [matBadge]="driver.documentsStatus === 'pending' ? '!' : ''"
-              matBadgeColor="warn"
-              [matBadgeHidden]="driver.documentsStatus !== 'pending'"
-            >
-              {{ driver.documentsStatus | titlecase }}
-            </mat-chip>
-            <button 
-              mat-icon-button 
-              color="primary" 
-              (click)="openDocumentsDialog(driver)"
-              matTooltip="View Documents"
-              class="documents-btn"
-            >
-              <mat-icon>description</mat-icon>
-            </button>
-          </div>
-        </mat-cell>
-      </ng-container>
-
-      <!-- Earnings Column with Sorting -->
-      <ng-container matColumnDef="earnings">
-        <mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-          sortActionDescription="Sort by earnings"
-        >
-          Earnings
-        </mat-header-cell>
-        <mat-cell *matCellDef="let driver">₹ {{ driver.earnings }}</mat-cell>
-      </ng-container>
-
-      <!-- Actions Column (No Sorting) -->
-      <ng-container matColumnDef="actions">
-        <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
-        <mat-cell *matCellDef="let driver">
-          <button
-            mat-icon-button
-            color="primary"
-            [routerLink]="['/drivers', driver.id || driver.userId]"
+    <div class="table-container">
+      <mat-table
+        [dataSource]="dataSource"
+        matSort
+        (matSortChange)="announceSortChange($event)"
+      >
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <mat-header-cell *matHeaderCellDef mat-sort-header
+            >Driver</mat-header-cell
           >
-            <mat-icon>visibility</mat-icon>
-          </button>
-          <button mat-icon-button>
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button color="warn">
-            <mat-icon>block</mat-icon>
-          </button>
-        </mat-cell>
-      </ng-container>
+          <mat-cell *matCellDef="let driver">
+            <div class="driver-info">
+              <div class="driver-avatar">
+                {{ driver.firstName ? driver.firstName.charAt(0) : ""
+                }}{{ driver.lastName ? driver.lastName.charAt(0) : "" }}
+              </div>
+              <div>
+                <div class="driver-name">
+                  {{ driver.firstName }} {{ driver.lastName }}
+                </div>
+                <div class="driver-email">{{ driver.email }}</div>
+              </div>
+            </div>
+          </mat-cell>
+        </ng-container>
 
-      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-      <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
-    </mat-table>
-    }
+        <!-- Phone Column -->
+        <ng-container matColumnDef="phone">
+          <mat-header-cell *matHeaderCellDef mat-sort-header
+            >Phone</mat-header-cell
+          >
+          <mat-cell *matCellDef="let driver">{{
+            driver.contactNumber
+          }}</mat-cell>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <mat-header-cell *matHeaderCellDef mat-sort-header
+            >Status</mat-header-cell
+          >
+          <mat-cell *matCellDef="let driver">
+            <mat-chip [class]="'status-' + driver.status">
+              <mat-icon *ngIf="driver.status === 'online'"
+                >radio_button_checked</mat-icon
+              >
+              <mat-icon *ngIf="driver.status === 'offline'"
+                >radio_button_unchecked</mat-icon
+              >
+              <mat-icon *ngIf="driver.status === 'busy'">local_taxi</mat-icon>
+              <mat-icon *ngIf="driver.status === 'active'"
+                >check_circle</mat-icon
+              >
+              <mat-icon *ngIf="driver.status === 'inactive'"
+                >highlight_off</mat-icon
+              >
+              {{ driver.status | titlecase }}
+            </mat-chip>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Rating Column -->
+        <ng-container matColumnDef="rating">
+          <mat-header-cell *matHeaderCellDef mat-sort-header
+            >Rating</mat-header-cell
+          >
+          <mat-cell *matCellDef="let driver">
+            <div class="rating">
+              <mat-icon class="star-icon">star</mat-icon>
+              {{ driver.averageRating }} ({{ driver.ratingCount }})
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Documents Column -->
+        <ng-container matColumnDef="documents">
+          <mat-header-cell *matHeaderCellDef mat-sort-header
+            >Documents</mat-header-cell
+          >
+          <mat-cell *matCellDef="let driver">
+            <div class="documents-cell">
+              <mat-chip
+                [class]="'docs-' + driver.documentsStatus"
+                [matBadge]="driver.documentsStatus === 'pending' ? '!' : ''"
+                matBadgeColor="warn"
+                [matBadgeHidden]="driver.documentsStatus !== 'pending'"
+              >
+                {{ driver.documentsStatus | titlecase }}
+              </mat-chip>
+              <button
+                mat-icon-button
+                color="primary"
+                (click)="openDocumentsDialog(driver)"
+                matTooltip="View Documents"
+                class="documents-btn"
+              >
+                <mat-icon>description</mat-icon>
+              </button>
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Earnings Column -->
+        <ng-container matColumnDef="earnings">
+          <mat-header-cell *matHeaderCellDef mat-sort-header
+            >Earnings</mat-header-cell
+          >
+          <mat-cell *matCellDef="let driver">₹ {{ driver.earnings }}</mat-cell>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+          <mat-cell *matCellDef="let driver">
+            <button
+              mat-icon-button
+              color="primary"
+              [routerLink]="['/drivers', driver.id || driver.userId]"
+            >
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button mat-icon-button>
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn">
+              <mat-icon>block</mat-icon>
+            </button>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Header Row -->
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        @if(isLoading()){
+        <div class="loader">
+          <mat-spinner></mat-spinner>
+        </div>
+        }
+        <!-- Data Rows -->
+        <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+
+        <!-- No Data Row -->
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+            <div class="no-data-message" *ngIf="!isLoading()">
+              <mat-icon>inbox</mat-icon>
+              <p>No drivers found</p>
+            </div>
+          </td>
+        </tr>
+      </mat-table>
+    </div>
   </mat-card>
 </div>
 
-<!-- Pagination (Go to Page + Prev/Next) -->
+<!-- Pagination -->
 <div
   class="pagination-controls"
   style="
