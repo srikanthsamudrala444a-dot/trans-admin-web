@@ -62,8 +62,6 @@ export class DriversComponent implements OnInit, AfterViewInit {
   // Problems to be fixed:
   // 1 - Fix arrow forward + Next button conditions
   // 2 - Fix Limit
-  // 3 - Loading
-  // 4 - No data found
 
   private _liveAnnouncer = inject(LiveAnnouncer);
 
@@ -115,38 +113,7 @@ export class DriversComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    console.log('DriversComponent: ngOnInit called');
-
-    const accessToken = localStorage.getItem('accessToken');
-    console.log('Access token present:', !!accessToken);
-    console.log('Access token length:', accessToken?.length || 0);
-
-    if (!accessToken) {
-      console.error('No access token found! User may not be logged in.');
-      alert(
-        'Authentication Error: No access token found. Please log in again.'
-      );
-      return;
-    }
-
-    // Test API connection
-    console.log('Testing API connection...');
-    this.driverService.testConnection().subscribe({
-      next: (response) => {
-        console.log('API connection test successful:', response);
-        console.log('Loading drivers...');
-        this.loadDrivers();
-      },
-      error: (error) => {
-        console.error('API connection test failed:', error);
-        alert(
-          `API Connection Failed: ${
-            error.message || error.status || 'Unknown error'
-          }`
-        );
-        this.loadDrivers();
-      },
-    });
+    this.loadDrivers();
   }
 
   ngAfterViewInit(): void {
@@ -184,12 +151,14 @@ export class DriversComponent implements OnInit, AfterViewInit {
             (data.totalCount || data.driver.length || data.totalItems) /
               this.itemsPerPage
           );
-
+          this.isLoading.set(false);
           this.calculateStats();
         } else {
           this.drivers = [];
+          this.dataSource.data = [];
           this.totalItems = 0;
           this.totalPages = 1;
+          this.isLoading.set(false);
         }
       },
       error: (err: any) => {

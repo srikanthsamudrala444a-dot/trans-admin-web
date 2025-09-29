@@ -221,24 +221,19 @@
 
         <!-- Header Row -->
         <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-        @if(isLoading()){
-        <div class="loader">
-          <mat-spinner></mat-spinner>
-        </div>
-        }
+
         <!-- Data Rows -->
         <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
-
-        <!-- No Data Row -->
-        <tr class="mat-row" *matNoDataRow>
-          <td class="mat-cell" [attr.colspan]="displayedColumns.length">
-            <div class="no-data-message" *ngIf="!isLoading()">
-              <mat-icon>inbox</mat-icon>
-              <p>No drivers found</p>
-            </div>
-          </td>
-        </tr>
       </mat-table>
+      @if(isLoading()){
+      <div class="loader">
+        <mat-spinner></mat-spinner>
+      </div>
+      }@else if(dataSource.data.length === 0){
+      <div class="no-data">
+        <h1>No drivers data</h1>
+      </div>
+      }
     </div>
   </mat-card>
 </div>
