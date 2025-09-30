@@ -1,8 +1,7 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
 import { RoleGuard } from './core/guards/role.guard';
-import { RidesComponent } from './features/rides/rides.component';
-import { RideDetailsComponent } from './rides/ride-details/ride-details.component';
+
 export const routes: Routes = [
   {
     path: '',
@@ -73,7 +72,7 @@ export const routes: Routes = [
       },
       {
         path: 'drivers/:driverId',
-        loadComponent: () => import('./features/drivers/driver-details.component').then(c => c.DriverDetailsComponent)
+        loadComponent: () => import('./features/driver-details/driver-details.component').then(c => c.DriverDetailsComponent)
       },
       {
         path: 'vehicles/:vehicleId',

@@ -22,8 +22,7 @@ import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { DriverService } from '../../core/services/driver.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { AddDriverDialogComponent } from './add-driver-dialog.component';
-import { DriverDocumentsDialogComponent } from './driver-documents-dialog.component';
+import { DriverDocumentsDialogComponent } from '../driver-documents-dialog/driver-documents-dialog.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
@@ -32,6 +31,7 @@ import {
   SortOption,
 } from '../../core/models/driver.model';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
+import { AddDriverDialogComponent } from '../add-driver-dialog/add-driver-dialog.component';
 
 @Component({
   selector: 'app-drivers',
@@ -62,6 +62,7 @@ export class DriversComponent implements OnInit, AfterViewInit {
   // Problems to be fixed:
   // 1 - Fix arrow forward + Next button conditions
   // 2 - Fix Limit
+  // 3 - Loading while change page appers down the data
 
   private _liveAnnouncer = inject(LiveAnnouncer);
 

@@ -10,9 +10,9 @@ import { HttpClient } from '@angular/common/http';
 import { DriverService } from '../../core/services/driver.service';
 import { VehicleService } from '../../core/services/vehicles.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { AddDriverDialogComponent } from '../drivers/add-driver-dialog.component';
 import { AddVehicleDialogComponent } from '../vehicles/add-vehicle-dialog.component';
 import { Driver } from '../../core/models/driver.model';
+import { AddDriverDialogComponent } from '../add-driver-dialog/add-driver-dialog.component';
 
 
 interface DriverLocation {
