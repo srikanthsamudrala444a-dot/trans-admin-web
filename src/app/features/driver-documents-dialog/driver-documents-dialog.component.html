@@ -11,30 +11,6 @@
     <p>Loading driver documents...</p>
   </div>
 
-  <!-- Debug info (set showDebug = true to enable) -->
-  <div
-    *ngIf="!loading && showDebug"
-    style="
-      background: #f0f0f0;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 4px;
-    "
-  >
-    <h4>🐛 Debug Info:</h4>
-    <p><strong>Loading:</strong> {{ loading }}</p>
-    <p>
-      <strong>Documents array exists:</strong>
-      {{ documents && documents.length >= 0 }}
-    </p>
-    <p><strong>Documents length:</strong> {{ documents.length }}</p>
-    <p><strong>Documents type:</strong> Array</p>
-    <details>
-      <summary>Raw documents data</summary>
-      <pre>{{ documents | json }}</pre>
-    </details>
-  </div>
-
   <div
     *ngIf="!loading && documents && documents.length > 0"
     class="documents-grid"
@@ -128,68 +104,72 @@
       </mat-card-content>
 
       <mat-card-actions>
-        <button
-          mat-button
-          color="primary"
-          *ngIf="document.documentUrl || document.url || document.fileUrl"
-          (click)="
-            viewDocument(
-              document.documentUrl || document.url || document.fileUrl
-            )
-          "
-        >
-          <mat-icon>visibility</mat-icon>
-          View Document
-        </button>
-        <button
-          mat-button
-          color="accent"
-          *ngIf="document.documentUrl || document.url || document.fileUrl"
-          (click)="
-            downloadDocument(
-              document.documentUrl || document.url || document.fileUrl,
-              document.documentType || document.type
-            )
-          "
-        >
-          <mat-icon>download</mat-icon>
-          Download
-        </button>
-
         <!-- Document Status Actions -->
-        <div
-          class="document-actions"
-          *ngIf="
+        <!-- *ngIf="
             document.status === 'pending' ||
             document.status === 'PENDING' ||
             document.verificationStatus === 'pending' ||
             document.verificationStatus === 'PENDING'
-          "
-        >
-          <button
-            mat-raised-button
-            color="primary"
-            (click)="approveDocument(document)"
-            [disabled]="
-              processingDocumentId ===
-              (document.id || document._id || document.documentId)
-            "
-          >
-            <mat-icon>check_circle</mat-icon>
-            Approve
-          </button>
-          <button
-            mat-raised-button
-            color="warn"
-            (click)="openRejectDialog(document)"
-            [disabled]="
-              processingDocumentId ===
-              (document.id || document._id || document.documentId)
-            "
-          >
-            <mat-icon>cancel</mat-icon>
-            Reject
-          </button>
+          " -->
+        <div class="actions">
+          <div class="secondary-actions">
+            <button
+              mat-stroked-button
+              color="primary"
+              *ngIf="document.documentUrl || document.url || document.fileUrl"
+              (click)="
+                viewDocument(
+                  document.documentUrl || document.url || document.fileUrl
+                )
+              "
+            >
+              <mat-icon>visibility</mat-icon>
+              View
+            </button>
+
+            <button
+              mat-stroked-button
+              color="accent"
+              *ngIf="document.documentUrl || document.url || document.fileUrl"
+              (click)="
+                downloadDocument(
+                  document.documentUrl || document.url || document.fileUrl,
+                  document.documentType || document.type
+                )
+              "
+            >
+              <mat-icon>download</mat-icon>
+              Download
+            </button>
+          </div>
+
+          <div class="primary-actions">
+            <button
+              mat-raised-button
+              class="approve-btn"
+              (click)="approveDocument(document)"
+              [disabled]="
+                processingDocumentId ===
+                (document.id || document._id || document.documentId)
+              "
+            >
+              <mat-icon>check_circle</mat-icon>
+              Approve
+            </button>
+
+            <button
+              mat-raised-button
+              class="reject-btn"
+              (click)="openRejectDialog(document)"
+              [disabled]="
+                processingDocumentId ===
+                (document.id || document._id || document.documentId)
+              "
+            >
+              <mat-icon>cancel</mat-icon>
+              Reject
+            </button>
+          </div>
         </div>
 
         <div
