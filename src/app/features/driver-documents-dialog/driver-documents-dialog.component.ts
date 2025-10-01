@@ -109,6 +109,8 @@ export class DriverDocumentsDialogComponent implements OnInit {
       .approveDocument(this.data.driverId, documentId)
       .subscribe({
         next: (response: any) => {
+          console.log('appvrove res:', response);
+
           this.processingDocumentId = null;
           this.snackBar.open('Document approved successfully', 'Close', {
             duration: 3000,
@@ -124,6 +126,8 @@ export class DriverDocumentsDialogComponent implements OnInit {
           }
         },
         error: (error: any) => {
+          console.log('err approve:', error);
+
           this.processingDocumentId = null;
           console.error('Error approving document:', error);
           this.snackBar.open('Failed to approve document', 'Close', {
@@ -133,24 +137,24 @@ export class DriverDocumentsDialogComponent implements OnInit {
       });
   }
 
-  openRejectDialog(document: any): void {
-    const rejectDialogRef = this.dialog.open(DocumentRejectDialogComponent, {
-      width: '400px',
-      data: {
-        documentType: document.documentType || document.type || 'Document',
-        driverName: this.data.driverName,
-      },
-    });
+  // openRejectDialog(document: any): void {
+  //   const rejectDialogRef = this.dialog.open(DocumentRejectDialogComponent, {
+  //     width: '400px',
+  //     data: {
+  //       documentType: document.documentType || document.type || 'Document',
+  //       driverName: this.data.driverName,
+  //     },
+  //   });
 
-    rejectDialogRef.afterClosed().subscribe((reason: string) => {
-      if (reason !== undefined) {
-        // User didn't cancel
-        this.rejectDocument(document, reason);
-      }
-    });
-  }
+  //   rejectDialogRef.afterClosed().subscribe((reason: string) => {
+  //     if (reason !== undefined) {
+  //       // User didn't cancel
+  //       this.rejectDocument(document, reason);
+  //     }
+  //   });
+  // }
 
-  rejectDocument(document: any, reason: string): void {
+  rejectDocument(document: any): void {
     const documentId = document.id || document._id || document.documentId;
     if (!documentId) {
       this.snackBar.open('Document ID not found', 'Close', { duration: 3000 });
@@ -160,9 +164,11 @@ export class DriverDocumentsDialogComponent implements OnInit {
     this.processingDocumentId = documentId;
 
     this.driverService
-      .rejectDocument(this.data.driverId, documentId, reason)
+      .rejectDocument(this.data.driverId, documentId)
       .subscribe({
         next: (response: any) => {
+          console.log('reject doc res:', response);
+
           this.processingDocumentId = null;
           this.snackBar.open('Document rejected successfully', 'Close', {
             duration: 3000,
@@ -175,7 +181,6 @@ export class DriverDocumentsDialogComponent implements OnInit {
           if (docIndex !== -1) {
             this.documents[docIndex].status = 'rejected';
             this.documents[docIndex].statusDate = new Date().toISOString();
-            this.documents[docIndex].rejectionReason = reason;
           }
         },
         error: (error: any) => {

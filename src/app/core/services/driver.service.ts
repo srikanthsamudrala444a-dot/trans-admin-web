@@ -99,7 +99,11 @@ export class DriverService {
     return this.http.post(`${this.apiUrl}v1/driver/location/${id}`, location);
   }
 
-  uploadDriverDocument(driverId: string, selectedDocumentType: string, file: File): Observable<any> {
+  uploadDriverDocument(
+    driverId: string,
+    selectedDocumentType: string,
+    file: File
+  ): Observable<any> {
     const accessToken = localStorage.getItem('accessToken');
     const headers = accessToken
       ? { Authorization: `Bearer ${accessToken}` }
@@ -122,11 +126,14 @@ export class DriverService {
   }
   //https://dev.glaciersoft.in.net/driver/api/v1/driver/docs/{driverId}/getDocumentList///api/v1/driver/docs/{driverId}/getDocumentList
   getDriverDocuments(driverId: string): Observable<any> {
-    console.log('DriverService: getDriverDocuments called with driverId:', driverId);
-    
+    console.log(
+      'DriverService: getDriverDocuments called with driverId:',
+      driverId
+    );
+
     const accessToken = localStorage.getItem('accessToken');
     console.log('Access token exists:', !!accessToken);
-    
+
     const headers = accessToken
       ? { Authorization: `Bearer ${accessToken}` }
       : undefined;
@@ -135,18 +142,21 @@ export class DriverService {
     if (headers) {
       options.headers = headers;
     }
-    
+
     const url = `${this.apiUrl}/v1/driver/docs/${driverId}/getDocumentList`;
     console.log('API URL:', url);
-    
+
     return this.http.get(url, options);
   }
   getDocuementVerificationList(driverId: string): Observable<any> {
-    console.log('DriverService: getDocuementVerificationList called with driverId:', driverId);
-    
+    console.log(
+      'DriverService: getDocuementVerificationList called with driverId:',
+      driverId
+    );
+
     const accessToken = localStorage.getItem('accessToken');
     console.log('Access token exists:', !!accessToken);
-    
+
     const headers = accessToken
       ? { Authorization: `Bearer ${accessToken}` }
       : undefined;
@@ -155,10 +165,10 @@ export class DriverService {
     if (headers) {
       options.headers = headers;
     }
-    
+
     const url = `${this.apiUrl}/v1/driver/docs/${driverId}/getDocumentList`;
     console.log('API URL:', url);
-    
+
     return this.http.get(url, options);
   }
   ///api/v1/drivers/location/nearby  //https://dev.glaciersoft.in.net/driver/api/v1/drivers/location/nearby?lat=0&lon=0&radius=0
@@ -207,10 +217,10 @@ export class DriverService {
   // pagination
   getDriversByQuery(query: DriverQuery): Observable<any> {
     console.log('DriverService: getDriversByQuery called with query:', query);
-    
+
     const accessToken = localStorage.getItem('accessToken');
     console.log('Access token exists:', !!accessToken);
-    
+
     const headers = accessToken
       ? { Authorization: `Bearer ${accessToken}` }
       : undefined;
@@ -219,71 +229,49 @@ export class DriverService {
     if (headers) {
       options.headers = headers;
     }
-    
+
     const url = `${this.apiUrl}/v1/driver/query`;
     console.log('API URL:', url);
     console.log('Query body:', query);
-    
+
     return this.http.post(url, query, options);
   }
 
   approveDocument(driverId: string, documentId: string): Observable<any> {
-    const accessToken = localStorage.getItem('accessToken');
-    const headers = accessToken
-      ? { Authorization: `Bearer ${accessToken}` }
-      : undefined;
-
-    let options: any = {};
-    if (headers) {
-      options.headers = headers;
-    }
-    
-    return this.http.put(
-      `${this.apiUrl}/v1/driver/docs/${driverId}/document/${documentId}/approve`,
-      {},
-      options
+    return this.http.patch(
+      `${this.apiUrl}/v1/driver/docs/${driverId}/approve/${documentId}`,
+      { driverId, documentId }
     );
   }
 
-  rejectDocument(driverId: string, documentId: string, reason: string): Observable<any> {
-    const accessToken = localStorage.getItem('accessToken');
-    const headers = accessToken
-      ? { Authorization: `Bearer ${accessToken}` }
-      : undefined;
+  rejectDocument(driverId: string, documentId: string): Observable<any> {
+    const body = { driverId, documentId };
 
-    let options: any = {};
-    if (headers) {
-      options.headers = headers;
-    }
-    
-    const body = { rejectionReason: reason };
-    
-    return this.http.put(
-      `${this.apiUrl}/v1/driver/docs/${driverId}/document/${documentId}/reject`,
-      body,
-      options
+    return this.http.patch(
+      `${this.apiUrl}/v1/driver/docs/${driverId}/reject/${documentId}`,
+      body
     );
   }
 
   // Test method to check API connectivity and authentication
   testConnection(): Observable<any> {
     console.log('Testing API connection...');
-    
+
     const accessToken = localStorage.getItem('accessToken');
     console.log('Access token for test:', accessToken ? 'Present' : 'Missing');
-    
+
     if (!accessToken) {
       console.error('No access token found in localStorage');
       return throwError(() => new Error('No access token found'));
     }
-    
+
     const headers = { Authorization: `Bearer ${accessToken}` };
     const options = { headers };
-    
+
     // Try a simple endpoint first
     const testUrl = `${this.apiUrl}/v1/driver/all`;
     console.log('Test URL:', testUrl);
-    
+
     return this.http.get(testUrl, options);
   }
 }

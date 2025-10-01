@@ -143,6 +143,7 @@
             </button>
           </div>
 
+          @if(!document.status){
           <div class="primary-actions">
             <button
               mat-raised-button
@@ -160,7 +161,7 @@
             <button
               mat-raised-button
               class="reject-btn"
-              (click)="openRejectDialog(document)"
+              (click)="rejectDocument(document)"
               [disabled]="
                 processingDocumentId ===
                 (document.id || document._id || document.documentId)
@@ -170,47 +171,7 @@
               Reject
             </button>
           </div>
-        </div>
-
-        <div
-          class="document-status-info"
-          *ngIf="
-            (document.status && document.status.toLowerCase() !== 'pending') ||
-            (document.verificationStatus &&
-              document.verificationStatus.toLowerCase() !== 'pending')
-          "
-        >
-          <mat-chip
-            [class]="
-              getStatusClass(document.status || document.verificationStatus)
-            "
-          >
-            <mat-icon
-              *ngIf="
-                document.status === 'approved' ||
-                document.status === 'APPROVED' ||
-                document.verificationStatus === 'approved' ||
-                document.verificationStatus === 'APPROVED'
-              "
-              >check_circle</mat-icon
-            >
-            <mat-icon
-              *ngIf="
-                document.status === 'rejected' ||
-                document.status === 'REJECTED' ||
-                document.verificationStatus === 'rejected' ||
-                document.verificationStatus === 'REJECTED'
-              "
-              >cancel</mat-icon
-            >
-            {{ document.status || document.verificationStatus | titlecase }}
-          </mat-chip>
-          <span
-            class="status-date"
-            *ngIf="document.statusDate || document.modifiedDate"
-          >
-            {{ document.statusDate || document.modifiedDate | date : "short" }}
-          </span>
+          }
         </div>
       </mat-card-actions>
     </mat-card>
