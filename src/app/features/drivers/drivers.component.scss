@@ -123,21 +123,6 @@
   color: #1565c0;
 }
 
-.docs-approved {
-  background-color: #e8f5e8;
-  color: #2e7d32;
-}
-
-.docs-pending {
-  background-color: #fff3e0;
-  color: #e65100;
-}
-
-.docs-rejected {
-  background-color: #ffebee;
-  color: #c62828;
-}
-
 .rating {
   display: flex;
   align-items: center;
@@ -149,49 +134,6 @@
   font-size: 16px;
   width: 16px;
   height: 16px;
-}
-
-.pagination-controls {
-  background: #111;
-  color: #fff;
-  border-radius: 8px;
-  padding: 8px 16px;
-}
-
-.pagination-controls button,
-.pagination-controls mat-icon,
-.pagination-controls span,
-.pagination-controls input,
-.pagination-controls mat-form-field {
-  color: #fff !important;
-}
-
-.pagination-controls mat-form-field {
-  background: #222;
-  border-radius: 4px;
-}
-
-.pagination-controls input {
-  background: #222;
-  border: none;
-  color: #fff;
-  text-align: center;
-}
-
-// Documents cell styles
-.documents-cell {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.documents-btn {
-  opacity: 0.7;
-  transition: opacity 0.2s ease;
-}
-
-.documents-btn:hover {
-  opacity: 1;
 }
 
 .no-data {

@@ -31,6 +31,37 @@ import {
 } from '../../core/models/driver.model';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { AddDriverDialogComponent } from '../add-driver-dialog/add-driver-dialog.component';
+import {
+  MatPaginator,
+  MatPaginatorModule,
+  MatPaginatorIntl,
+} from '@angular/material/paginator';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+
+// Custom Paginator Factory Function
+function customPaginatorIntl(): MatPaginatorIntl {
+  const paginatorIntl = new MatPaginatorIntl();
+
+  paginatorIntl.itemsPerPageLabel = 'Items per page:';
+  paginatorIntl.nextPageLabel = 'Next page';
+  paginatorIntl.previousPageLabel = 'Previous page';
+  paginatorIntl.firstPageLabel = 'First page';
+  paginatorIntl.lastPageLabel = 'Last page';
+
+  paginatorIntl.getRangeLabel = (
+    page: number,
+    pageSize: number,
+    length: number
+  ): string => {
+    if (length === 0) {
+      return `Page 1 of 1`;
+    }
+    const amountPages = Math.ceil(length / pageSize);
+    return `Page ${page + 1} of ${amountPages}`;
+  };
+
+  return paginatorIntl;
+}
 
 @Component({
   selector: 'app-drivers',
@@ -53,22 +84,20 @@ import { AddDriverDialogComponent } from '../add-driver-dialog/add-driver-dialog
     RouterModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
+    MatSlideToggleModule,
+    MatPaginatorModule,
   ],
+  providers: [{ provide: MatPaginatorIntl, useFactory: customPaginatorIntl }],
   templateUrl: './drivers.component.html',
   styleUrls: ['./drivers.component.scss'],
 })
 export class DriversComponent implements OnInit, AfterViewInit {
-  // Problems to be fixed:
-  // 1 - Fix arrow forward + Next button conditions
-  // 2 - Fix Limit
-  // 3 - Loading while change page appers down the data
-
   private _liveAnnouncer = inject(LiveAnnouncer);
 
   @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   displayedColumns = ['name', 'phone', 'status', 'rating', 'earnings'];
-
   dataSource = new MatTableDataSource<Driver>([]);
   drivers: Driver[] = [];
 
@@ -77,7 +106,6 @@ export class DriversComponent implements OnInit, AfterViewInit {
   totalPages: number = 1;
   totalItems: number = 0;
   itemsPerPage: number = 10;
-  totalNumberOfRecords: number = 0;
 
   // Filters
   searchTerm: string = '';
@@ -111,6 +139,14 @@ export class DriversComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.dataSource.sort = this.sort;
+    // DON'T set dataSource.paginator for server-side pagination
+
+    // Handle paginator events
+    this.paginator.page.subscribe((event) => {
+      console.log('Paginator event:', event);
+      // Paginator uses 0-based index, API uses 1-based
+      this.loadDrivers(event.pageIndex + 1, event.pageSize);
+    });
   }
 
   loadDrivers(page: number = 1, itemsPerPage: number = 10): void {
@@ -127,39 +163,54 @@ export class DriversComponent implements OnInit, AfterViewInit {
         firstName: this.searchTerm,
       },
     };
-    console.log('LoadDrivers query:', query);
 
+    console.log('Loading drivers with query:', query);
     this.isLoading.set(true);
 
     this.driverService.getDriversByQuery(query).subscribe({
       next: (data: any) => {
-        console.log('Drivers data:', data);
+        console.log('API Response:', data);
 
-        if (data && Array.isArray(data.driver)) {
-          this.totalNumberOfRecords = data.pagination.totalNumberOfRecords;
-          this.dataSource.data = data.driver || [];
-          this.totalItems = data.totalCount || data.driver.length;
-          this.totalPages = Math.ceil(
-            (data.totalCount || data.driver.length || data.totalItems) /
-              this.itemsPerPage
-          );
-          this.isLoading.set(false);
+        if (data && data.pagination && Array.isArray(data.driver)) {
+          // Store drivers for stats calculation
+          this.drivers = data.driver;
+          this.dataSource.data = data.driver;
+
+          // Update pagination values from API response
+          this.totalItems = data.pagination.totalNumberOfRecords;
+          this.totalPages = data.pagination.numberOfPages;
+
+          // Update paginator length only (don't change pageIndex to avoid loop)
+          if (this.paginator) {
+            this.paginator.length = this.totalItems;
+          }
+
           this.calculateStats();
         } else {
-          this.drivers = [];
-          this.dataSource.data = [];
-          this.totalItems = 0;
-          this.totalPages = 1;
-          this.isLoading.set(false);
+          this.resetPagination();
         }
+
+        this.isLoading.set(false);
       },
       error: (err: any) => {
-        console.error('Error fetching drivers', err);
-        this.drivers = [];
-        this.totalItems = 0;
-        this.totalPages = 1;
+        console.error('Error fetching drivers:', err);
+        this.resetPagination();
+        this.isLoading.set(false);
       },
     });
+  }
+
+  private resetPagination(): void {
+    this.drivers = [];
+    this.dataSource.data = [];
+    this.totalItems = 0;
+    this.totalPages = 1;
+    this.currentPage = 1;
+
+    if (this.paginator) {
+      this.paginator.length = 0;
+      this.paginator.pageIndex = 0;
+    }
   }
 
   loadStats() {
@@ -169,19 +220,22 @@ export class DriversComponent implements OnInit, AfterViewInit {
         this.offlineDrivers = res.stats.offDutyDrivers;
         this.pendingApprovals = res.stats.pendingApprovals;
       },
+      error: (err) => {
+        console.error('Error loading stats:', err);
+      },
     });
   }
 
   applyFilters() {
-    console.log('Search term:', this.searchTerm || '(empty)');
-    console.log('Selected driver Status:', this.selectedDriverStatus);
-    console.log('Selected Document Status:', this.selectedDocumentStatus);
-    this.loadDrivers(this.currentPage, this.itemsPerPage);
+    // Reset to page 1 when filters change
+    this.currentPage = 1;
+    if (this.paginator) {
+      this.paginator.pageIndex = 0;
+    }
+    this.loadDrivers(1, this.itemsPerPage);
   }
 
   announceSortChange(sortState: Sort): void {
-    console.log('Sort changed:', sortState);
-
     this.currentSort = [];
 
     if (sortState.direction) {
@@ -196,7 +250,12 @@ export class DriversComponent implements OnInit, AfterViewInit {
       this._liveAnnouncer.announce('Sorting cleared');
     }
 
-    this.loadDrivers(this.currentPage, this.itemsPerPage);
+    // Reset to page 1 when sorting changes
+    this.currentPage = 1;
+    if (this.paginator) {
+      this.paginator.pageIndex = 0;
+    }
+    this.loadDrivers(1, this.itemsPerPage);
   }
 
   private mapSortFieldName(columnName: string): string {
@@ -234,7 +293,7 @@ export class DriversComponent implements OnInit, AfterViewInit {
       .subscribe({
         next: () => {
           this.uploadMessage = 'Document uploaded successfully!';
-          this.loadDrivers();
+          this.loadDrivers(this.currentPage, this.itemsPerPage);
         },
         error: (err: { message: any }) => {
           this.uploadError = `Upload failed: ${err.message || 'Unknown error'}`;
@@ -243,7 +302,6 @@ export class DriversComponent implements OnInit, AfterViewInit {
   }
 
   // Dialogs
-
   openAddDriverDialog(): void {
     const dialogRef = this.dialog.open(AddDriverDialogComponent, {
       width: '500px',
@@ -270,6 +328,7 @@ export class DriversComponent implements OnInit, AfterViewInit {
             | 'online'
             | 'offline'
             | 'busy';
+          this.dataSource.data = [...this.drivers]; // Trigger change detection
           this.calculateStats();
         }
       },
@@ -283,7 +342,7 @@ export class DriversComponent implements OnInit, AfterViewInit {
     this.driverService.registerDriver(newDriverData).subscribe({
       next: () => {
         alert('Driver registered successfully!');
-        this.loadDrivers(this.currentPage);
+        this.loadDrivers(this.currentPage, this.itemsPerPage);
         this.calculateStats();
       },
       error: (err: any) => {
@@ -300,50 +359,6 @@ export class DriversComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // Pagination
-  goToPage(page: number): void {
-    if (typeof page === 'number') {
-      this.loadDrivers(page, this.itemsPerPage);
-    }
-  }
-
-  onItemsPerPageChange(): void {
-    this.currentPage = 1;
-    this.loadDrivers(this.currentPage, this.itemsPerPage);
-  }
-
-  getPageNumbers(): (number | string)[] {
-    const pages: (number | string)[] = [];
-    const maxPagesToShow = 5;
-
-    let startPage = Math.max(
-      1,
-      this.currentPage - Math.floor(maxPagesToShow / 2)
-    );
-    let endPage = startPage + maxPagesToShow - 1;
-
-    if (endPage > this.totalPages) {
-      endPage = this.totalPages;
-      startPage = Math.max(1, endPage - maxPagesToShow + 1);
-    }
-
-    if (startPage > 1) {
-      pages.push(1);
-      if (startPage > 2) pages.push('...');
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-
-    if (endPage < this.totalPages) {
-      if (endPage < this.totalPages - 1) pages.push('...');
-      pages.push(this.totalPages);
-    }
-
-    return pages;
-  }
-
   private calculateStats(): void {
     this.onlineDrivers = this.drivers.filter(
       (d) => d.status === 'online'
@@ -356,158 +371,3 @@ export class DriversComponent implements OnInit, AfterViewInit {
     ).length;
   }
 }
-
-// Old code
-
-// Filter methods for document and driver status
-// onDocumentStatusFilterChange(): void {
-//   console.log('Document status filter changed:', this.selectedDocumentStatus);
-//   this.applyFilters();
-// }
-
-// onDriverStatusFilterChange(): void {
-//   console.log('Driver status filter changed:', this.selectedDriverStatus);
-//   this.applyFilters();
-// }
-
-// private applyFilters(): void {
-//   this.currentPage = 1; // Reset to first page when applying filters
-//   this.loadDriversWithFilters();
-// }
-
-// private loadDriversWithFilters(): void {
-//   this.isLoading.set(true);
-
-//   const query: DriverQuery = {
-//     pageNumber: this.currentPage,
-//     itemsPerPage: this.itemsPerPage,
-//     retrieveInactive: false,
-//     sort: this.currentSort,
-//   };
-
-//   // Add driver status filter if not 'all'
-//   if (this.selectedDriverStatus !== 'all') {
-//     (query as any).status = this.selectedDriverStatus;
-//   }
-
-//   this.driverService.getDriversByQuery(query).subscribe({
-//     next: async (data: any) => {
-//       console.log('Filtered drivers data:', data);
-
-//       if (data && Array.isArray(data.driver)) {
-//         let filteredDrivers = data.driver;
-
-//         // Apply driver status filter if API doesn't handle it
-//         if (this.selectedDriverStatus !== 'all') {
-//           filteredDrivers = filteredDrivers.filter(
-//             (driver: any) => driver.status === this.selectedDriverStatus
-//           );
-//         }
-
-//         // Apply document status filter using getDocuementVerificationList
-//         if (this.selectedDocumentStatus !== 'all') {
-//           const driversWithDocStatus =
-//             await this.filterDriversByDocumentStatus(
-//               filteredDrivers,
-//               this.selectedDocumentStatus
-//             );
-//           filteredDrivers = driversWithDocStatus;
-//         }
-
-//         this.totalNumberOfRecords = filteredDrivers.length;
-//         this.dataSource.data = filteredDrivers;
-//         this.totalItems = filteredDrivers.length;
-//         this.totalPages = Math.ceil(
-//           filteredDrivers.length / this.itemsPerPage
-//         );
-
-//         this.calculateStats();
-//       } else {
-//         this.drivers = [];
-//         this.dataSource.data = [];
-//         this.totalItems = 0;
-//         this.totalPages = 1;
-//       }
-//       this.isLoading.set(false);
-//     },
-//     error: (err: any) => {
-//       this.isLoading.set(false);
-//       console.error('Error fetching filtered drivers', err);
-//       this.drivers = [];
-//       this.dataSource.data = [];
-//       this.totalItems = 0;
-//       this.totalPages = 1;
-//     },
-//   });
-// }
-
-// private async filterDriversByDocumentStatus(
-//   drivers: any[],
-//   status: string
-// ): Promise<any[]> {
-//   const filteredDrivers: any[] = [];
-
-//   for (const driver of drivers) {
-//     try {
-//       const documents = await firstValueFrom(
-//         this.driverService.getDocuementVerificationList(driver.id)
-//       );
-//       const documentStatus = this.evaluateDocumentStatus(documents);
-
-//       if (documentStatus === status) {
-//         filteredDrivers.push(driver);
-//       }
-//     } catch (error) {
-//       console.error(
-//         `Error fetching documents for driver ${driver.id}:`,
-//         error
-//       );
-//       // If we can't fetch documents, exclude from filtered results for document-specific filters
-//     }
-//   }
-
-//   return filteredDrivers;
-// }
-
-// private evaluateDocumentStatus(documents: any): string {
-//   if (!documents || !Array.isArray(documents)) {
-//     return 'pending'; // Default to pending if no documents
-//   }
-
-//   // Check if all documents are approved
-//   const allApproved = documents.every(
-//     (doc) =>
-//       doc.status === 'approved' || doc.verificationStatus === 'approved'
-//   );
-//   if (allApproved && documents.length > 0) {
-//     return 'approved';
-//   }
-
-//   // Check if any document is rejected
-//   const anyRejected = documents.some(
-//     (doc) =>
-//       doc.status === 'rejected' || doc.verificationStatus === 'rejected'
-//   );
-//   if (anyRejected) {
-//     return 'rejected';
-//   }
-
-//   // Default to pending
-//   return 'pending';
-// }
-
-// // Override the existing loadDrivers method to use filters
-// loadDrivers(page: number = 1, itemsPerPage: number = 10): void {
-//   this.currentPage = page;
-//   this.itemsPerPage = itemsPerPage;
-
-//   // Use filtered loading if any filters are active
-//   if (
-//     this.selectedDocumentStatus !== 'all' ||
-//     this.selectedDriverStatus !== 'all'
-//   ) {
-//     this.loadDriversWithFilters();
-//   } else {
-//     this.loadDriversOriginal(page, itemsPerPage);
-//   }
-// }

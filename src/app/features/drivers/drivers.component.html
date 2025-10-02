@@ -103,7 +103,11 @@
             <div class="driver-info">
               <div class="driver-avatar">
                 @if (driver.photoUrl) {
-                <img class="driver-avatar" [src]="driver.photoUrl" alt="Driver photo" />
+                <img
+                  class="driver-avatar"
+                  [src]="driver.photoUrl"
+                  alt="Driver photo"
+                />
                 } @else {
                 <mat-icon>person</mat-icon>
                 }
@@ -188,7 +192,9 @@
         >
         </mat-row>
       </mat-table>
-      @if(isLoading()){
+
+      <!-- Fix the loading -->
+      <!-- @if(isLoading()){
       <div class="loader">
         <mat-spinner></mat-spinner>
       </div>
@@ -196,84 +202,17 @@
       <div class="no-data">
         <h1>No drivers data</h1>
       </div>
-      }
+      } -->
     </div>
   </mat-card>
 </div>
 
-<!-- Pagination -->
-<div
-  class="pagination-controls"
-  style="
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    margin-top: 16px;
-    gap: 8px;
-  "
+<mat-paginator
+  #paginator
+  [length]="totalItems"
+  [pageSize]="itemsPerPage"
+  [pageSizeOptions]="[5, 10, 25, 50]"
+  [showFirstLastButtons]="true"
+  aria-label="Drivers pagination"
 >
-  <button
-    mat-button
-    style="color: #fff !important"
-    (click)="loadDrivers(currentPage - 1)"
-    [disabled]="currentPage === 1"
-  >
-    Previous
-  </button>
-
-  <span style="margin: 0 8px; color: #fff !important">Page</span>
-
-  <mat-form-field
-    appearance="outline"
-    style="width: 70px; margin: 0; color: #fff !important"
-  >
-    <input
-      matInput
-      type="number"
-      min="1"
-      [max]="totalPages"
-      [(ngModel)]="currentPage"
-      name="gotoPage"
-      (keyup)="goToPage(currentPage)"
-      placeholder="Page"
-    />
-  </mat-form-field>
-
-  <button mat-icon-button (click)="goToPage(currentPage + 1)">
-    <mat-icon>arrow_forward</mat-icon>
-  </button>
-
-  <span style="margin: 0 8px; color: #fff !important">of {{ totalPages }}</span>
-
-  <button
-    mat-button
-    style="color: #fff !important"
-    (click)="loadDrivers(currentPage + 1)"
-    [disabled]="currentPage === totalPages"
-  >
-    Next
-  </button>
-
-  <span style="margin: 0 8px; color: #fff !important">Items Per Page</span>
-
-  <mat-form-field
-    appearance="outline"
-    style="width: 70px; margin: 0; color: #fff !important"
-  >
-    <input
-      matInput
-      type="number"
-      min="10"
-      [max]="totalItems"
-      [(ngModel)]="itemsPerPage"
-      name="itemsPerPage"
-      (keydown.enter)="onItemsPerPageChange()"
-      (blur)="onItemsPerPageChange()"
-      placeholder="Items"
-    />
-  </mat-form-field>
-
-  <span style="margin-left: 16px; color: #fff !important"
-    >Total Drivers: {{ totalNumberOfRecords }}</span
-  >
-</div>
+</mat-paginator>
