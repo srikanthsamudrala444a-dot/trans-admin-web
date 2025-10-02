@@ -102,8 +102,11 @@
           <mat-cell *matCellDef="let driver">
             <div class="driver-info">
               <div class="driver-avatar">
-                {{ driver.firstName ? driver.firstName.charAt(0) : ""
-                }}{{ driver.lastName ? driver.lastName.charAt(0) : "" }}
+                @if (driver.photoUrl) {
+                <img class="driver-avatar" [src]="driver.photoUrl" alt="Driver photo" />
+                } @else {
+                <mat-icon>person</mat-icon>
+                }
               </div>
               <div>
                 <div class="driver-name">
@@ -170,7 +173,9 @@
           <mat-header-cell *matHeaderCellDef mat-sort-header
             >Earnings</mat-header-cell
           >
-          <mat-cell *matCellDef="let driver">₹ {{ driver.earnings }}</mat-cell>
+          <mat-cell *matCellDef="let driver"
+            >₹ {{ driver.earnings ? driver.earnings : 0 }}</mat-cell
+          >
         </ng-container>
         <!-- Header Row -->
         <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
