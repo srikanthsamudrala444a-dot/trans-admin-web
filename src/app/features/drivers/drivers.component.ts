@@ -167,6 +167,7 @@ export class DriversComponent implements OnInit, AfterViewInit {
       next: (res) => {
         this.onlineDrivers = res.stats.onDutyDrivers;
         this.offlineDrivers = res.stats.offDutyDrivers;
+        this.pendingApprovals = res.stats.pendingApprovals;
       },
     });
   }
