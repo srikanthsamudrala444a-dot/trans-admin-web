@@ -9,7 +9,18 @@
   </div>
   } @else if (driver) {
   <mat-card-header>
-    <mat-card-title>Driver Details</mat-card-title>
+    <mat-card-title
+      >Driver Details
+      <button
+        mat-icon-button
+        color="primary"
+        (click)="openDocumentsDialog(driver)"
+        matTooltip="View Documents"
+        class="documents-btn"
+      >
+        <mat-icon>description</mat-icon>
+      </button></mat-card-title
+    >
     <mat-card-subtitle>
       ID: <strong>{{ driver.id || driver.userId }}</strong>
     </mat-card-subtitle>

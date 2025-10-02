@@ -22,7 +22,6 @@ import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { DriverService } from '../../core/services/driver.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { DriverDocumentsDialogComponent } from '../driver-documents-dialog/driver-documents-dialog.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
@@ -68,15 +67,7 @@ export class DriversComponent implements OnInit, AfterViewInit {
 
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns = [
-    'name',
-    'phone',
-    'status',
-    'rating',
-    'documents',
-    'earnings',
-    'actions',
-  ];
+  displayedColumns = ['name', 'phone', 'status', 'rating', 'earnings'];
 
   dataSource = new MatTableDataSource<Driver>([]);
   drivers: Driver[] = [];
@@ -115,6 +106,7 @@ export class DriversComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.loadDrivers();
+    this.loadStats();
   }
 
   ngAfterViewInit(): void {
@@ -131,9 +123,8 @@ export class DriversComponent implements OnInit, AfterViewInit {
       retrieveInactive: false,
       sort: this.currentSort,
       filters: {
-        status: this.selectedDriverStatus,
+        status: this.selectedDocumentStatus,
         firstName: this.searchTerm,
-        lastName: this.searchTerm,
       },
     };
     console.log('LoadDrivers query:', query);
@@ -167,6 +158,15 @@ export class DriversComponent implements OnInit, AfterViewInit {
         this.drivers = [];
         this.totalItems = 0;
         this.totalPages = 1;
+      },
+    });
+  }
+
+  loadStats() {
+    this.driverService.getDriverStats().subscribe({
+      next: (res) => {
+        this.onlineDrivers = res.stats.onDutyDrivers;
+        this.offlineDrivers = res.stats.offDutyDrivers;
       },
     });
   }
@@ -242,26 +242,6 @@ export class DriversComponent implements OnInit, AfterViewInit {
   }
 
   // Dialogs
-  openDocumentsDialog(driver: Driver): void {
-    console.log('Opening documents dialog for driver:', driver);
-
-    const driverId = driver.id || driver.userId;
-    console.log('Using driver ID:', driverId);
-
-    const dialogRef = this.dialog.open(DriverDocumentsDialogComponent, {
-      width: '800px',
-      maxWidth: '90vw',
-      maxHeight: '90vh',
-      data: {
-        driverId: driverId,
-        driverName: `${driver.firstName} ${driver.lastName}`,
-      },
-    });
-
-    dialogRef.afterClosed().subscribe(() => {
-      console.log('Documents dialog closed');
-    });
-  }
 
   openAddDriverDialog(): void {
     const dialogRef = this.dialog.open(AddDriverDialogComponent, {

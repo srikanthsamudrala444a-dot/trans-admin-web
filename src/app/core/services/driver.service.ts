@@ -12,10 +12,7 @@ export class DriverService {
   getDocumentList: any;
 
   constructor(private http: HttpClient) {}
-  //https://dev.glaciersoft.in.net/driver/api/v1/driver/all
-  //getAllDriversSimple(): Observable<any> {
-  //return this.http.get(`${this.apiUrl}/v1/driver/all`);
-  //}
+
   // Update: Accept pagination params for drivers
   getAllDrivers(params?: {
     pageNumber?: number;
@@ -79,7 +76,6 @@ export class DriverService {
     return this.http.post(`${this.apiUrl}/v1/plan/create`, driverData);
   }
   //https://dev.glaciersoft.in.net/driver/api/v1/driver/{id}/availability?available=true
-
   updateAvailability(id: string, availability: any): Observable<any> {
     return this.http.put(
       `${this.apiUrl}/v1/driver/${id}/availability?available=true`,
@@ -251,6 +247,10 @@ export class DriverService {
       `${this.apiUrl}/v1/driver/docs/${driverId}/reject/${documentId}`,
       body
     );
+  }
+
+  getDriverStats(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/v1/driver/stats`);
   }
 
   // Test method to check API connectivity and authentication

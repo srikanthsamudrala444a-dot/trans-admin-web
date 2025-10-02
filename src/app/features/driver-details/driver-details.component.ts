@@ -1,25 +1,30 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { DriverService } from '../../core/services/driver.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Driver } from '../../core/models/driver.model';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
+
+import { DriverService } from '../../core/services/driver.service';
 import { VehicleService } from '../../core/services/vehicles.service';
+import { Driver } from '../../core/models/driver.model';
 import { Vehicle } from '../../core/models/vehicle.model';
+import { DriverDocumentsDialogComponent } from '../driver-documents-dialog/driver-documents-dialog.component';
 
 @Component({
   selector: 'app-driver-details',
   standalone: true,
   imports: [
     CommonModule,
-    RouterModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
+    MatDialogModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
   ],
   templateUrl: './driver-details.component.html',
   styleUrls: ['./driver-details.component.scss'],
@@ -34,7 +39,8 @@ export class DriverDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private driverService: DriverService,
-    private vehicleService: VehicleService
+    private vehicleService: VehicleService,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -71,5 +77,26 @@ export class DriverDetailsComponent implements OnInit {
 
   backToDrivers() {
     this.router.navigate(['/drivers']);
+  }
+
+  openDocumentsDialog(driver: Driver): void {
+    console.log('Opening documents dialog for driver:', driver);
+
+    const driverId = driver.id || driver.userId;
+    console.log('Using driver ID:', driverId);
+
+    const dialogRef = this.dialog.open(DriverDocumentsDialogComponent, {
+      width: '800px',
+      maxWidth: '90vw',
+      maxHeight: '90vh',
+      data: {
+        driverId: driverId,
+        driverName: `${driver.firstName} ${driver.lastName}`,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(() => {
+      console.log('Documents dialog closed');
+    });
   }
 }
