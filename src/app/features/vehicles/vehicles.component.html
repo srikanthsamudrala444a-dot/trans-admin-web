@@ -1,11 +1,90 @@
 <div class="vehicles-container">
   <div class="page-header">
     <h1>Vehicles Management</h1>
-    <button mat-raised-button color="primary" (click)="openAddVehicleDialog()">
-      <mat-icon>add</mat-icon>
-      Add Vehicle
+    <button mat-raised-button color="primary" (click)="toggleAddForm()">
+      <mat-icon>{{ showAddForm ? 'close' : 'add' }}</mat-icon>
+      {{ showAddForm ? 'Cancel' : 'Add Vehicle' }}
     </button>
   </div>
+
+  <!-- Add Vehicle Form -->
+  @if (showAddForm) {
+  <mat-card class="add-form-card">
+    <mat-card-header>
+      <mat-card-title>Add New Vehicle</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="vehicleForm" class="add-vehicle-form">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Make</mat-label>
+            <input matInput formControlName="make" placeholder="e.g., Toyota">
+            <mat-error *ngIf="vehicleForm.get('make')?.hasError('required')">
+              Make is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Model</mat-label>
+            <input matInput formControlName="model" placeholder="e.g., Camry">
+            <mat-error *ngIf="vehicleForm.get('model')?.hasError('required')">
+              Model is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Registration Number</mat-label>
+            <input matInput formControlName="registrationNumber" placeholder="e.g., MH-12-AB-1234">
+            <mat-error *ngIf="vehicleForm.get('registrationNumber')?.hasError('required')">
+              Registration number is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Year</mat-label>
+            <input matInput type="number" formControlName="yearOfManufacture" placeholder="e.g., 2020">
+            <mat-error *ngIf="vehicleForm.get('yearOfManufacture')?.hasError('required')">
+              Year is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Vehicle Type</mat-label>
+            <mat-select formControlName="type">
+              <mat-option value="sedan">Sedan</mat-option>
+              <mat-option value="suv">SUV</mat-option>
+              <mat-option value="hatchback">Hatchback</mat-option>
+              <mat-option value="auto">Auto</mat-option>
+            </mat-select>
+            <mat-error *ngIf="vehicleForm.get('type')?.hasError('required')">
+              Vehicle type is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Color</mat-label>
+            <input matInput formControlName="color" placeholder="e.g., White">
+            <mat-error *ngIf="vehicleForm.get('color')?.hasError('required')">
+              Color is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+          <button mat-button type="button" (click)="resetVehicleForm()">Reset</button>
+          <button mat-raised-button color="primary" type="button" (click)="onSaveVehicle()" [disabled]="!vehicleForm.valid">
+            <mat-icon>save</mat-icon>
+            Add Vehicle
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+  }
 
   <mat-card class="filter-card">
     <mat-card-content>

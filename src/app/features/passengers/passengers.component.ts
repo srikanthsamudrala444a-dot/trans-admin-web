@@ -19,8 +19,8 @@ import {
 import { PassengersService } from '../../core/services/passengers.service';
 //import { selctedPassenger } from '../../core/models/passenger.model';
 import { RouterModule } from '@angular/router';
-import { NgModel } from '@angular/forms';
-import { FormsModule } from '@angular/forms';
+import { NgModel, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AddPassengerDialogComponent } from './add-passenger-dialog.component';
 
 // Custom Paginator Factory Function
@@ -66,7 +66,8 @@ function customPaginatorIntl(): MatPaginatorIntl {
     MatTooltipModule,
     MatPaginatorModule,
     RouterModule,
-    FormsModule
+    FormsModule,
+    ReactiveFormsModule
   ],
   providers: [{ provide: MatPaginatorIntl, useFactory: customPaginatorIntl }],
   templateUrl: './passengers.component.html',
@@ -87,10 +88,23 @@ export class PassengersComponent implements OnInit, AfterViewInit {
   selectPassenger: any = null;
   error: string | null = null;
 
+  // Add form properties
+  showAddForm: boolean = false;
+  passengerForm: FormGroup;
+
   constructor(
     private passengersService: PassengersService,
-    private dialog: MatDialog
-  ) {}
+    private dialog: MatDialog,
+    private fb: FormBuilder
+  ) {
+    // Initialize the form with simplified fields
+    this.passengerForm = this.fb.group({
+      name: ['', [Validators.required]],
+      contactNumber: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      userId: ['', [Validators.required]]
+    });
+  }
 
   ngOnInit(): void {
     this.loadPassengers();
@@ -322,5 +336,65 @@ export class PassengersComponent implements OnInit, AfterViewInit {
         alert('Error registering passenger. Please try again.');
       }
     });
+  }
+
+  // New methods for inline form
+  toggleAddForm(): void {
+    this.showAddForm = !this.showAddForm;
+    if (!this.showAddForm) {
+      this.resetForm();
+    }
+  }
+
+  resetForm(): void {
+    this.passengerForm.reset();
+    this.passengerForm.patchValue({
+      name: '',
+      contactNumber: '',
+      email: '',
+      userId: ''
+    });
+  }
+
+  onSavePassenger(): void {
+    if (this.passengerForm.valid) {
+      const formData = this.passengerForm.value;
+      
+      // Format the data according to the API requirements (simplified)
+      const passengerData = {
+        name: formData.name,
+        contactNumber: parseInt(formData.contactNumber),
+        email: formData.email,
+        userId: formData.userId,
+        photoUrl: "",
+        isDeleted: false,
+        deleteReason: "",
+        deletedAt: null,
+        tenant: "default", // Default values for simplified form
+        createdBy: "admin",
+        modifiedBy: "admin"
+      };
+      
+      console.log('Attempting to register passenger with data:', passengerData);
+
+      this.passengersService.registerPassenger(passengerData).subscribe({
+        next: (response: any) => {
+          console.log('New passenger registered successfully:', response);
+          alert('Passenger registered successfully!');
+          
+          // Reset form and hide it
+          this.resetForm();
+          this.showAddForm = false;
+          
+          // Reload the passengers list
+          this.loadPassengers();
+          this.getAllPassengers();
+        },
+        error: (err: any) => {
+          console.error('Error registering passenger:', err);
+          alert('Error registering passenger. Please try again.');
+        }
+      });
+    }
   }
 }

@@ -15,7 +15,7 @@ import {
   MatPaginatorIntl 
 } from '@angular/material/paginator';
 import { VehicleService } from '../../core/services/vehicles.service';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
 import { AddVehicleDialogComponent } from './add-vehicle-dialog.component';
@@ -96,10 +96,25 @@ export class VehiclesComponent implements OnInit, AfterViewInit {
   status: string = 'all';
   search: string = '';
 
+  // Add form properties
+  showAddForm: boolean = false;
+  vehicleForm: FormGroup;
+
   constructor(
     private vehicleService: VehicleService,
-    private dialog: MatDialog
-  ) {}
+    private dialog: MatDialog,
+    private fb: FormBuilder
+  ) {
+    // Initialize the simplified vehicle form
+    this.vehicleForm = this.fb.group({
+      make: ['', [Validators.required]],
+      model: ['', [Validators.required]],
+      registrationNumber: ['', [Validators.required]],
+      yearOfManufacture: ['', [Validators.required]],
+      type: ['', [Validators.required]],
+      color: ['', [Validators.required]]
+    });
+  }
 
   ngOnInit(): void {
     this.loadVehicles();
@@ -242,6 +257,72 @@ export class VehiclesComponent implements OnInit, AfterViewInit {
       pages.push(this.totalPages);
     }
     return pages;
+  }
+
+  // New methods for inline form
+  toggleAddForm(): void {
+    this.showAddForm = !this.showAddForm;
+    if (!this.showAddForm) {
+      this.resetVehicleForm();
+    }
+  }
+
+  resetVehicleForm(): void {
+    this.vehicleForm.reset();
+    this.vehicleForm.patchValue({
+      make: '',
+      model: '',
+      registrationNumber: '',
+      yearOfManufacture: '',
+      type: '',
+      color: ''
+    });
+  }
+
+  onSaveVehicle(): void {
+    if (this.vehicleForm.valid) {
+      const formData = this.vehicleForm.value;
+      
+      // Format the data according to the API requirements (simplified)
+      const vehicleData = {
+        make: formData.make,
+        model: formData.model,
+        registrationNumber: formData.registrationNumber,
+        yearOfManufacture: parseInt(formData.yearOfManufacture),
+        type: formData.type,
+        color: formData.color,
+        // Default values for simplified form
+        fuelType: 'PETROL',
+        passengerCapacity: 4,
+        category: 'CAR',
+        driverId: null, // Can be assigned later
+        insurancePolicyNumber: '',
+        insuranceExpiryDate: new Date(),
+        tenant: 'default',
+        createdBy: 'admin',
+        modifiedBy: 'admin'
+      };
+      
+      console.log('Attempting to add vehicle with data:', vehicleData);
+
+      this.vehicleService.registerVehicle(vehicleData).subscribe({
+        next: (response: any) => {
+          console.log('New vehicle added successfully:', response);
+          alert('Vehicle added successfully!');
+          
+          // Reset form and hide it
+          this.resetVehicleForm();
+          this.showAddForm = false;
+          
+          // Reload the vehicles list
+          this.loadVehicles();
+        },
+        error: (err: any) => {
+          console.error('Error adding vehicle:', err);
+          alert('Error adding vehicle. Please try again.');
+        }
+      });
+    }
   }
 
 }

@@ -20,7 +20,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { DriverService } from '../../core/services/driver.service';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -127,10 +127,25 @@ export class DriversComponent implements OnInit, AfterViewInit {
   uploadMessage: string = '';
   uploadError: string = '';
 
+  // Add form properties
+  showAddForm: boolean = false;
+  driverForm: FormGroup;
+
   constructor(
     private driverService: DriverService,
-    private dialog: MatDialog
-  ) {}
+    private dialog: MatDialog,
+    private fb: FormBuilder
+  ) {
+    // Initialize the simplified driver form
+    this.driverForm = this.fb.group({
+      firstName: ['', [Validators.required]],
+      lastName: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      contactNumber: ['', [Validators.required]],
+      dateOfBirth: ['', [Validators.required]],
+      licenseNumber: ['', [Validators.required]]
+    });
+  }
 
   ngOnInit(): void {
     this.loadDrivers();
@@ -369,5 +384,70 @@ export class DriversComponent implements OnInit, AfterViewInit {
     this.pendingApprovals = this.drivers.filter(
       (d) => d.documentsStatus === 'pending'
     ).length;
+  }
+
+  // New methods for inline form
+  toggleAddForm(): void {
+    this.showAddForm = !this.showAddForm;
+    if (!this.showAddForm) {
+      this.resetDriverForm();
+    }
+  }
+
+  resetDriverForm(): void {
+    this.driverForm.reset();
+    this.driverForm.patchValue({
+      firstName: '',
+      lastName: '',
+      email: '',
+      contactNumber: '',
+      dateOfBirth: '',
+      licenseNumber: ''
+    });
+  }
+
+  onSaveDriver(): void {
+    if (this.driverForm.valid) {
+      const formData = this.driverForm.value;
+      
+      // Format the data according to the API requirements (simplified)
+      const driverData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        contactNumber: formData.contactNumber,
+        dateOfBirth: formData.dateOfBirth,
+        licenseNumber: formData.licenseNumber,
+        // Default values for simplified form
+        address: '',
+        emergencyContactName: '',
+        emergencyContactNumber: '',
+        licenseExpiryDate: new Date(),
+        photoUrl: '',
+        tenant: 'default',
+        createdBy: 'admin',
+        modifiedBy: 'admin'
+      };
+      
+      console.log('Attempting to register driver with data:', driverData);
+
+      this.driverService.registerDriver(driverData).subscribe({
+        next: (response: any) => {
+          console.log('New driver registered successfully:', response);
+          alert('Driver registered successfully!');
+          
+          // Reset form and hide it
+          this.resetDriverForm();
+          this.showAddForm = false;
+          
+          // Reload the drivers list
+          this.loadDrivers();
+        },
+        error: (err: any) => {
+          console.error('Error registering driver:', err);
+          alert('Error registering driver. Please try again.');
+        }
+      });
+    }
   }
 }
