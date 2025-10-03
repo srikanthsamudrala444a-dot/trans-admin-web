@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
@@ -9,12 +9,43 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { 
+  MatPaginator, 
+  MatPaginatorModule, 
+  MatPaginatorIntl 
+} from '@angular/material/paginator';
 import { RideService } from '../../core/services/rides.service';
 import { Ride } from '../../core/models/ride.model';
 import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ManualAssignmentDialogComponent } from './manual-assignment-dialog.component';
+
+// Custom Paginator Factory Function
+function customPaginatorIntl(): MatPaginatorIntl {
+  const paginatorIntl = new MatPaginatorIntl();
+
+  paginatorIntl.itemsPerPageLabel = 'Items per page:';
+  paginatorIntl.nextPageLabel = 'Next page';
+  paginatorIntl.previousPageLabel = 'Previous page';
+  paginatorIntl.firstPageLabel = 'First page';
+  paginatorIntl.lastPageLabel = 'Last page';
+
+  paginatorIntl.getRangeLabel = (
+    page: number,
+    pageSize: number,
+    length: number
+  ): string => {
+    if (length === 0) {
+      return `Page 1 of 1`;
+    }
+    const amountPages = Math.ceil(length / pageSize);
+    return `Page ${page + 1} of ${amountPages}`;
+  };
+
+  return paginatorIntl;
+}
+
 @Component({
   selector: 'app-rides',
   standalone: true,
@@ -29,29 +60,44 @@ import { ManualAssignmentDialogComponent } from './manual-assignment-dialog.comp
     MatSelectModule,
     MatFormFieldModule,
     MatDialogModule,
+    MatPaginatorModule,
     FormsModule,
     ReactiveFormsModule,
     RouterModule
   ],
+  providers: [{ provide: MatPaginatorIntl, useFactory: customPaginatorIntl }],
   templateUrl: './rides.component.html',
   styleUrls: ['./rides.component.scss']
 })
-export class RidesComponent implements OnInit {
+export class RidesComponent implements OnInit, AfterViewInit {
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  
   displayedColumns = ['id', 'driver', 'passenger', 'pickup', 'status', 'fare', 'actions'];
   rides: Ride[] = [];
   currentPage: number = 1;
   totalPages: number = 5;
   totalItems: number = 0;
+  itemsPerPage: number = 10;
 
   constructor(
     private rideService: RideService,
     private dialog: MatDialog
   ) {}
+  
   ngOnInit(): void {
-    
     this.loadRides();
-    this.loadRidesByQuery("", this.currentPage);
+    this.loadRidesByQuery("", this.currentPage, this.itemsPerPage);
+  }
 
+  ngAfterViewInit(): void {
+    // Handle paginator events for server-side pagination
+    this.paginator.page.subscribe((event) => {
+      console.log('Paginator event:', event);
+      // Update pagination properties
+      this.currentPage = event.pageIndex + 1; // Paginator uses 0-based index, convert to 1-based
+      this.itemsPerPage = event.pageSize;
+      this.loadRidesByQuery("", this.currentPage, this.itemsPerPage);
+    });
   }
 
 // ... other properties and methods
@@ -91,7 +137,7 @@ return pages;
   goToPage = (page: number | string): void => {
     if (typeof page === 'number') {
       this.currentPage = page;
-      this.loadRidesByQuery("", this.currentPage);
+      this.loadRidesByQuery("", this.currentPage, this.itemsPerPage);
     }
   }
   
@@ -146,11 +192,12 @@ return pages;
   );
 }*/
 
-  public loadRidesByQuery(searchTerm: string, currentPage: number): void {
+  public loadRidesByQuery(searchTerm: string, currentPage: number, itemsPerPage: number = this.itemsPerPage): void {
     this.currentPage = currentPage;
+    this.itemsPerPage = itemsPerPage;
     this.rideService.getRidesByQuery({
       "pageNumber": currentPage,
-      "itemsPerPage": 10,
+      "itemsPerPage": itemsPerPage,
       "retrieveInactive": false,
       "sort": [
         {
@@ -166,6 +213,13 @@ return pages;
     }).subscribe(
       (data) => {
         this.rides = data.rides;
+        this.totalItems = data.pagination?.totalNumberOfRecords || data.totalCount || this.rides.length;
+        this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+        
+        // Update paginator length
+        if (this.paginator) {
+          this.paginator.length = this.totalItems;
+        }
       },
       (error) => {
         console.error('Error fetching rides:', error);
@@ -192,7 +246,7 @@ return pages;
             console.log('Ride created successfully:', response);
             alert('Ride assigned successfully!');
             this.loadRides(); // Refresh the rides list
-            this.loadRidesByQuery("", this.currentPage);
+            this.loadRidesByQuery("", this.currentPage, this.itemsPerPage);
           },
           error: (err: any) => {
             console.error('Error creating ride:', err);

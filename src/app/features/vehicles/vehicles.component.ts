@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
@@ -9,11 +9,42 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { 
+  MatPaginator, 
+  MatPaginatorModule, 
+  MatPaginatorIntl 
+} from '@angular/material/paginator';
 import { VehicleService } from '../../core/services/vehicles.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
 import { AddVehicleDialogComponent } from './add-vehicle-dialog.component';
+
+// Custom Paginator Factory Function
+function customPaginatorIntl(): MatPaginatorIntl {
+  const paginatorIntl = new MatPaginatorIntl();
+
+  paginatorIntl.itemsPerPageLabel = 'Items per page:';
+  paginatorIntl.nextPageLabel = 'Next page';
+  paginatorIntl.previousPageLabel = 'Previous page';
+  paginatorIntl.firstPageLabel = 'First page';
+  paginatorIntl.lastPageLabel = 'Last page';
+
+  paginatorIntl.getRangeLabel = (
+    page: number,
+    pageSize: number,
+    length: number
+  ): string => {
+    if (length === 0) {
+      return `Page 1 of 1`;
+    }
+    const amountPages = Math.ceil(length / pageSize);
+    return `Page ${page + 1} of ${amountPages}`;
+  };
+
+  return paginatorIntl;
+}
+
 @Component({
   selector: 'app-vehicles',
   standalone: true,
@@ -31,12 +62,16 @@ import { AddVehicleDialogComponent } from './add-vehicle-dialog.component';
     MatFormFieldModule,
     MatDialogModule,
     MatProgressSpinnerModule,
+    MatPaginatorModule,
     RouterModule
   ],
+  providers: [{ provide: MatPaginatorIntl, useFactory: customPaginatorIntl }],
   templateUrl: './vehicles.component.html',
   styleUrls: ['./vehicles.component.scss']
 })
-export class VehiclesComponent implements OnInit {
+export class VehiclesComponent implements OnInit, AfterViewInit {
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  
   displayedColumns = [
     'vehicle',
     'plateNumber',
@@ -70,14 +105,26 @@ export class VehiclesComponent implements OnInit {
     this.loadVehicles();
   }
 
+  ngAfterViewInit(): void {
+    // Handle paginator events for server-side pagination
+    this.paginator.page.subscribe((event) => {
+      console.log('Paginator event:', event);
+      // Update pagination properties
+      this.currentPage = event.pageIndex + 1; // Paginator uses 0-based index, convert to 1-based
+      this.itemsPerPage = event.pageSize;
+      this.loadVehicles(this.currentPage, this.itemsPerPage);
+    });
+  }
+
   //loadVehicles(): void {
    // this.loading = true;
     //const filters: any = {};
 
- loadVehicles(page: number = 1): void {
+ loadVehicles(page: number = 1, itemsPerPage: number = this.itemsPerPage): void {
     this.loading = true;
     
     this.currentPage = page;
+    this.itemsPerPage = itemsPerPage;
     const filters: any = {
       pageNumber: page,
       itemsPerPage: this.itemsPerPage
@@ -102,6 +149,12 @@ export class VehiclesComponent implements OnInit {
           this.totalItems = 0;
           this.totalPages = 1;
         }
+        
+        // Update paginator length
+        if (this.paginator) {
+          this.paginator.length = this.totalItems;
+        }
+        
         this.loading = false;
       },
       error: (err: any) => {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
@@ -11,12 +11,43 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { 
+  MatPaginator, 
+  MatPaginatorModule, 
+  MatPaginatorIntl 
+} from '@angular/material/paginator';
 import { PassengersService } from '../../core/services/passengers.service';
 //import { selctedPassenger } from '../../core/models/passenger.model';
 import { RouterModule } from '@angular/router';
 import { NgModel } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { AddPassengerDialogComponent } from './add-passenger-dialog.component';
+
+// Custom Paginator Factory Function
+function customPaginatorIntl(): MatPaginatorIntl {
+  const paginatorIntl = new MatPaginatorIntl();
+
+  paginatorIntl.itemsPerPageLabel = 'Items per page:';
+  paginatorIntl.nextPageLabel = 'Next page';
+  paginatorIntl.previousPageLabel = 'Previous page';
+  paginatorIntl.firstPageLabel = 'First page';
+  paginatorIntl.lastPageLabel = 'Last page';
+
+  paginatorIntl.getRangeLabel = (
+    page: number,
+    pageSize: number,
+    length: number
+  ): string => {
+    if (length === 0) {
+      return `Page 1 of 1`;
+    }
+    const amountPages = Math.ceil(length / pageSize);
+    return `Page ${page + 1} of ${amountPages}`;
+  };
+
+  return paginatorIntl;
+}
+
 @Component({
   selector: 'app-passengers',
   standalone: true,
@@ -33,13 +64,17 @@ import { AddPassengerDialogComponent } from './add-passenger-dialog.component';
     MatDialogModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
+    MatPaginatorModule,
     RouterModule,
     FormsModule
   ],
+  providers: [{ provide: MatPaginatorIntl, useFactory: customPaginatorIntl }],
   templateUrl: './passengers.component.html',
   styleUrls: ['./passengers.component.scss']
 })
-export class PassengersComponent implements OnInit {
+export class PassengersComponent implements OnInit, AfterViewInit {
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  
   displayedColumns = ['name', 'contactNumber', 'totalRides', 'rating', 'status', 'joinDate', 'actions'];
   dataSource = new MatTableDataSource<any>([]);
   passengers: any[] = [];
@@ -56,9 +91,21 @@ export class PassengersComponent implements OnInit {
     private passengersService: PassengersService,
     private dialog: MatDialog
   ) {}
+
   ngOnInit(): void {
     this.loadPassengers();
     this.getAllPassengers();
+  }
+
+  ngAfterViewInit(): void {
+    // Handle paginator events for server-side pagination
+    this.paginator.page.subscribe((event) => {
+      console.log('Paginator event:', event);
+      // Update pagination properties
+      this.currentPage = event.pageIndex + 1; // Paginator uses 0-based index, convert to 1-based
+      this.itemsPerPage = event.pageSize;
+      this.loadPassengers(this.currentPage, this.itemsPerPage);
+    });
   }
   
   /*private loadPassengers(): void {
@@ -136,9 +183,10 @@ export class PassengersComponent implements OnInit {
     });
   }
   // Pagination for passengers
-  loadPassengers(page: number = 1): void {
+  loadPassengers(page: number = 1, itemsPerPage: number = this.itemsPerPage): void {
     this.loading = true;
     this.currentPage = page;
+    this.itemsPerPage = itemsPerPage;
     const filters: any = {
       pageNumber: page,
       itemsPerPage: this.itemsPerPage
@@ -162,6 +210,12 @@ export class PassengersComponent implements OnInit {
           this.totalItems = 0;
           this.totalPages = 1;
         }
+        
+        // Update paginator length
+        if (this.paginator) {
+          this.paginator.length = this.totalItems;
+        }
+        
         this.loading = false;
       },
       error: (err: any) => {
