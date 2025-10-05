@@ -38,7 +38,7 @@ export interface Driver {
   onDuty: boolean;
   joinedAt: string;
   documentsStatus: 'pending' | 'approved' | 'rejected';
-  status: 'online' | 'offline' | 'busy' | 'active' | 'inactive';
+  status: string;
   tenant: string;
   available: boolean;
 }

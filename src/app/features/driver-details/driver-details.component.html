@@ -19,8 +19,24 @@
         class="documents-btn"
       >
         <mat-icon>description</mat-icon>
-      </button></mat-card-title
-    >
+      </button>
+      @if(driver.status !== 'VERIFIED') {
+      <button
+        mat-raised-button
+        color="accent"
+        class="verify-btn"
+        (click)="verifyDriver(driver.id)"
+      >
+        <mat-icon>verified</mat-icon>
+        Verify Driver
+      </button>
+      }@else {
+      <button mat-raised-button class="verified-btn" disabled>
+        <mat-icon>check_circle</mat-icon>
+        Verified
+      </button>
+      }
+    </mat-card-title>
     <mat-card-subtitle>
       ID: <strong>{{ driver.id || driver.userId }}</strong>
     </mat-card-subtitle>

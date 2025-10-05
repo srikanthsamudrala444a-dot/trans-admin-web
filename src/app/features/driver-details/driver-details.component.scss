@@ -8,22 +8,53 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-mat-card-subtitle {
-  color: #fff;
-  text-align: center;
-  width: 100%;
-}
-
 mat-card-title {
   font-size: 1.6rem;
   font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 4px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.verify-btn {
+  mat-icon {
+    margin-right: 4px;
+  }
+}
+
+.verified-btn {
+  background-color: #4caf50 !important;
+  color: white !important;
+  cursor: default;
+
+  mat-icon {
+    margin-right: 4px;
+  }
+
+  &:disabled {
+    opacity: 1 !important;
+    background-color: #4caf50 !important;
+    color: white !important;
+  }
+}
+
+.documents-btn {
+  // No additional styles needed
 }
 
 mat-card-subtitle {
   font-size: 1rem;
   color: #bbb;
   margin-bottom: 12px;
+  text-align: center;
+  width: 100%;
 }
 
 .driver-details-grid {
@@ -85,4 +116,11 @@ mat-card-actions {
 
 button[mat-raised-button] {
   font-weight: 600;
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
 }

@@ -253,6 +253,10 @@ export class DriverService {
     return this.http.get(`${this.apiUrl}/v1/driver/stats`);
   }
 
+  verifyDriver(driverId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/v1/driver/${driverId}/verify`, {});
+  }
+
   // Test method to check API connectivity and authentication
   testConnection(): Observable<any> {
     console.log('Testing API connection...');

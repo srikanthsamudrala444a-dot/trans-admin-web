@@ -196,7 +196,7 @@
 
 .page-jump-label {
   font-size: 14px;
-  color: #666;
+  color: white;
   white-space: nowrap;
 }
 
@@ -267,8 +267,6 @@
 }
 
 @media (max-width: 768px) {
-  // ... الكود القديم ...
-
   .custom-paginator-container {
     flex-direction: column;
     align-items: stretch;
