@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 import { DriverService } from '../../core/services/driver.service';
 import { VehicleService } from '../../core/services/vehicles.service';
@@ -25,6 +26,7 @@ import { DriverDocumentsDialogComponent } from '../driver-documents-dialog/drive
     MatDialogModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
+    MatButtonToggleModule,
   ],
   templateUrl: './driver-details.component.html',
   styleUrls: ['./driver-details.component.scss'],
@@ -118,5 +120,10 @@ export class DriverDetailsComponent implements OnInit {
         console.log(err);
       },
     });
+  }
+
+  getDriverLocation(driverId: string) {
+    // Open Google Maps
+    window.open(`https://maps.app.goo.gl/ZBKDoyx4A6qwkYBC9`, '_blank');
   }
 }

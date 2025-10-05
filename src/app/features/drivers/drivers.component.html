@@ -137,7 +137,7 @@
     <mat-card class="stat-card">
       <mat-card-content>
         <div class="stat-content">
-          <mat-icon class="stat-icon offline">radio_button_unchecked</mat-icon>
+          <mat-icon class="stat-icon offline">radio_button_checked</mat-icon>
           <div>
             <h3>{{ offlineDrivers }}</h3>
             <p>Offline Drivers</p>
@@ -244,6 +244,22 @@
           <mat-cell *matCellDef="let driver">{{
             driver.contactNumber
           }}</mat-cell>
+        </ng-container>
+
+        <!-- Avalibaluty Column -->
+        <ng-container matColumnDef="availability">
+          <mat-header-cell *matHeaderCellDef mat-sort-header
+            >availability</mat-header-cell
+          >
+          <mat-cell class="availability" *matCellDef="let driver">
+            <span
+              [class]="
+                driver.onDuty === 'true'
+                  ? 'status-dot online'
+                  : 'status-dot offline'
+              "
+            ></span>
+          </mat-cell>
         </ng-container>
 
         <!-- Status Column -->

@@ -36,6 +36,16 @@
         Verified
       </button>
       }
+
+      <button
+        mat-icon-button
+        color="primary"
+        matTooltip="Get Driver Location"
+        class="location-btn"
+        (click)="getDriverLocation(driver.id)"
+      >
+        <mat-icon>location_on</mat-icon>
+      </button>
     </mat-card-title>
     <mat-card-subtitle>
       ID: <strong>{{ driver.id || driver.userId }}</strong>
@@ -110,6 +120,23 @@
       <div class="driver-detail-row">
         <span class="label">Available:</span>
         <span class="value">{{ driver.available ? "Yes" : "No" }}</span>
+      </div>
+      <div class="driver-detail-row">
+        <span class="label">Driver Status:</span>
+        <span class="value status-toggle-container">
+          <!--     [value]="driver.onDuty ? 'online' : 'offline'"
+            (change)="onStatusChange($event, driver.id)" -->
+          <mat-button-toggle-group class="status-toggle-group">
+            <mat-button-toggle value="online" class="status-toggle online">
+              <mat-icon>check_circle</mat-icon>
+              Online
+            </mat-button-toggle>
+            <mat-button-toggle value="offline" class="status-toggle offline">
+              <mat-icon>cancel</mat-icon>
+              Offline
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+        </span>
       </div>
       <div class="driver-detail-row">
         <span class="label">Subscription:</span>

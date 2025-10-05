@@ -103,7 +103,7 @@ export class DriversComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  displayedColumns = ['name', 'phone', 'status', 'rating', 'earnings'];
+  displayedColumns = ['name', 'phone','availability' ,'status', 'rating', 'earnings'];
   dataSource = new MatTableDataSource<Driver>([]);
   drivers: Driver[] = [];
 
