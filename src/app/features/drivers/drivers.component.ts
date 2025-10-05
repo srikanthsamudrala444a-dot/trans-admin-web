@@ -20,7 +20,13 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { DriverService } from '../../core/services/driver.service';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  FormsModule,
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -106,6 +112,7 @@ export class DriversComponent implements OnInit, AfterViewInit {
   totalPages: number = 1;
   totalItems: number = 0;
   itemsPerPage: number = 10;
+  pageJumpValue: number | null = null;
 
   // Filters
   searchTerm: string = '';
@@ -143,7 +150,7 @@ export class DriversComponent implements OnInit, AfterViewInit {
       email: ['', [Validators.required, Validators.email]],
       contactNumber: ['', [Validators.required]],
       dateOfBirth: ['', [Validators.required]],
-      licenseNumber: ['', [Validators.required]]
+      licenseNumber: ['', [Validators.required]],
     });
   }
 
@@ -402,14 +409,14 @@ export class DriversComponent implements OnInit, AfterViewInit {
       email: '',
       contactNumber: '',
       dateOfBirth: '',
-      licenseNumber: ''
+      licenseNumber: '',
     });
   }
 
   onSaveDriver(): void {
     if (this.driverForm.valid) {
       const formData = this.driverForm.value;
-      
+
       // Format the data according to the API requirements (simplified)
       const driverData = {
         firstName: formData.firstName,
@@ -426,28 +433,41 @@ export class DriversComponent implements OnInit, AfterViewInit {
         photoUrl: '',
         tenant: 'default',
         createdBy: 'admin',
-        modifiedBy: 'admin'
+        modifiedBy: 'admin',
       };
-      
+
       console.log('Attempting to register driver with data:', driverData);
 
       this.driverService.registerDriver(driverData).subscribe({
         next: (response: any) => {
           console.log('New driver registered successfully:', response);
           alert('Driver registered successfully!');
-          
+
           // Reset form and hide it
           this.resetDriverForm();
           this.showAddForm = false;
-          
+
           // Reload the drivers list
           this.loadDrivers();
         },
         error: (err: any) => {
           console.error('Error registering driver:', err);
           alert('Error registering driver. Please try again.');
-        }
+        },
       });
+    }
+  }
+
+  // Jump to specific page
+  jumpToPage(): void {
+    if (
+      this.pageJumpValue &&
+      this.pageJumpValue >= 1 &&
+      this.pageJumpValue <= this.totalPages
+    ) {
+      this.paginator.pageIndex = this.pageJumpValue - 1; // Convert to 0-based index
+      this.loadDrivers(this.pageJumpValue, this.itemsPerPage);
+      this.pageJumpValue = null; // Clear input after jump
     }
   }
 }

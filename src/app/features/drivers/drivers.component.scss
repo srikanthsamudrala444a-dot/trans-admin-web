@@ -177,6 +177,56 @@
   border-top: 1px solid #e0e0e0;
 }
 
+// Custom Paginator Styles
+.custom-paginator-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  background-color: #161215;
+}
+
+.page-jump-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 4px;
+}
+
+.page-jump-label {
+  font-size: 14px;
+  color: #666;
+  white-space: nowrap;
+}
+
+.page-jump-input {
+  width: 60px;
+  height: 36px;
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 14px;
+  transition: border-color 0.3s;
+  background-color: transparent;
+  color: white;
+
+  &:focus {
+    outline: none;
+    border-color: #3f51b5;
+  }
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    opacity: 1;
+  }
+}
+
+.page-jump-button {
+  cursor: pointer;
+}
+
 // Responsive design for add form
 @media (max-width: 768px) {
   .page-header {
@@ -197,22 +247,35 @@
     min-width: auto;
     width: 100%;
   }
-  
+
   .form-row {
     flex-direction: column;
     gap: 12px;
   }
-  
+
   .half-width {
     width: 100%;
   }
-  
+
   .form-actions {
     flex-direction: column-reverse;
   }
-  
+
   .form-actions button {
     width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  // ... الكود القديم ...
+
+  .custom-paginator-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .page-jump-container {
+    justify-content: center;
   }
 }
 

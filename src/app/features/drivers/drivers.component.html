@@ -2,8 +2,8 @@
   <div class="page-header">
     <h1>Drivers Management</h1>
     <button mat-raised-button color="primary" (click)="toggleAddForm()">
-      <mat-icon>{{ showAddForm ? 'close' : 'add' }}</mat-icon>
-      {{ showAddForm ? 'Cancel' : 'Add Driver' }}
+      <mat-icon>{{ showAddForm ? "close" : "add" }}</mat-icon>
+      {{ showAddForm ? "Cancel" : "Add Driver" }}
     </button>
   </div>
 
@@ -18,15 +18,25 @@
         <div class="form-row">
           <mat-form-field appearance="outline" class="half-width">
             <mat-label>First Name</mat-label>
-            <input matInput formControlName="firstName" placeholder="Enter first name">
-            <mat-error *ngIf="driverForm.get('firstName')?.hasError('required')">
+            <input
+              matInput
+              formControlName="firstName"
+              placeholder="Enter first name"
+            />
+            <mat-error
+              *ngIf="driverForm.get('firstName')?.hasError('required')"
+            >
               First name is required
             </mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="half-width">
             <mat-label>Last Name</mat-label>
-            <input matInput formControlName="lastName" placeholder="Enter last name">
+            <input
+              matInput
+              formControlName="lastName"
+              placeholder="Enter last name"
+            />
             <mat-error *ngIf="driverForm.get('lastName')?.hasError('required')">
               Last name is required
             </mat-error>
@@ -36,7 +46,12 @@
         <div class="form-row">
           <mat-form-field appearance="outline" class="half-width">
             <mat-label>Email</mat-label>
-            <input matInput type="email" formControlName="email" placeholder="Enter email address">
+            <input
+              matInput
+              type="email"
+              formControlName="email"
+              placeholder="Enter email address"
+            />
             <mat-error *ngIf="driverForm.get('email')?.hasError('required')">
               Email is required
             </mat-error>
@@ -47,8 +62,14 @@
 
           <mat-form-field appearance="outline" class="half-width">
             <mat-label>Contact Number</mat-label>
-            <input matInput formControlName="contactNumber" placeholder="Enter contact number">
-            <mat-error *ngIf="driverForm.get('contactNumber')?.hasError('required')">
+            <input
+              matInput
+              formControlName="contactNumber"
+              placeholder="Enter contact number"
+            />
+            <mat-error
+              *ngIf="driverForm.get('contactNumber')?.hasError('required')"
+            >
               Contact number is required
             </mat-error>
           </mat-form-field>
@@ -57,24 +78,40 @@
         <div class="form-row">
           <mat-form-field appearance="outline" class="half-width">
             <mat-label>Date of Birth</mat-label>
-            <input matInput type="date" formControlName="dateOfBirth">
-            <mat-error *ngIf="driverForm.get('dateOfBirth')?.hasError('required')">
+            <input matInput type="date" formControlName="dateOfBirth" />
+            <mat-error
+              *ngIf="driverForm.get('dateOfBirth')?.hasError('required')"
+            >
               Date of birth is required
             </mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="half-width">
             <mat-label>License Number</mat-label>
-            <input matInput formControlName="licenseNumber" placeholder="Enter license number">
-            <mat-error *ngIf="driverForm.get('licenseNumber')?.hasError('required')">
+            <input
+              matInput
+              formControlName="licenseNumber"
+              placeholder="Enter license number"
+            />
+            <mat-error
+              *ngIf="driverForm.get('licenseNumber')?.hasError('required')"
+            >
               License number is required
             </mat-error>
           </mat-form-field>
         </div>
 
         <div class="form-actions">
-          <button mat-button type="button" (click)="resetDriverForm()">Reset</button>
-          <button mat-raised-button color="primary" type="button" (click)="onSaveDriver()" [disabled]="!driverForm.valid">
+          <button mat-button type="button" (click)="resetDriverForm()">
+            Reset
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            type="button"
+            (click)="onSaveDriver()"
+            [disabled]="!driverForm.valid"
+          >
             <mat-icon>save</mat-icon>
             Add Driver
           </button>
@@ -284,12 +321,39 @@
   </mat-card>
 </div>
 
-<mat-paginator
-  #paginator
-  [length]="totalItems"
-  [pageSize]="itemsPerPage"
-  [pageSizeOptions]="[5, 10, 25, 50]"
-  [showFirstLastButtons]="true"
-  aria-label="Drivers pagination"
->
-</mat-paginator>
+<div class="custom-paginator-container">
+  <mat-paginator
+    #paginator
+    [length]="totalItems"
+    [pageSize]="itemsPerPage"
+    [pageSizeOptions]="[5, 10, 25, 50]"
+    [showFirstLastButtons]="true"
+    aria-label="Drivers pagination"
+  >
+  </mat-paginator>
+
+  <div class="page-jump-container">
+    <span class="page-jump-label">Go to page:</span>
+    <input
+      type="number"
+      class="page-jump-input"
+      [(ngModel)]="pageJumpValue"
+      [min]="1"
+      [max]="totalPages"
+      (keyup.enter)="jumpToPage()"
+      placeholder="#"
+    />
+    <button
+      mat-icon-button
+      class="page-jump-button"
+      color="primary"
+      (click)="jumpToPage()"
+      [disabled]="
+        !pageJumpValue || pageJumpValue < 1 || pageJumpValue > totalPages
+      "
+      matTooltip="Jump to page"
+    >
+      <mat-icon>arrow_forward</mat-icon>
+    </button>
+  </div>
+</div>
