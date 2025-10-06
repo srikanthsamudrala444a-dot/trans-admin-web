@@ -102,6 +102,13 @@
         }@else {
         
         <mat-table [dataSource]="dataSource">
+          <ng-container matColumnDef="id">
+            <mat-header-cell *matHeaderCellDef>ID</mat-header-cell>
+            <mat-cell *matCellDef="let passenger">
+              <strong>{{ passenger.id || passenger.passengerId || passenger.userId || 'N/A' }}</strong>
+            </mat-cell>
+          </ng-container>
+          
           <ng-container matColumnDef="name">
             <mat-header-cell *matHeaderCellDef>Passenger</mat-header-cell>
             <mat-cell *matCellDef="let passenger">
@@ -133,19 +140,6 @@
             </mat-cell>
           </ng-container>
           
-          <ng-container matColumnDef="rating">
-            <mat-header-cell *matHeaderCellDef>Rating</mat-header-cell>
-            <mat-cell *matCellDef="let passenger">
-              <div class="rating" *ngIf="passenger.rating || passenger.averageRating">
-                <mat-icon class="star-icon">star</mat-icon>
-                {{ (passenger.rating || passenger.averageRating || 0) | number:'1.1-1' }}
-              </div>
-              <span *ngIf="!passenger.rating && !passenger.averageRating" class="no-rating">
-                No rating
-              </span>
-            </mat-cell>
-          </ng-container>
-          
           <ng-container matColumnDef="status">
             <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
             <mat-cell *matCellDef="let passenger">
@@ -155,27 +149,12 @@
             </mat-cell>
           </ng-container>
           
-          <ng-container matColumnDef="joinDate">
-            <mat-header-cell *matHeaderCellDef>Join Date</mat-header-cell>
-            <mat-cell *matCellDef="let passenger">
-              {{ (passenger.createdAt || passenger.joinDate || passenger.registrationDate) | date:'shortDate' }}
-            </mat-cell>
-          </ng-container>
-          
-          <ng-container matColumnDef="actions">
-            <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
-            <mat-cell *matCellDef="let passenger">
-              <button mat-icon-button color="primary" [routerLink]="['/passengers', passenger.id || passenger.passengerId]" matTooltip="View Passenger Details">
-                <mat-icon>visibility</mat-icon>
-              </button>
-              <button mat-icon-button [color]="passenger.isBanned ? 'accent' : 'warn'">
-                <mat-icon>{{passenger.isBanned ? 'check_circle' : 'block'}}</mat-icon>
-              </button>
-            </mat-cell>
-          </ng-container>
-          
           <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-          <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+          <mat-row 
+            class="data-row clickable-row"
+            [routerLink]="['/passengers', row.id || row.passengerId || row.userId]"
+            *matRowDef="let row; columns: displayedColumns">
+          </mat-row>
         </mat-table>
         
         @if(passengers.length === 0 && !loading && !error){
@@ -189,14 +168,41 @@
       </mat-card>
     </div>
 
-<mat-paginator
-  #paginator
-  [length]="totalItems"
-  [pageSize]="itemsPerPage"
-  [pageSizeOptions]="[5, 10, 25, 50]"
-  [showFirstLastButtons]="true"
-  aria-label="Passengers pagination"
->
-</mat-paginator>
+<div class="custom-paginator-container">
+  <mat-paginator
+    #paginator
+    [length]="totalItems"
+    [pageSize]="itemsPerPage"
+    [pageSizeOptions]="[5, 10, 25, 50]"
+    [showFirstLastButtons]="true"
+    aria-label="Passengers pagination"
+  >
+  </mat-paginator>
+
+  <div class="page-jump-container">
+    <span class="page-jump-label">Go to page:</span>
+    <input
+      type="number"
+      class="page-jump-input"
+      [(ngModel)]="pageJumpValue"
+      [min]="1"
+      [max]="totalPages"
+      (keyup.enter)="jumpToPage()"
+      placeholder="#"
+    />
+    <button
+      mat-icon-button
+      class="page-jump-button"
+      color="primary"
+      (click)="jumpToPage()"
+      [disabled]="
+        !pageJumpValue || pageJumpValue < 1 || pageJumpValue > totalPages
+      "
+      matTooltip="Jump to page"
+    >
+      <mat-icon>arrow_forward</mat-icon>
+    </button>
+  </div>
+</div>
 
     

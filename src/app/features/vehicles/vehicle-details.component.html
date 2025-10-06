@@ -9,7 +9,18 @@
   </div>
   }@else if(vehicle){
   <mat-card-header>
-    <mat-card-title>Vehicle Details</mat-card-title>
+    <mat-card-title>
+      Vehicle Details
+      <button
+        mat-icon-button
+        color="primary"
+        (click)="openDocumentsDialog(vehicle)"
+        matTooltip="View Documents"
+        class="documents-btn"
+      >
+        <mat-icon>description</mat-icon>
+      </button>
+    </mat-card-title>
     <mat-card-subtitle
       >ID:
       <strong>{{ vehicle.id || vehicle.vehicleId }}</strong></mat-card-subtitle

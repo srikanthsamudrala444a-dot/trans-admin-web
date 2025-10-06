@@ -7,19 +7,23 @@ import { Observable } from 'rxjs';
 })
 export class PassengersService {
 
-  private apiUrl = 'https://dev.glaciersoft.in.net/passenger';
+  private apiUrl = 'https://dev.glaciersoft.in.net/passenger/api';
 
   constructor(private http: HttpClient) {}
 
-  // Get all passengers
-  //https://dev.glaciersoft.in.net/passenger/passenger/all
+  // Get all passengers using /all endpoint
   getAllPassengers(): Observable<any> {
     const accessToken = localStorage.getItem('accessToken');
     console.log('Access Token:', accessToken); // Debug log
-    const headers = accessToken
-      ? { Authorization: `Bearer ${accessToken}` }
-      : undefined;
-    return this.http.get(`${this.apiUrl}/passenger/all`, { headers });
+    
+    const headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
+    const options: any = {};
+    
+    if (accessToken) {
+      options.headers = headers;
+    }
+    
+    return this.http.get(`${this.apiUrl}/v1/passenger/all`, options);
   }
 
   // Get passenger by ID
@@ -29,12 +33,12 @@ export class PassengersService {
     const headers = accessToken
       ? { Authorization: `Bearer ${accessToken}` }
       : undefined;
-    return this.http.get(`${this.apiUrl}/passenger/${id}`, { headers });
+    return this.http.get(`${this.apiUrl}/v1/passenger/${id}`, { headers });
   }
 
   // Get logged-in passenger profile
   getProfile(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/passenger/profile`);
+    return this.http.get(`${this.apiUrl}/v1/passenger/profile`);
   }
 
   // Register new passenger
@@ -44,22 +48,26 @@ export class PassengersService {
     const headers = accessToken
       ? { Authorization: `Bearer ${accessToken}` }
       : undefined;
-    return this.http.post(`${this.apiUrl}/passenger/register`, data, { headers });
+    return this.http.post(`${this.apiUrl}/v1/passenger/register`, data, { headers });
   }
 
   // Update passenger by ID
-  //https://dev.glaciersoft.in.net/passenger/passenger/{id}/update
   updatePassenger(id: string, data: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/passenger/${id}/update`, data);
+    return this.http.put(`${this.apiUrl}/v1/passenger/${id}/update`, data);
   }
 
   // Delete passenger by ID
   deletePassenger(id: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/passenger/${id}/delete`, {});
+    return this.http.post(`${this.apiUrl}/v1/passenger/${id}/delete`, {});
   }
 
-  // Query passengers (filter/search)
+  // Query passengers (filter/search) - keeping for fallback if needed
   queryPassengers(query: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/passenger/query`, query);
+     const accessToken = localStorage.getItem('accessToken');
+    console.log('Access Token:', accessToken); // Debug log
+    const headers = accessToken
+      ? { Authorization: `Bearer ${accessToken}` }
+      : undefined;
+    return this.http.post(`${this.apiUrl}/v1/passenger/query`, query, { headers });
   }
 }

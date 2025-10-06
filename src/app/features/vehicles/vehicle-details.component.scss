@@ -8,6 +8,8 @@
 }
 
 mat-card-title {
+  display: flex;
+  align-items: center;
   font-size: 1.5rem;
   font-weight: 600;
   color: #fff;
@@ -62,6 +64,15 @@ mat-card-actions {
   display: flex;
   justify-content: left;
 }
+
+.documents-btn {
+  margin-left: 16px;
+
+  &:hover {
+    background-color: rgba(63, 81, 181, 0.1);
+  }
+}
+
 /*.passenger-details-card {
     max-width: 500px;
     margin: 32px auto;

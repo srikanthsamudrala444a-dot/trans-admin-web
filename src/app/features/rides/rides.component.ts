@@ -72,7 +72,7 @@ function customPaginatorIntl(): MatPaginatorIntl {
 export class RidesComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   
-  displayedColumns = ['id', 'driver', 'passenger', 'pickup', 'status', 'fare', 'actions'];
+  displayedColumns = ['id', 'driver', 'passenger', 'pickup', 'status', 'fare'];
   rides: Ride[] = [];
   currentPage: number = 1;
   totalPages: number = 5;
@@ -85,18 +85,17 @@ export class RidesComponent implements OnInit, AfterViewInit {
   ) {}
   
   ngOnInit(): void {
-    this.loadRides();
-    this.loadRidesByQuery("", this.currentPage, this.itemsPerPage);
+    this.loadRides(this.currentPage, this.itemsPerPage);
   }
 
   ngAfterViewInit(): void {
-    // Handle paginator events for server-side pagination
+    // Handle paginator events for client-side pagination
     this.paginator.page.subscribe((event) => {
       console.log('Paginator event:', event);
       // Update pagination properties
       this.currentPage = event.pageIndex + 1; // Paginator uses 0-based index, convert to 1-based
       this.itemsPerPage = event.pageSize;
-      this.loadRidesByQuery("", this.currentPage, this.itemsPerPage);
+      this.loadRides(this.currentPage, this.itemsPerPage);
     });
   }
 
@@ -137,11 +136,12 @@ return pages;
   goToPage = (page: number | string): void => {
     if (typeof page === 'number') {
       this.currentPage = page;
-      this.loadRidesByQuery("", this.currentPage, this.itemsPerPage);
+      this.loadRides(this.currentPage, this.itemsPerPage);
     }
   }
   
   gotoPage: number = 1;
+  pageJumpValue: number | null = null;
   get canGoToPage(): boolean {
     return this.currentPage > 1 && this.currentPage <= this.totalPages;
   }
@@ -149,16 +149,45 @@ return pages;
 
   openRideDetails: { [rideId: string]: boolean } = {};
 
-  private loadRides(): void {
+  private loadRides(page: number = 1, itemsPerPage: number = this.itemsPerPage): void {
+    this.currentPage = page;
+    this.itemsPerPage = itemsPerPage;
+    
     this.rideService.getAllRides().subscribe(
       (data) => {
-        //this.rides = data.rides;
-        this.totalItems = data.rides.length;
-        this.totalPages = Math.ceil(this.totalItems / 10);
-        console.log(data);
+        console.log('Rides API response:', data);
+        let allRides: Ride[] = [];
+        
+        // Handle different response structures
+        if (data && Array.isArray(data.rides)) {
+          allRides = data.rides;
+        } else if (Array.isArray(data.data)) {
+          allRides = data.data;
+        } else if (Array.isArray(data)) {
+          allRides = data;
+        } else {
+          allRides = [];
+        }
+        
+        // Apply client-side pagination
+        this.totalItems = allRides.length;
+        this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+        
+        // Get current page data
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        this.rides = allRides.slice(startIndex, endIndex);
+        
+        // Update paginator
+        if (this.paginator) {
+          this.paginator.length = this.totalItems;
+        }
+        
+        console.log('Rides loaded:', this.rides);
       },
       (error) => {
         console.error('Error fetching rides:', error);
+        this.rides = [];
       }
     );
   }
@@ -192,6 +221,8 @@ return pages;
   );
 }*/
 
+  // Removed loadRidesByQuery - now using only getAllRides() via loadRides()
+  /*
   public loadRidesByQuery(searchTerm: string, currentPage: number, itemsPerPage: number = this.itemsPerPage): void {
     this.currentPage = currentPage;
     this.itemsPerPage = itemsPerPage;
@@ -226,6 +257,7 @@ return pages;
       }
     );
   }
+  */
 
   selectedRide: Ride | null = null;
 
@@ -245,8 +277,7 @@ return pages;
           next: (response: any) => {
             console.log('Ride created successfully:', response);
             alert('Ride assigned successfully!');
-            this.loadRides(); // Refresh the rides list
-            this.loadRidesByQuery("", this.currentPage, this.itemsPerPage);
+            this.loadRides(this.currentPage, this.itemsPerPage); // Refresh the rides list
           },
           error: (err: any) => {
             console.error('Error creating ride:', err);
@@ -266,6 +297,27 @@ return pages;
         });
       }
     });
+  }
+  goToSpecificPage(): void {
+    if (this.gotoPage >= 1 && this.gotoPage <= this.totalPages) {
+      this.goToPage(this.gotoPage);
+    }
+  }
+  jumpToPage(): void {
+    if (
+      this.pageJumpValue &&
+      this.pageJumpValue >= 1 &&
+      this.pageJumpValue <= this.totalPages
+    ) {
+      this.paginator.pageIndex = this.pageJumpValue - 1; // Convert to 0-based index
+      this.loadRides(this.pageJumpValue, this.itemsPerPage);
+      this.pageJumpValue = null; // Clear input after jump
+    }
+  }
+  onPageSizeChange(newSize: number): void {
+    this.itemsPerPage = newSize;
+    this.currentPage = 1; // Reset to first page when changing page size
+    this.loadRides(this.currentPage, this.itemsPerPage);
   }
   
 }

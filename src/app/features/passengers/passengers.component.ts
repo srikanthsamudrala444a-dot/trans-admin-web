@@ -76,7 +76,7 @@ function customPaginatorIntl(): MatPaginatorIntl {
 export class PassengersComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   
-  displayedColumns = ['name', 'contactNumber', 'totalRides', 'rating', 'status', 'joinDate', 'actions'];
+  displayedColumns = ['id', 'name', 'contactNumber', 'totalRides', 'status'];
   dataSource = new MatTableDataSource<any>([]);
   passengers: any[] = [];
   loading = false;
@@ -92,6 +92,9 @@ export class PassengersComponent implements OnInit, AfterViewInit {
   showAddForm: boolean = false;
   passengerForm: FormGroup;
 
+  gotoPage: number = 1;
+  pageJumpValue: number | null = null;
+  
   constructor(
     private passengersService: PassengersService,
     private dialog: MatDialog,
@@ -107,7 +110,6 @@ export class PassengersComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.loadPassengers();
     this.getAllPassengers();
   }
 
@@ -139,14 +141,36 @@ export class PassengersComponent implements OnInit, AfterViewInit {
     this.passengersService.getAllPassengers().subscribe({
       next: (res) => {
         console.log('Passengers API response:', res);
-        this.passengers = res.passenger || res.data || res || [];
-        this.dataSource.data = this.passengers;
-        this.loading = false;
+        if (res && Array.isArray(res.passenger)) {
+          this.passengers = res.passenger;
+        } else if (Array.isArray(res.data)) {
+          this.passengers = res.data;
+        } else if (Array.isArray(res)) {
+          this.passengers = res;
+        } else {
+          this.passengers = [];
+        }
+        
+        // Apply initial pagination (first page)
         this.totalItems = this.passengers.length;
-        this.totalPages = Math.ceil(this.totalItems / 10);
+        this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+        
+        const startIndex = 0;
+        const endIndex = this.itemsPerPage;
+        const paginatedData = this.passengers.slice(startIndex, endIndex);
+        
+        this.dataSource.data = paginatedData;
+        this.loading = false;
+        
+        // Update paginator
+        if (this.paginator) {
+          this.paginator.length = this.totalItems;
+        }
+        
         console.log('Passengers loaded:', this.passengers);
       },
       error: (err) => {
+        console.error('Failed to load passengers:', err);
         this.error = 'Failed to load passengers';
         console.error('Error loading passengers:', err);
         this.loading = false;
@@ -201,29 +225,30 @@ export class PassengersComponent implements OnInit, AfterViewInit {
     this.loading = true;
     this.currentPage = page;
     this.itemsPerPage = itemsPerPage;
-    const filters: any = {
-      pageNumber: page,
-      itemsPerPage: this.itemsPerPage
-    };
-    this.passengersService.queryPassengers(filters).subscribe({
+    
+    this.passengersService.getAllPassengers().subscribe({
       next: (res: any) => {
-        console.log('Passengers pagination response:', res);
+        console.log('Passengers response:', res);
         if (res && Array.isArray(res.passenger)) {
           this.passengers = res.passenger;
-          this.dataSource.data = this.passengers;
-          this.totalItems = res.totalCount || res.passenger.length;
-          this.totalPages = Math.ceil((res.totalCount || res.passenger.length) / this.itemsPerPage);
+        } else if (Array.isArray(res.data)) {
+          this.passengers = res.data;
         } else if (Array.isArray(res)) {
           this.passengers = res;
-          this.dataSource.data = this.passengers;
-          this.totalItems = res.length;
-          this.totalPages = Math.ceil(res.length / this.itemsPerPage);
         } else {
           this.passengers = [];
-          this.dataSource.data = [];
-          this.totalItems = 0;
-          this.totalPages = 1;
         }
+        
+        // Apply client-side pagination
+        this.totalItems = this.passengers.length;
+        this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+        
+        // Get the current page data
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const paginatedData = this.passengers.slice(startIndex, endIndex);
+        
+        this.dataSource.data = paginatedData;
         
         // Update paginator length
         if (this.paginator) {
@@ -243,9 +268,28 @@ export class PassengersComponent implements OnInit, AfterViewInit {
     });
   }
 
-  goToPage(page: number): void {
-    if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
-      this.loadPassengers(page);
+  goToPage = (page: number | string): void => {
+    if (typeof page === 'number') {
+      this.currentPage = page;
+      this.loadPassengers(this.currentPage, this.itemsPerPage);
+    }
+  }
+  
+  goToSpecificPage(): void {
+    if (this.gotoPage >= 1 && this.gotoPage <= this.totalPages) {
+      this.goToPage(this.gotoPage);
+    }
+  }
+
+  jumpToPage(): void {
+    if (
+      this.pageJumpValue &&
+      this.pageJumpValue >= 1 &&
+      this.pageJumpValue <= this.totalPages
+    ) {
+      this.paginator.pageIndex = this.pageJumpValue - 1; // Convert to 0-based index
+      this.loadPassengers(this.pageJumpValue, this.itemsPerPage);
+      this.pageJumpValue = null; // Clear input after jump
     }
   }
 
@@ -396,5 +440,11 @@ export class PassengersComponent implements OnInit, AfterViewInit {
         }
       });
     }
+  }
+
+  onPageSizeChange(newPageSize: number): void {
+    this.itemsPerPage = newPageSize;
+    this.currentPage = 1; // Reset to first page when changing page size
+    this.loadPassengers(this.currentPage, this.itemsPerPage);
   }
 }

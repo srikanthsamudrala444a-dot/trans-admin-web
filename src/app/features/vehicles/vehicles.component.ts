@@ -77,10 +77,7 @@ export class VehiclesComponent implements OnInit, AfterViewInit {
     'plateNumber',
     'driver',
     'type',
-    'status',
-    'documents',
-    'lastService',
-    'actions'
+    'status'
   ];
   vehicles: any[] = [];
   //vehicles = new MatTableDataSource <any>([]); // ✅ instead of plain array
@@ -100,6 +97,9 @@ export class VehiclesComponent implements OnInit, AfterViewInit {
   showAddForm: boolean = false;
   vehicleForm: FormGroup;
 
+  gotoPage: number = 1;
+  pageJumpValue: number | null = null;
+  
   constructor(
     private vehicleService: VehicleService,
     private dialog: MatDialog,
@@ -180,10 +180,29 @@ export class VehiclesComponent implements OnInit, AfterViewInit {
     });
  }
  
-  goToPage(page: number | string): void {
-    if (typeof page === 'number' && page >= 1 && page <= this.totalPages) {
-      this.loadVehicles(page);
-     }
+  goToPage = (page: number | string): void => {
+    if (typeof page === 'number') {
+      this.currentPage = page;
+      this.loadVehicles(this.currentPage, this.itemsPerPage);
+    }
+  }
+  
+  goToSpecificPage(): void {
+    if (this.gotoPage >= 1 && this.gotoPage <= this.totalPages) {
+      this.goToPage(this.gotoPage);
+    }
+  }
+  
+  jumpToPage(): void {
+    if (
+      this.pageJumpValue &&
+      this.pageJumpValue >= 1 &&
+      this.pageJumpValue <= this.totalPages
+    ) {
+      this.paginator.pageIndex = this.pageJumpValue - 1; // Convert to 0-based index
+      this.loadVehicles(this.pageJumpValue, this.itemsPerPage);
+      this.pageJumpValue = null; // Clear input after jump
+    }
   }
   
   openAddVehicleDialog(): void {
@@ -323,6 +342,12 @@ export class VehiclesComponent implements OnInit, AfterViewInit {
         }
       });
     }
+  }
+
+  onPageSizeChange(newSize: number): void {
+    this.itemsPerPage = newSize;
+    this.currentPage = 1; // Reset to first page when changing page size
+    this.loadVehicles(this.currentPage, this.itemsPerPage);
   }
 
 }

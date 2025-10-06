@@ -18,8 +18,11 @@ export class RideService {
     const headers = accessToken
       ? new HttpHeaders({ Authorization: `Bearer ${accessToken}` })
       : undefined;
-    return this.http.get(`${this.baseUrl}/v1/rides/all`, { headers });
+    return this.http.get(`${this.baseUrl}/rides/all`, { headers });
   }
+  
+  // Removed getRidesByQuery - now using only getAllRides()
+  /*
   getRidesByQuery(queryData: any): Observable<any> {
     const accessToken = localStorage.getItem('accessToken');
     console.log('Access Token:', accessToken);
@@ -30,6 +33,7 @@ export class RideService {
       headers,
     });
   }
+  */
 
   // ✅ 2. Get ride by ID
   getRideById(rideId: string): Observable<any> {
