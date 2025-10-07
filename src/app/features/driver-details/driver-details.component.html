@@ -143,6 +143,20 @@
         <span class="value">{{ driver.subscription ? "Yes" : "No" }}</span>
       </div>
 
+      <!-- Rides History -->
+      <h3 class="section-title">Rides History</h3>
+      <div class="driver-detail-row">
+        <span class="label">Rides:</span>
+        <span class="value">
+          <a
+            [routerLink]="['/drivers', driver.id, 'rides-history']"
+            class="rides-history-link"
+          >
+            View Rides History
+          </a>
+        </span>
+      </div>
+
       <!-- Vehicles -->
       <h3 class="section-title">Vehicles</h3>
       @if (driverVehicles) { @for (vehicle of driverVehicles; track vehicle.id)

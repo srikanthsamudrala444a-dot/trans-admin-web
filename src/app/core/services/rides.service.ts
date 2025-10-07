@@ -20,7 +20,7 @@ export class RideService {
       : undefined;
     return this.http.get(`${this.baseUrl}/v1/rides/all`, { headers });
   }
-  
+
   // Removed getRidesByQuery - now using only getAllRides()
   /*
   getRidesByQuery(queryData: any): Observable<any> {
@@ -58,7 +58,7 @@ export class RideService {
       headers,
     });
     //
-   // return this.http.post(`${this.baseUrl}/rides/create`, rideData);
+    // return this.http.post(`${this.baseUrl}/rides/create`, rideData);
   }
 
   // ✅ 4. Update ride status (pending → accepted → completed/cancelled)
@@ -108,9 +108,8 @@ export class RideService {
     return this.http.get(`${this.baseUrl}/rides/nearby`, { params });
   }
 
-  // ✅ 10. Get ride history (completed rides for a passenger or driver)
-  getRideHistory(userId: string): Observable<any> {
-    return this.http.get(`${this.baseUrl}/rides/history/${userId}`);
+  getDriverRideHistory(driverId: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}/rides/history/driver/${driverId}`);
   }
 
   // ✅ 11. Create ride options

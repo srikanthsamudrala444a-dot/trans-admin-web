@@ -124,3 +124,13 @@ button[mat-raised-button] {
   align-items: center;
   min-height: 200px;
 }
+
+.rides-history-link {
+  color: #1976d2;
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 500;
+}
+.rides-history-link:hover {
+  text-decoration: none;
+}

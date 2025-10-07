@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -27,6 +27,7 @@ import { DriverDocumentsDialogComponent } from '../driver-documents-dialog/drive
     MatProgressSpinnerModule,
     MatTooltipModule,
     MatButtonToggleModule,
+    RouterLink,
   ],
   templateUrl: './driver-details.component.html',
   styleUrls: ['./driver-details.component.scss'],

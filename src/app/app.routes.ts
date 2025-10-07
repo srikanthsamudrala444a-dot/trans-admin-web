@@ -75,6 +75,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/driver-details/driver-details.component').then(c => c.DriverDetailsComponent)
       },
       {
+        path: 'drivers/:driverId/rides-history',
+        loadComponent: () => import('./features/driver-rides-history/driver-rides-history.component').then(c => c.DriverRidesHistoryComponent)
+      },
+      {
         path: 'vehicles/:vehicleId',
         loadComponent: () => import('./features/vehicles/vehicle-details.component').then(c => c.VehicleDetailsComponent)
       },
