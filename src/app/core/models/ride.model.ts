@@ -6,14 +6,14 @@ export interface Ride {
   vehicleId: string;
   status: 'pending' | 'accepted' | 'started' | 'completed' | 'cancelled';
   pickupLocation: Location;
-  dropoffLocation: Location;
+  dropLocation: Location;
   pickupTime?: Date;
   dropoffTime?: Date;
   fare: number;
   distance: number;
   duration: number;
   paymentStatus: 'pending' | 'completed' | 'failed';
-  rating?: number;
+  rating: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,12 +26,16 @@ export interface Location {
 
 export interface Passenger {
   id: string;
-  name: string;
+  firstName: string;
+  LastName: string;
   email: string;
   contactNumber: string;
   totalRides: number;
   rating: number;
   isBanned: boolean;
+  isActive?: boolean;
+  isOnHold?: boolean;
+  holdReason?: string;
   createdAt: Date;
 }
 

@@ -68,10 +68,10 @@
       
       <mat-card class="filter-card">
         <mat-card-content>
-          <div class="filters">
+          <form [formGroup]="searchForm" class="filters">
             <mat-form-field appearance="outline">
               <mat-label>Status</mat-label>
-              <mat-select>
+              <mat-select formControlName="status" (selectionChange)="onStatusChange()">
                 <mat-option value="all">All Status</mat-option>
                 <mat-option value="active">Active</mat-option>
                 <mat-option value="banned">Banned</mat-option>
@@ -79,11 +79,25 @@
             </mat-form-field>
             
             <mat-form-field appearance="outline">
-              <mat-label>Search</mat-label>
-              <input matInput placeholder="Search by name, email, or phone">
+              <mat-label>Search Passengers</mat-label>
+              <input 
+                matInput 
+                formControlName="search"
+                placeholder="Enter name, email, or phone number"
+                (input)="onSearchChange()">
               <mat-icon matSuffix>search</mat-icon>
+             <!-- <mat-hint>Search by first name, last name, email, or phone number</mat-hint>-->
             </mat-form-field>
-          </div>
+
+            <button 
+              mat-stroked-button 
+              type="button"
+              (click)="clearSearch()"
+              [disabled]="!searchForm.get('search')?.value && searchForm.get('status')?.value === 'all'">
+              <mat-icon>clear</mat-icon>
+              Clear
+            </button>
+          </form>
         </mat-card-content>
       </mat-card>
       
@@ -100,6 +114,24 @@
           <button mat-button color="primary" (click)="getAllPassengers()">Retry</button>
         </div>
         }@else {
+        
+        <!-- Search results indicator -->
+        @if(searchForm.get('search')?.value || searchForm.get('status')?.value !== 'all') {
+        <div class="search-results-info">
+          <mat-icon>info</mat-icon>
+          <span>
+            @if(searchForm.get('search')?.value) {
+              Showing search results for "{{ searchForm.get('search')?.value }}"
+            }
+            @if(searchForm.get('search')?.value && searchForm.get('status')?.value !== 'all') {
+              with status "{{ searchForm.get('status')?.value }}"
+            }@else if(searchForm.get('status')?.value !== 'all') {
+              Showing passengers with status "{{ searchForm.get('status')?.value }}"
+            }
+            - {{ totalItems }} result{{ totalItems !== 1 ? 's' : '' }} found
+          </span>
+        </div>
+        }
         
         <mat-table [dataSource]="dataSource">
           <ng-container matColumnDef="id">
@@ -159,8 +191,26 @@
         
         @if(passengers.length === 0 && !loading && !error){
         <div class="no-data">
-          <mat-icon>people_outline</mat-icon>
-          <p>No passengers found</p>
+          <mat-icon>
+            @if(searchForm.get('search')?.value || searchForm.get('status')?.value !== 'all') {
+              search_off
+            }@else {
+              people_outline
+            }
+          </mat-icon>
+          <p>
+            @if(searchForm.get('search')?.value || searchForm.get('status')?.value !== 'all') {
+              No passengers found matching your search criteria
+            }@else {
+              No passengers found
+            }
+          </p>
+          @if(searchForm.get('search')?.value || searchForm.get('status')?.value !== 'all') {
+          <button mat-stroked-button (click)="clearSearch()">
+            <mat-icon>clear</mat-icon>
+            Clear Search
+          </button>
+          }
         </div>
         }
         

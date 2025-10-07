@@ -1,27 +1,136 @@
-<mat-card *ngIf="!isLoading && passenger; else loadingOrError" class="passenger-details-card">
+<mat-card class="passenger-details-card">
+  @if (isLoading) {
+  <div class="loader">
+    <mat-spinner></mat-spinner>
+  </div>
+  } @else if (!isLoading && errorMessage) {
+  <div class="error-message">
+    {{ errorMessage }}
+    <button mat-raised-button color="primary" (click)="backToPassengers()">
+      <mat-icon>arrow_back</mat-icon> Back to Passengers
+    </button>
+  </div>
+  } @else if (passenger) {
   <mat-card-header>
-    <mat-card-title>Passenger Details</mat-card-title>
-    <mat-card-subtitle>ID: <strong>{{ passenger.id  }}</strong></mat-card-subtitle>
+    <mat-card-title>
+      Passenger Details
+      <div class="header-actions">
+        <button
+          mat-icon-button
+          color="accent"
+          (click)="openCommunicationHistory()"
+          matTooltip="Communication History"
+          class="communication-btn"
+        >
+          <mat-icon>schedule</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          color="primary"
+          matTooltip="Passenger Location"
+          class="location-btn"
+        >
+          <mat-icon>location_on</mat-icon>
+        </button>
+      </div>
+    </mat-card-title>
+    <mat-card-subtitle>
+      ID: <strong>{{ passenger.id }}</strong>
+    </mat-card-subtitle>
   </mat-card-header>
+
   <mat-card-content>
-    <div class="passenger-details-list">
-      <div class="passenger-detail-row"><span class="label">Name:</span> <span class="value">{{ passenger.name }}</span></div>
-      <div class="passenger-detail-row"><span class="label">Email:</span> <span class="value">{{ passenger.email }}</span></div>
-      <div class="passenger-detail-row"><span class="label">Phone:</span> <span class="value">{{ passenger.contactNumber }}</span></div>
-      <div class="passenger-detail-row"><span class="label">Status:</span> <span class="value">{{ passenger.isBanned ? 'Banned' : 'Active' }}</span></div>
-      <div class="passenger-detail-row"><span class="label">Total Rides:</span> <span class="value">{{ passenger.totalRides }}</span></div>
-      <div class="passenger-detail-row"><span class="label">Rating:</span> <span class="value">{{ passenger.rating }}</span></div>
-      <div class="passenger-detail-row"><span class="label">Joined At:</span> <span class="value">{{ passenger.createdAt | date:'medium' }}</span></div>
+    <div class="passenger-details-grid">
+      <!-- Basic Information -->
+      <h3 class="section-title">Basic Information</h3>
+      <div class="passenger-detail-row">
+        <span class="label">Name:</span>
+        <span class="value">{{ passenger.firstName }} {{ passenger.LastName || '' }}</span>
+      </div>
+      <div class="passenger-detail-row">
+        <span class="label">Joined At:</span>
+        <span class="value">{{ passenger.createdAt | date:'medium' }}</span>
+      </div>
+
+      <!-- Contact -->
+      <h3 class="section-title">Contact</h3>
+      <div class="passenger-detail-row">
+        <span class="label">Email:</span>
+        <span class="value">{{ passenger.email }}</span>
+      </div>
+      <div class="passenger-detail-row">
+        <span class="label">Phone:</span>
+        <span class="value">{{ passenger.contactNumber }}</span>
+      </div>
+
+      <!-- Rating -->
+      <h3 class="section-title">Rating</h3>
+      <div class="passenger-detail-row">
+        <span class="label">Current Rating:</span>
+        <span class="value">{{ passenger.rating }}</span>
+      </div>
+      <div class="passenger-detail-row">
+        <span class="label">Total Rides:</span>
+        <span class="value">{{ passenger.totalRides }}</span>
+      </div>
+
+      <!-- Status -->
+      <h3 class="section-title">Status & Account Control</h3>
+      <div class="passenger-detail-row">
+        <span class="label">Account Status:</span>
+        <span class="value" 
+              [class.banned]="passenger.isBanned" 
+              [class.on-hold]="passenger.isOnHold"
+              [class.active]="!passenger.isBanned && !passenger.isOnHold && passenger.isActive !== false">
+          {{ getAccountStatus() }}
+        </span>
+      </div>
+      <div class="passenger-detail-row" *ngIf="passenger.isOnHold && passenger.holdReason">
+        <span class="label">Hold Reason:</span>
+        <span class="value">{{ passenger.holdReason }}</span>
+      </div>
+      <div class="passenger-detail-row">
+        <span class="label">Account Actions:</span>
+        <div class="value status-actions">
+          <button 
+            mat-mini-fab 
+            color="accent" 
+            matTooltip="Reactivate Account"
+            (click)="reactivateAccount()"
+            [disabled]="isUpdatingStatus"
+            class="reactivate-btn"
+          >
+            ⏻
+          </button>
+          <button 
+            mat-mini-fab 
+            color="warn" 
+            matTooltip="Suspend Account (Terms Violation)"
+            (click)="suspendAccount()"
+            [disabled]="isUpdatingStatus"
+            class="suspend-btn"
+          >
+            ⏸️
+          </button>
+          <button 
+            mat-mini-fab 
+            color="warn" 
+            matTooltip="Deactivate Account"
+            (click)="deactivateAccount()"
+            [disabled]="isUpdatingStatus"
+            class="deactivate-btn"
+          >
+            <mat-icon>block</mat-icon>
+          </button>
+        </div>
+      </div>
     </div>
-    
   </mat-card-content>
+
   <mat-card-actions>
     <button mat-raised-button color="primary" (click)="backToPassengers()">
-      <mat-icon>arrow_back</mat-icon> Back
+      <mat-icon>arrow_back</mat-icon> Back to Passengers
     </button>
   </mat-card-actions>
+  }
 </mat-card>
-<ng-template #loadingOrError>
-  <div *ngIf="isLoading">Loading passenger details...</div>
-  <div *ngIf="!isLoading && errorMessage">{{ errorMessage }}</div>
-</ng-template>

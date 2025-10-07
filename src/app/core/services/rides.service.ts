@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class RideService {
   // Remove trailing slash
-  private baseUrl = 'https://dev.glaciersoft.in.net/ride/api/v1';
+  private baseUrl = 'https://dev.glaciersoft.in.net/ride/api';
 
   constructor(private http: HttpClient) {}
 
@@ -18,7 +18,7 @@ export class RideService {
     const headers = accessToken
       ? new HttpHeaders({ Authorization: `Bearer ${accessToken}` })
       : undefined;
-    return this.http.get(`${this.baseUrl}/rides/all`, { headers });
+    return this.http.get(`${this.baseUrl}/v1/rides/all`, { headers });
   }
   
   // Removed getRidesByQuery - now using only getAllRides()
@@ -136,6 +136,20 @@ export class RideService {
     console.log(`${this.baseUrl}/ride/options/all`);
 
     return this.http.get(`${this.baseUrl}/ride/options/all`, {
+      headers,
+    });
+  }
+
+  // ✅ 13. Get ride tracking details
+  getRideTracking(rideId: string): Observable<any> {
+    const accessToken = localStorage.getItem('accessToken');
+    console.log('Access Token:', accessToken);
+    const headers = accessToken
+      ? new HttpHeaders({ Authorization: `Bearer ${accessToken}` })
+      : undefined;
+    console.log(`${this.baseUrl}/rides/tracking/${rideId}`);
+
+    return this.http.get(`${this.baseUrl}/rides/tracking/${rideId}`, {
       headers,
     });
   }

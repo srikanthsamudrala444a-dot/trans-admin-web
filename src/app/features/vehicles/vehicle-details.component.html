@@ -27,14 +27,16 @@
     >
   </mat-card-header>
   <mat-card-content>
-    <div class="vehicle-details-list">
+    <div class="vehicle-details-grid">
+      <!-- Basic Information -->
+      <h3 class="section-title">Basic Information</h3>
       <div class="vehicle-detail-row">
         <span class="label">Make & Model:</span>
         <span class="value">{{ vehicle.make }} {{ vehicle.model }}</span>
       </div>
       <div class="vehicle-detail-row">
         <span class="label">Year:</span>
-        <span class="value">{{ vehicle.year }}</span>
+        <span class="value">{{ vehicle.yearOfManufacture }}</span>
       </div>
       <div class="vehicle-detail-row">
         <span class="label">Color:</span>
@@ -42,29 +44,35 @@
       </div>
       <div class="vehicle-detail-row">
         <span class="label">Plate Number:</span>
-        <span class="value">{{ vehicle.plateNumber }}</span>
+        <span class="value">{{ vehicle.registrationNumber }}</span>
       </div>
       <div class="vehicle-detail-row">
         <span class="label">Type:</span>
         <span class="value">{{ vehicle.type | titlecase }}</span>
       </div>
+
+      <!-- Status -->
+      <h3 class="section-title">Status</h3>
       <div class="vehicle-detail-row">
         <span class="label">Status:</span>
-        <span class="value">{{ vehicle.status | titlecase }}</span>
+        <span class="value">{{ vehicle.ownershipStatus | titlecase }}</span>
       </div>
       <div class="vehicle-detail-row">
         <span class="label">Documents Status:</span>
-        <span class="value">{{ vehicle.documentsStatus | titlecase }}</span>
+        <span class="value">{{ vehicle.active | titlecase }}</span>
       </div>
+      <div class="vehicle-detail-row">
+        <span class="label">Assigned Driver:</span>
+        <span class="value">{{ vehicle.driverId }}</span>
+      </div>
+
+      <!-- Service & Documents -->
+      <h3 class="section-title">Service & Documents</h3>
       <div class="vehicle-detail-row">
         <span class="label">Last Service Date:</span>
         <span class="value">{{
           vehicle.lastServiceDate | date : "medium"
         }}</span>
-      </div>
-      <div class="vehicle-detail-row">
-        <span class="label">Assigned Driver:</span>
-        <span class="value">{{ vehicle.driverName || "Not Assigned" }}</span>
       </div>
       <div class="vehicle-detail-row" *ngIf="vehicle.registrationCertificate">
         <span class="label">Registration Certificate:</span>
@@ -84,21 +92,24 @@
         <span class="label">Permit Type:</span>
         <span class="value">{{ vehicle.permitType }}</span>
       </div>
+
+      <!-- Photo -->
       <div class="vehicle-detail-row" *ngIf="vehicle.photoUrl">
         <span class="label">Photo:</span>
-        <span class="value"
-          ><img
+        <span class="value">
+          <img
             [src]="vehicle.photoUrl"
             alt="Vehicle Photo"
-            class="vehicle-details-photo"
-            width="80"
+            class="vehicle-photo"
+            width="120"
+            height="80"
         /></span>
       </div>
     </div>
   </mat-card-content>
   <mat-card-actions>
     <button mat-raised-button color="primary" (click)="backToVehicles()">
-      <mat-icon>arrow_back</mat-icon> Back
+      <mat-icon>arrow_back</mat-icon> Back to Vehicles
     </button>
   </mat-card-actions>
   }
