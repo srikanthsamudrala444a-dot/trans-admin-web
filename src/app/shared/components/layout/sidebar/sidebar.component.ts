@@ -32,6 +32,7 @@ export class SidebarComponent {
     { label: 'Vehicles', icon: 'directions_car', route: '/vehicles' },
     { label: 'Support', icon: 'support_agent', route: '/support' },
     { label: 'Payments', icon: 'payment', route: '/payments' },
+    { label: 'Rewards', icon: 'card_giftcard', route: '/rewards' },
     { label: 'Notifications', icon: 'notifications', route: '/notifications' },
     { label: 'Settings', icon: 'settings', route: '/settings', roles: ['admin'] },
     { label: 'Audit Logs', icon: 'history', route: '/audit-logs', roles: ['admin'] }
