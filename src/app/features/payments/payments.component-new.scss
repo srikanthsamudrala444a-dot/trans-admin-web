@@ -205,37 +205,6 @@
       width: 100%;
       background: transparent;
       
-      // Responsive column widths
-      .mat-column-transactionId {
-        flex: 0 0 20%;
-        max-width: 150px;
-      }
-      
-      .mat-column-type {
-        flex: 0 0 15%;
-        max-width: 120px;
-      }
-      
-      .mat-column-driverName {
-        flex: 0 0 20%;
-        max-width: 140px;
-      }
-      
-      .mat-column-amount {
-        flex: 0 0 15%;
-        max-width: 100px;
-      }
-      
-      .mat-column-status {
-        flex: 0 0 15%;
-        max-width: 100px;
-      }
-      
-      .mat-column-createdAt {
-        flex: 0 0 15%;
-        max-width: 120px;
-      }
-      
       th {
         background: #2d2d2d;
         color: #ffffff;
@@ -263,7 +232,9 @@
         color: #bb86fc;
       }
       
-      .amount-cell {
+      .amount-cell,
+      .commission-cell,
+      .taxes-cell {
         font-weight: 600;
         text-align: right;
       }
@@ -349,29 +320,6 @@
       
       p {
         margin: 0;
-      }
-    }
-    
-    .table-info {
-      padding: 16px 24px;
-      background: #2d2d2d;
-      border-radius: 6px;
-      margin-top: 16px;
-      
-      .info-text {
-        display: flex;
-        align-items: center;
-        color: #b0b0b0;
-        margin: 0;
-        font-size: 14px;
-        
-        mat-icon {
-          margin-right: 8px;
-          color: #bb86fc;
-          font-size: 18px;
-          height: 18px;
-          width: 18px;
-        }
       }
     }
   }
@@ -647,41 +595,10 @@
   }
   
   .payments-table {
-    font-size: 12px;
+    font-size: 14px;
     
     th, td {
-      padding: 6px 4px;
-    }
-    
-    .transaction-id {
-      font-size: 11px;
-    }
-    
-    .mat-column-transactionId {
-      flex: 0 0 25%;
-    }
-    
-    .mat-column-type {
-      flex: 0 0 18%;
-    }
-    
-    .mat-column-driverName {
-      flex: 0 0 22%;
-    }
-    
-    .mat-column-amount {
-      flex: 0 0 18%;
-    }
-    
-    .mat-column-status {
-      flex: 0 0 17%;
-    }
-    
-    // Hide date column on very small screens
-    @media (max-width: 480px) {
-      .mat-column-createdAt {
-        display: none;
-      }
+      padding: 8px 4px;
     }
   }
 }

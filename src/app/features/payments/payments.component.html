@@ -1,15 +1,483 @@
 <div class="payments-container">
-      <div class="page-header">
-        <h1>Payments & Earnings</h1>
+  <div class="header-section">
+    <div class="header-content">
+      <h1 class="page-title">
+        <mat-icon class="title-icon">payment</mat-icon>
+                  <!-- Status Column -->& Earnings Management
+      </h1>
+      <div class="header-actions">
+        <button mat-raised-button color="primary" (click)="exportPayments()" class="export-btn">
+          <mat-icon>file_download</mat-icon>
+          Export Data
+        </button>
       </div>
-      
-      <mat-card class="feature-card">
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <mat-card class="filters-card">
+      <mat-card-content>
+        <div class="filters-grid">
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Search</mat-label>
+            <input matInput placeholder="Transaction ID, Driver, Passenger..." 
+                   [(ngModel)]="searchText" (input)="onSearchChange()">
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Status</mat-label>
+            <mat-select [(ngModel)]="selectedStatus" (selectionChange)="onFiltersChange()">
+              <mat-option value="">All Statuses</mat-option>
+              <mat-option value="Completed">Completed</mat-option>
+              <mat-option value="Pending">Pending</mat-option>
+              <mat-option value="Failed">Failed</mat-option>
+              <mat-option value="Refunded">Refunded</mat-option>
+              <mat-option value="Processing">Processing</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Type</mat-label>
+            <mat-select [(ngModel)]="selectedType" (selectionChange)="onFiltersChange()">
+              <mat-option value="">All Types</mat-option>
+              <mat-option value="Ride Payment">Ride Payment</mat-option>
+              <mat-option value="Driver Payout">Driver Payout</mat-option>
+              <mat-option value="Refund">Refund</mat-option>
+              <mat-option value="Commission">Commission</mat-option>
+              <mat-option value="Tax Deduction">Tax Deduction</mat-option>
+              <mat-option value="Bonus Payment">Bonus Payment</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Date From</mat-label>
+            <input matInput [matDatepicker]="dateFromPicker" 
+                   [(ngModel)]="dateFrom" (dateChange)="onFiltersChange()">
+            <mat-datepicker-toggle matSuffix [for]="dateFromPicker"></mat-datepicker-toggle>
+            <mat-datepicker #dateFromPicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Date To</mat-label>
+            <input matInput [matDatepicker]="dateToPicker" 
+                   [(ngModel)]="dateTo" (dateChange)="onFiltersChange()">
+            <mat-datepicker-toggle matSuffix [for]="dateToPicker"></mat-datepicker-toggle>
+            <mat-datepicker #dateToPicker></mat-datepicker>
+          </mat-form-field>
+
+          <button mat-stroked-button color="accent" (click)="clearFilters()" class="clear-filters-btn">
+            <mat-icon>clear</mat-icon>
+            Clear Filters
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Statistics Section -->
+  <div class="stats-section">
+    <div class="stats-grid">
+      <mat-card class="stat-card revenue">
         <mat-card-content>
-          <div class="coming-soon">
-            <mat-icon class="feature-icon">payment</mat-icon>
-            <h2>Payments Module</h2>
-            <p>Payment history, driver earnings, and wallet management features coming soon.</p>
+          <div class="stat-header">
+            <mat-icon>trending_up</mat-icon>
+            <span class="stat-label">Total Revenue</span>
           </div>
+          <div class="stat-value">{{ formatCurrency(stats.totalRevenue) }}</div>
+          <div class="stat-subtitle">{{ stats.totalTransactions }} transactions</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card earnings">
+        <mat-card-content>
+          <div class="stat-header">
+            <mat-icon>account_balance_wallet</mat-icon>
+            <span class="stat-label">Driver Earnings</span>
+          </div>
+          <div class="stat-value">{{ formatCurrency(stats.totalEarnings) }}</div>
+          <div class="stat-subtitle">Average: {{ formatCurrency(stats.averageRideValue) }}</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card commission">
+        <mat-card-content>
+          <div class="stat-header">
+            <mat-icon>business</mat-icon>
+            <span class="stat-label">Platform Commission</span>
+          </div>
+          <div class="stat-value">{{ formatCurrency(stats.totalCommissions) }}</div>
+          <div class="stat-subtitle">{{ formatPercentage(stats.commissionRate) }} rate</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card taxes">
+        <mat-card-content>
+          <div class="stat-header">
+            <mat-icon>receipt</mat-icon>
+            <span class="stat-label">Total Taxes</span>
+          </div>
+          <div class="stat-value">{{ formatCurrency(stats.totalTaxes) }}</div>
+          <div class="stat-subtitle">Including GST & Service Tax</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card refunds">
+        <mat-card-content>
+          <div class="stat-header">
+            <mat-icon>undo</mat-icon>
+            <span class="stat-label">Total Refunds</span>
+          </div>
+          <div class="stat-value">{{ formatCurrency(stats.totalRefunds) }}</div>
+          <div class="stat-subtitle">{{ formatPercentage(stats.refundRate) }} rate</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card pending">
+        <mat-card-content>
+          <div class="stat-header">
+            <mat-icon>schedule</mat-icon>
+            <span class="stat-label">Pending Payments</span>
+          </div>
+          <div class="stat-value">{{ stats.pendingPayments }}</div>
+          <div class="stat-subtitle">{{ stats.failedPayments }} failed</div>
         </mat-card-content>
       </mat-card>
     </div>
+  </div>
+
+  <!-- Payments Table Section -->
+  <div class="table-section">
+    <mat-card class="table-card">
+      <mat-card-content>
+        <div *ngIf="loading" class="loading-spinner">
+          <mat-spinner diameter="50"></mat-spinner>
+          <p>Loading payments...</p>
+        </div>
+
+        <table mat-table [dataSource]="payments" *ngIf="!loading" class="payments-table">
+          <!-- Transaction ID Column -->
+          <ng-container matColumnDef="transactionId">
+            <th mat-header-cell *matHeaderCellDef>TRANSACTION ID</th>
+            <td mat-cell *matCellDef="let payment" class="transaction-id">
+              {{ payment.transactionId }}
+            </td>
+          </ng-container>
+
+          <!-- Type Column -->
+          <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef>TYPE</th>
+            <td mat-cell *matCellDef="let payment">
+              <mat-chip [class]="getTypeClass(payment.type)">
+                {{ payment.type }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Driver Name Column -->
+          <ng-container matColumnDef="driverName">
+            <th mat-header-cell *matHeaderCellDef>DRIVER</th>
+            <td mat-cell *matCellDef="let payment">{{ payment.driverName }}</td>
+          </ng-container>
+
+          <!-- Amount Column -->
+          <ng-container matColumnDef="amount">
+            <th mat-header-cell *matHeaderCellDef>TOTAL AMOUNT</th>
+            <td mat-cell *matCellDef="let payment" class="amount-cell">
+              {{ formatCurrency(payment.breakdown.totalAmount) }}
+            </td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="taxes">
+            <th mat-header-cell *matHeaderCellDef>TAXES</th>
+            <td mat-cell *matCellDef="let payment" class="taxes-cell">
+              {{ formatCurrency(payment.breakdown.taxes.totalTax) }}
+            </td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>STATUS</th>
+            <td mat-cell *matCellDef="let payment">
+              <mat-chip [class]="getStatusClass(payment.status)">
+                {{ payment.status }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Created At Column -->
+          <ng-container matColumnDef="createdAt">
+            <th mat-header-cell *matHeaderCellDef>DATE</th>
+            <td mat-cell *matCellDef="let payment">
+              {{ payment.createdAt | date:'dd/MM/yyyy HH:mm' }}
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="activeColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: activeColumns;" 
+              class="clickable-row" 
+              (click)="togglePaymentDetails(row)"
+              matTooltip="Click for detailed breakdown including commissions, taxes & passenger info"></tr>
+        </table>
+
+        <!-- Info Message -->
+        <div class="table-info" *ngIf="!loading && payments.length > 0">
+          <p class="info-text">
+            <mat-icon>info</mat-icon>
+            Click any row to view detailed breakdown including passenger info, commissions, taxes, and refund details.
+          </p>
+        </div>
+
+        <!-- Detailed Breakdown Panel -->
+        <div *ngIf="expandedPayment" class="payment-details-panel">
+          <mat-card class="details-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>receipt_long</mat-icon>
+                Payment Breakdown - {{ expandedPayment.transactionId }}
+              </mat-card-title>
+              <button mat-icon-button (click)="togglePaymentDetails(expandedPayment!)">
+                <mat-icon>close</mat-icon>
+              </button>
+            </mat-card-header>
+            
+            <mat-card-content>
+              <mat-tab-group>
+                <!-- Fare Breakdown Tab -->
+                <mat-tab label="Fare Details">
+                  <div class="breakdown-section">
+                    <div class="breakdown-grid">
+                      <div class="breakdown-item">
+                        <span class="label">Base Fare:</span>
+                        <span class="value">{{ formatCurrency(expandedPayment.breakdown.baseFare) }}</span>
+                      </div>
+                      <div class="breakdown-item">
+                        <span class="label">Distance Fare:</span>
+                        <span class="value">{{ formatCurrency(expandedPayment.breakdown.distanceFare) }}</span>
+                      </div>
+                      <div class="breakdown-item">
+                        <span class="label">Time Fare:</span>
+                        <span class="value">{{ formatCurrency(expandedPayment.breakdown.timeFare) }}</span>
+                      </div>
+                      <div class="breakdown-item surge" *ngIf="expandedPayment.breakdown.surgeAmount > 0">
+                        <span class="label">Surge ({{ expandedPayment.breakdown.surgeMultiplier }}x):</span>
+                        <span class="value">{{ formatCurrency(expandedPayment.breakdown.surgeAmount) }}</span>
+                      </div>
+                    </div>
+
+                    <mat-divider></mat-divider>
+
+                    <div class="breakdown-grid">
+                      <div class="breakdown-item">
+                        <span class="label">Tolls:</span>
+                        <span class="value">{{ formatCurrency(expandedPayment.breakdown.tolls) }}</span>
+                      </div>
+                      <div class="breakdown-item">
+                        <span class="label">Parking Fee:</span>
+                        <span class="value">{{ formatCurrency(expandedPayment.breakdown.parkingFee) }}</span>
+                      </div>
+                      <div class="breakdown-item" *ngIf="expandedPayment.breakdown.tip > 0">
+                        <span class="label">Tip:</span>
+                        <span class="value">{{ formatCurrency(expandedPayment.breakdown.tip) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </mat-tab>
+
+                <!-- Fees & Commissions Tab -->
+                <mat-tab label="Fees & Commission">
+                  <div class="breakdown-section">
+                    <h4>Platform Fees</h4>
+                    <div class="breakdown-grid">
+                      <div class="breakdown-item">
+                        <span class="label">Platform Fee:</span>
+                        <span class="value">{{ formatCurrency(expandedPayment.breakdown.platformFee) }}</span>
+                      </div>
+                      <div class="breakdown-item">
+                        <span class="label">Service Fee:</span>
+                        <span class="value">{{ formatCurrency(expandedPayment.breakdown.serviceFee) }}</span>
+                      </div>
+                      <div class="breakdown-item">
+                        <span class="label">Booking Fee:</span>
+                        <span class="value">{{ formatCurrency(expandedPayment.breakdown.bookingFee) }}</span>
+                      </div>
+                    </div>
+
+                    <mat-divider></mat-divider>
+
+                    <h4>Commission & Earnings</h4>
+                    <div class="breakdown-grid">
+                      <div class="breakdown-item commission">
+                        <span class="label">Platform Commission:</span>
+                        <span class="value">{{ formatCurrency(expandedPayment.breakdown.platformCommission) }}</span>
+                      </div>
+                      <div class="breakdown-item earnings">
+                        <span class="label">Driver Earnings:</span>
+                        <span class="value">{{ formatCurrency(expandedPayment.breakdown.driverEarnings) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </mat-tab>
+
+                <!-- Taxes Tab -->
+                <mat-tab label="Tax Breakdown">
+                  <div class="breakdown-section">
+                    <div class="breakdown-grid">
+                      <div class="breakdown-item">
+                        <span class="label">GST ({{ expandedPayment.breakdown.taxes.taxRate }}%):</span>
+                        <span class="value">{{ formatCurrency(expandedPayment.breakdown.taxes.gst) }}</span>
+                      </div>
+                      <div class="breakdown-item">
+                        <span class="label">Service Tax:</span>
+                        <span class="value">{{ formatCurrency(expandedPayment.breakdown.taxes.serviceTax) }}</span>
+                      </div>
+                      <div class="breakdown-item">
+                        <span class="label">Local Tax:</span>
+                        <span class="value">{{ formatCurrency(expandedPayment.breakdown.taxes.localTax) }}</span>
+                      </div>
+                      <div class="breakdown-item total-tax">
+                        <span class="label"><strong>Total Tax:</strong></span>
+                        <span class="value"><strong>{{ formatCurrency(expandedPayment.breakdown.taxes.totalTax) }}</strong></span>
+                      </div>
+                    </div>
+                  </div>
+                </mat-tab>
+
+                <!-- Discounts & Refunds Tab -->
+                <mat-tab label="Discounts & Refunds">
+                  <div class="breakdown-section">
+                    <h4>Discounts Applied</h4>
+                    <div class="breakdown-grid">
+                      <div class="breakdown-item" *ngIf="expandedPayment.breakdown.discount > 0">
+                        <span class="label">General Discount:</span>
+                        <span class="value discount">-{{ formatCurrency(expandedPayment.breakdown.discount) }}</span>
+                      </div>
+                      <div class="breakdown-item" *ngIf="expandedPayment.breakdown.promoDiscount > 0">
+                        <span class="label">Promo Discount ({{ expandedPayment.breakdown.promoCode }}):</span>
+                        <span class="value discount">-{{ formatCurrency(expandedPayment.breakdown.promoDiscount) }}</span>
+                      </div>
+                    </div>
+
+                    <div *ngIf="expandedPayment.breakdown.refund" class="refund-section">
+                      <mat-divider></mat-divider>
+                      <h4>Refund Details</h4>
+                      <div class="breakdown-grid">
+                        <div class="breakdown-item">
+                          <span class="label">Refund Amount:</span>
+                          <span class="value">{{ formatCurrency(expandedPayment.breakdown.refund.refundAmount) }}</span>
+                        </div>
+                        <div class="breakdown-item">
+                          <span class="label">Processing Fee:</span>
+                          <span class="value">{{ formatCurrency(expandedPayment.breakdown.refund.processingFee) }}</span>
+                        </div>
+                        <div class="breakdown-item">
+                          <span class="label">Net Refund:</span>
+                          <span class="value">{{ formatCurrency(expandedPayment.breakdown.refund.netRefund) }}</span>
+                        </div>
+                        <div class="breakdown-item">
+                          <span class="label">Reason:</span>
+                          <span class="value">{{ expandedPayment.breakdown.refund.refundReason }}</span>
+                        </div>
+                        <div class="breakdown-item">
+                          <span class="label">Refund Method:</span>
+                          <span class="value">{{ expandedPayment.breakdown.refund.refundMethod }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </mat-tab>
+
+                <!-- Payment Info Tab -->
+                <mat-tab label="Payment Info">
+                  <div class="breakdown-section">
+                    <div class="info-grid">
+                      <div class="info-item">
+                        <span class="label">Payment Method:</span>
+                        <span class="value">{{ expandedPayment.paymentMethod }}</span>
+                      </div>
+                      <div class="info-item">
+                        <span class="label">Transaction Date:</span>
+                        <span class="value">{{ expandedPayment.createdAt | date:'dd/MM/yyyy HH:mm:ss' }}</span>
+                      </div>
+                      <div class="info-item" *ngIf="expandedPayment.completedAt">
+                        <span class="label">Completion Date:</span>
+                        <span class="value">{{ expandedPayment.completedAt | date:'dd/MM/yyyy HH:mm:ss' }}</span>
+                      </div>
+                      <div class="info-item" *ngIf="expandedPayment.description">
+                        <span class="label">Description:</span>
+                        <span class="value">{{ expandedPayment.description }}</span>
+                      </div>
+                      <div class="info-item" *ngIf="expandedPayment.failureReason">
+                        <span class="label">Failure Reason:</span>
+                        <span class="value error">{{ expandedPayment.failureReason }}</span>
+                      </div>
+                    </div>
+
+                    <div class="actions-section">
+                      <button mat-raised-button color="primary" 
+                              *ngIf="expandedPayment.status === 'Failed'"
+                              (click)="retryFailedPayment(expandedPayment!)">
+                        <mat-icon>refresh</mat-icon>
+                        Retry Payment
+                      </button>
+                      
+                      <button mat-raised-button color="warn" 
+                              *ngIf="expandedPayment.status === 'Completed' && expandedPayment.type === 'Ride Payment'"
+                              (click)="processRefund(expandedPayment!)">
+                        <mat-icon>undo</mat-icon>
+                        Process Refund
+                      </button>
+                    </div>
+                  </div>
+                </mat-tab>
+              </mat-tab-group>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <!-- No Data Message -->
+        <div *ngIf="!loading && payments.length === 0" class="no-data">
+          <mat-icon>payments</mat-icon>
+          <h3>No payments found</h3>
+          <p>Try adjusting your search filters or check back later.</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Pagination Section -->
+  <div *ngIf="!loading && payments.length > 0" class="custom-paginator-container">
+    <mat-paginator
+      #paginator
+      [length]="totalItems"
+      [pageSize]="itemsPerPage"
+      [pageSizeOptions]="[5, 10, 25, 50]"
+      [showFirstLastButtons]="true"
+      aria-label="Payments pagination">
+    </mat-paginator>
+
+    <div class="page-jump-container">
+      <span class="page-jump-label">Go to page:</span>
+      <input
+        type="number"
+        class="page-jump-input"
+        [(ngModel)]="pageJumpValue"
+        [min]="1"
+        [max]="totalPages"
+        (keyup.enter)="jumpToPage()"
+        placeholder="#"
+      />
+      <button
+        mat-icon-button
+        class="page-jump-button"
+        color="primary"
+        (click)="jumpToPage()"
+        [disabled]="!pageJumpValue || pageJumpValue < 1 || pageJumpValue > totalPages"
+        matTooltip="Jump to page">
+        <mat-icon>arrow_forward</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>
