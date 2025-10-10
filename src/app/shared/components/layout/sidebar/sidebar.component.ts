@@ -33,6 +33,7 @@ export class SidebarComponent {
     { label: 'Support', icon: 'support_agent', route: '/support' },
     { label: 'Payments', icon: 'payment', route: '/payments' },
     { label: 'Rewards', icon: 'card_giftcard', route: '/rewards' },
+    { label: 'Performance Reports', icon: 'analytics', route: '/performance-reports' },
     { label: 'Notifications', icon: 'notifications', route: '/notifications' },
     { label: 'Settings', icon: 'settings', route: '/settings', roles: ['admin'] },
     { label: 'Audit Logs', icon: 'history', route: '/audit-logs', roles: ['admin'] }
