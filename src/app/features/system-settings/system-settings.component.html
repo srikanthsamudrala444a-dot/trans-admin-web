@@ -1,10 +1,10 @@
-<div class="settings-container">
+<div class="system-settings-container">
   <!-- Header Section -->
   <div class="header-section">
     <div class="header-content">
       <h1 class="page-title">
         <mat-icon>settings</mat-icon>
-        Settings
+        System Settings
       </h1>
       <div class="header-controls">
         <input #fileInput type="file" accept=".json" (change)="importSettings($event)" style="display: none;">
@@ -27,12 +27,19 @@
     <mat-card class="loading-card">
       <div class="loading-content">
         <mat-spinner></mat-spinner>
-        <p>Loading settings...</p>
+        <p>Loading system settings...</p>
       </div>
     </mat-card>
   </div>
 
-
+  <!-- Debug Info -->
+  <div *ngIf="!loading" class="debug-info" style="background: #f5f5f5; padding: 1rem; margin: 1rem 0; border-radius: 4px;">
+    <p><strong>Debug Information:</strong></p>
+    <p>Loading: {{ loading }}</p>
+    <p>Settings Data Available: {{ !!settingsData }}</p>
+    <p>General Form Valid: {{ generalForm.valid }}</p>
+    <p>Component Initialized: System Settings component is loaded</p>
+  </div>
 
   <!-- Main Content -->
   <div *ngIf="!loading" class="content-section">

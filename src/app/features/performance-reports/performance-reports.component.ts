@@ -1,4 +1,4 @@
-import { Component, OnInit, Injectable } from '@angular/core';
+import { Component, OnInit, Injectable, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,7 +8,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDividerModule } from '@angular/material/divider';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
+import { MatPaginatorModule, MatPaginator, MatPaginatorIntl } from '@angular/material/paginator';
+import { MatSortModule, MatSort } from '@angular/material/sort';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatChipsModule } from '@angular/material/chips';
+import { FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
@@ -54,6 +59,39 @@ export interface ConversionFunnelData {
   overallConversionRate: number;
 }
 
+// Additional interfaces for detailed data tables
+export interface DriverPerformanceDetail {
+  id: string;
+  name: string;
+  totalRides: number;
+  averageRating: number;
+  totalRevenue: number;
+  averageRideTime: number;
+  completionRate: number;
+  status: string;
+}
+
+export interface RoutePerformanceDetail {
+  id: string;
+  routeName: string;
+  totalRides: number;
+  averageDistance: number;
+  averageRevenue: number;
+  popularityScore: number;
+  peakHours: string;
+  averageRating: number;
+}
+
+export interface DailyPerformanceDetail {
+  date: string;
+  totalRides: number;
+  totalRevenue: number;
+  averageRating: number;
+  uniqueDrivers: number;
+  completionRate: number;
+  averageWaitTime: number;
+}
+
 export interface PerformanceData {
   averageDriverRating: number;
   busiestRoute: string;
@@ -71,6 +109,10 @@ export interface PerformanceData {
   timePeriod: TimePeriodsEnum;
   startDate: string;
   endDate: string;
+  // New detailed data for tables
+  driverPerformanceDetails: DriverPerformanceDetail[];
+  routePerformanceDetails: RoutePerformanceDetail[];
+  dailyPerformanceDetails: DailyPerformanceDetail[];
 }
 
 // Inline service to avoid module import issues
@@ -158,6 +200,11 @@ export class PerformanceReportsService {
       overallConversionRate: appVisits > 0 ? (completedRides / appVisits) * 100 : 0
     };
 
+    // Generate detailed data for tables
+    const driverPerformanceDetails = this.generateDriverPerformanceDetails(multiplier);
+    const routePerformanceDetails = this.generateRoutePerformanceDetails(multiplier);
+    const dailyPerformanceDetails = this.generateDailyPerformanceDetails(timePeriod);
+
     return {
       averageDriverRating: Number(averageRating.toFixed(1)),
       busiestRoute: topRoutes[0]?.routeName || 'Airport → Downtown',
@@ -174,9 +221,112 @@ export class PerformanceReportsService {
       averageRideDuration: 18,
       timePeriod,
       startDate: new Date().toISOString().split('T')[0],
-      endDate: new Date().toISOString().split('T')[0]
+      endDate: new Date().toISOString().split('T')[0],
+      driverPerformanceDetails,
+      routePerformanceDetails,
+      dailyPerformanceDetails
     };
   }
+
+  private generateDriverPerformanceDetails(multiplier: number): DriverPerformanceDetail[] {
+    const drivers: DriverPerformanceDetail[] = [];
+    const driverCount = Math.floor(50 * multiplier);
+    
+    for (let i = 1; i <= driverCount; i++) {
+      const totalRides = Math.floor(Math.random() * 200 * multiplier) + 10;
+      const averageRating = Number((3.5 + Math.random() * 1.5).toFixed(1));
+      const totalRevenue = totalRides * (10 + Math.random() * 20);
+      
+      drivers.push({
+        id: `driver_${i}`,
+        name: `Driver ${i}`,
+        totalRides,
+        averageRating,
+        totalRevenue: Number(totalRevenue.toFixed(2)),
+        averageRideTime: Number((15 + Math.random() * 20).toFixed(1)),
+        completionRate: Number((85 + Math.random() * 15).toFixed(1)),
+        status: Math.random() > 0.2 ? 'Active' : 'Inactive'
+      });
+    }
+    
+    return drivers.sort((a, b) => b.totalRevenue - a.totalRevenue);
+  }
+
+  private generateRoutePerformanceDetails(multiplier: number): RoutePerformanceDetail[] {
+    const routes = [
+      'Airport → Downtown', 'Central Station → Mall', 'University → City Center',
+      'Hospital → Residential Area', 'Business District → Suburbs', 'Shopping Center → Airport',
+      'Train Station → Hotel District', 'Port → Industrial Area', 'Beach → City Center',
+      'Stadium → Metro Station', 'Convention Center → Airport', 'Museum → Downtown'
+    ];
+
+    return routes.map((route, index) => ({
+      id: `route_${index + 1}`,
+      routeName: route,
+      totalRides: Math.floor((100 + Math.random() * 500) * multiplier),
+      averageDistance: Number((5 + Math.random() * 15).toFixed(1)),
+      averageRevenue: Number((12 + Math.random() * 25).toFixed(2)),
+      popularityScore: Number((Math.random() * 100).toFixed(1)),
+      peakHours: Math.random() > 0.5 ? '8-10 AM' : '6-9 PM',
+      averageRating: Number((3.8 + Math.random() * 1.2).toFixed(1))
+    })).sort((a, b) => b.totalRides - a.totalRides);
+  }
+
+  private generateDailyPerformanceDetails(timePeriod: TimePeriodsEnum): DailyPerformanceDetail[] {
+    const days = this.getDaysForPeriod(timePeriod);
+    const details: DailyPerformanceDetail[] = [];
+
+    for (let i = 0; i < days; i++) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      
+      const totalRides = Math.floor(200 + Math.random() * 300);
+      const totalRevenue = totalRides * (12 + Math.random() * 8);
+      
+      details.push({
+        date: date.toISOString().split('T')[0],
+        totalRides,
+        totalRevenue: Number(totalRevenue.toFixed(2)),
+        averageRating: Number((4.0 + Math.random() * 1.0).toFixed(1)),
+        uniqueDrivers: Math.floor(20 + Math.random() * 30),
+        completionRate: Number((88 + Math.random() * 10).toFixed(1)),
+        averageWaitTime: Number((3 + Math.random() * 7).toFixed(1))
+      });
+    }
+
+    return details.reverse(); // Show oldest first
+  }
+
+  private getDaysForPeriod(timePeriod: TimePeriodsEnum): number {
+    switch (timePeriod) {
+      case TimePeriodsEnum.TODAY:
+      case TimePeriodsEnum.YESTERDAY:
+        return 1;
+      case TimePeriodsEnum.LAST_7_DAYS:
+        return 7;
+      case TimePeriodsEnum.LAST_30_DAYS:
+      case TimePeriodsEnum.THIS_MONTH:
+      case TimePeriodsEnum.LAST_MONTH:
+        return 30;
+      default:
+        return 30;
+    }    }
+  }
+
+// Custom Paginator Factory Function
+function customPaginatorIntl(): MatPaginatorIntl {
+  const paginatorIntl = new MatPaginatorIntl();
+  paginatorIntl.itemsPerPageLabel = 'Items per page:';
+  paginatorIntl.nextPageLabel = 'Next page';
+  paginatorIntl.previousPageLabel = 'Previous page';
+  paginatorIntl.firstPageLabel = 'First page';
+  paginatorIntl.lastPageLabel = 'Last page';
+  paginatorIntl.getRangeLabel = (page: number, pageSize: number, length: number): string => {
+    if (length === 0) return `Page 1 of 1`;
+    const amountPages = Math.ceil(length / pageSize);
+    return `Page ${page + 1} of ${amountPages}`;
+  };
+  return paginatorIntl;
 }
 
 @Component({
@@ -192,12 +342,25 @@ export class PerformanceReportsService {
     MatInputModule,
     MatProgressBarModule,
     MatDividerModule,
-    ReactiveFormsModule
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatTabsModule,
+    MatChipsModule,
+    ReactiveFormsModule,
+    FormsModule
   ],
+  providers: [{ provide: MatPaginatorIntl, useFactory: customPaginatorIntl }],
   templateUrl: './performance-reports.component.html',
   styleUrls: ['./performance-reports.component.scss']
 })
-export class PerformanceReportsComponent implements OnInit {
+export class PerformanceReportsComponent implements OnInit, AfterViewInit {
+  @ViewChild('driverPaginator') driverPaginator!: MatPaginator;
+  @ViewChild('routePaginator') routePaginator!: MatPaginator;
+  @ViewChild('dailyPaginator') dailyPaginator!: MatPaginator;
+  @ViewChild('driverSort') driverSort!: MatSort;
+  @ViewChild('routeSort') routeSort!: MatSort;
+  @ViewChild('dailySort') dailySort!: MatSort;
 
   // Time period control
   timePeriodControl = new FormControl('last_7_days');
@@ -208,6 +371,21 @@ export class PerformanceReportsComponent implements OnInit {
   
   // Performance data
   performanceData: PerformanceData | null = null;
+
+  // Table data sources
+  driverDataSource = new MatTableDataSource<DriverPerformanceDetail>([]);
+  routeDataSource = new MatTableDataSource<RoutePerformanceDetail>([]);
+  dailyDataSource = new MatTableDataSource<DailyPerformanceDetail>([]);
+
+  // Table columns
+  driverColumns = ['name', 'totalRides', 'averageRating', 'totalRevenue', 'completionRate', 'status'];
+  routeColumns = ['routeName', 'totalRides', 'averageDistance', 'averageRevenue', 'popularityScore', 'averageRating'];
+  dailyColumns = ['date', 'totalRides', 'totalRevenue', 'averageRating', 'uniqueDrivers', 'completionRate'];
+
+  // Pagination properties for jump functionality
+  driverPageJumpValue: number | null = null;
+  routePageJumpValue: number | null = null;
+  dailyPageJumpValue: number | null = null;
 
   constructor(private performanceService: PerformanceReportsService) {}
 
@@ -220,6 +398,18 @@ export class PerformanceReportsComponent implements OnInit {
     });
   }
 
+  ngAfterViewInit(): void {
+    // Set up data sources with pagination and sorting
+    this.driverDataSource.paginator = this.driverPaginator;
+    this.driverDataSource.sort = this.driverSort;
+    
+    this.routeDataSource.paginator = this.routePaginator;
+    this.routeDataSource.sort = this.routeSort;
+    
+    this.dailyDataSource.paginator = this.dailyPaginator;
+    this.dailyDataSource.sort = this.dailySort;
+  }
+
   loadPerformanceData(): void {
     this.loading = true;
     const timePeriod = this.timePeriodControl.value || 'last_7_days';
@@ -227,6 +417,12 @@ export class PerformanceReportsComponent implements OnInit {
     this.performanceService.getPerformanceData(timePeriod as TimePeriodsEnum).subscribe({
       next: (data: PerformanceData) => {
         this.performanceData = data;
+        
+        // Update table data sources
+        this.driverDataSource.data = data.driverPerformanceDetails;
+        this.routeDataSource.data = data.routePerformanceDetails;
+        this.dailyDataSource.data = data.dailyPerformanceDetails;
+        
         this.loading = false;
       },
       error: (error: any) => {
@@ -234,6 +430,53 @@ export class PerformanceReportsComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  // Jump to specific page methods
+  jumpToDriverPage(): void {
+    if (this.driverPageJumpValue && this.driverPaginator) {
+      const maxPages = Math.ceil(this.driverDataSource.data.length / this.driverPaginator.pageSize);
+      if (this.driverPageJumpValue >= 1 && this.driverPageJumpValue <= maxPages) {
+        this.driverPaginator.pageIndex = this.driverPageJumpValue - 1;
+        this.driverPageJumpValue = null;
+      }
+    }
+  }
+
+  jumpToRoutePage(): void {
+    if (this.routePageJumpValue && this.routePaginator) {
+      const maxPages = Math.ceil(this.routeDataSource.data.length / this.routePaginator.pageSize);
+      if (this.routePageJumpValue >= 1 && this.routePageJumpValue <= maxPages) {
+        this.routePaginator.pageIndex = this.routePageJumpValue - 1;
+        this.routePageJumpValue = null;
+      }
+    }
+  }
+
+  jumpToDailyPage(): void {
+    if (this.dailyPageJumpValue && this.dailyPaginator) {
+      const maxPages = Math.ceil(this.dailyDataSource.data.length / this.dailyPaginator.pageSize);
+      if (this.dailyPageJumpValue >= 1 && this.dailyPageJumpValue <= maxPages) {
+        this.dailyPaginator.pageIndex = this.dailyPageJumpValue - 1;
+        this.dailyPageJumpValue = null;
+      }
+    }
+  }
+
+  // Helper methods for pagination
+  getDriverMaxPages(): number {
+    if (!this.driverPaginator) return 1;
+    return Math.ceil(this.driverDataSource.data.length / this.driverPaginator.pageSize);
+  }
+
+  getRouteMaxPages(): number {
+    if (!this.routePaginator) return 1;
+    return Math.ceil(this.routeDataSource.data.length / this.routePaginator.pageSize);
+  }
+
+  getDailyMaxPages(): number {
+    if (!this.dailyPaginator) return 1;
+    return Math.ceil(this.dailyDataSource.data.length / this.dailyPaginator.pageSize);
   }
 
 

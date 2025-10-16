@@ -34,8 +34,10 @@ export class SidebarComponent {
     { label: 'Payments', icon: 'payment', route: '/payments' },
     { label: 'Rewards', icon: 'card_giftcard', route: '/rewards' },
     { label: 'Performance Reports', icon: 'analytics', route: '/performance-reports' },
+    { label: 'Operational Reports', icon: 'assessment', route: '/operational-reports' },
+    { label: 'Reviews & Ratings', icon: 'reviews', route: '/reviews-ratings' },
     { label: 'Notifications', icon: 'notifications', route: '/notifications' },
-    { label: 'Settings', icon: 'settings', route: '/settings', roles: ['admin'] },
+    { label: 'Settings', icon: 'settings', route: '/settings' },
     { label: 'Audit Logs', icon: 'history', route: '/audit-logs', roles: ['admin'] }
   ];
 

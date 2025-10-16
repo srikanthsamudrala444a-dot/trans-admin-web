@@ -86,7 +86,7 @@ export interface SystemSettingsData {
 }
 
 @Component({
-  selector: 'app-settings',
+  selector: 'app-system-settings',
   standalone: true,
   imports: [
     CommonModule,
@@ -105,10 +105,10 @@ export interface SystemSettingsData {
     MatChipsModule,
     MatTooltipModule
   ],
-  templateUrl: './settings.component.html',
-  styleUrls: ['./settings.component.scss']
+  templateUrl: './system-settings.component.html',
+  styleUrls: ['./system-settings.component.scss']
 })
-export class SettingsComponent implements OnInit {
+export class SystemSettingsComponent implements OnInit {
   generalForm!: FormGroup;
   notificationForm!: FormGroup;
   integrationForm!: FormGroup;
@@ -153,19 +153,8 @@ export class SettingsComponent implements OnInit {
     { value: 'Europe/London', label: 'London' },
     { value: 'Europe/Paris', label: 'Paris' },
     { value: 'Asia/Tokyo', label: 'Tokyo' },
-    { value: 'Asia/Shanghai', label: 'Shanghai' },
-    { value: 'Asia/Kolkata', label: 'India' }
-  ];
-
-  dateFormatOptions = [
-    { value: 'DD/MM/YYYY', label: 'DD/MM/YYYY' },
-    { value: 'MM/DD/YYYY', label: 'MM/DD/YYYY' },
-    { value: 'YYYY-MM-DD', label: 'YYYY-MM-DD' }
-  ];
-
-  timeFormatOptions = [
-    { value: '12h', label: '12 Hour' },
-    { value: '24h', label: '24 Hour' }
+    { value: 'Asia/Kolkata', label: 'India' },
+    { value: 'Australia/Sydney', label: 'Sydney' }
   ];
 
   languageOptions = [
@@ -175,16 +164,14 @@ export class SettingsComponent implements OnInit {
     { value: 'de', label: 'German' },
     { value: 'it', label: 'Italian' },
     { value: 'pt', label: 'Portuguese' },
-    { value: 'ru', label: 'Russian' },
-    { value: 'zh', label: 'Chinese' },
-    { value: 'ja', label: 'Japanese' },
-    { value: 'ko', label: 'Korean' }
+    { value: 'hi', label: 'Hindi' },
+    { value: 'ja', label: 'Japanese' }
   ];
 
   smsProviderOptions = [
     { value: 'twilio', label: 'Twilio' },
     { value: 'aws-sns', label: 'AWS SNS' },
-    { value: 'nexmo', label: 'Nexmo' },
+    { value: 'nexmo', label: 'Nexmo/Vonage' },
     { value: 'messagebird', label: 'MessageBird' }
   ];
 
@@ -192,10 +179,22 @@ export class SettingsComponent implements OnInit {
     private fb: FormBuilder,
     private snackBar: MatSnackBar
   ) {
-    this.initializeForms();
+    console.log('SystemSettingsComponent constructor called');
+    try {
+      this.initializeForms();
+      console.log('Forms initialized successfully');
+    } catch (error) {
+      console.error('Error initializing forms:', error);
+    }
   }
 
   ngOnInit(): void {
+    console.log('SystemSettingsComponent initialized');
+    console.log('Forms initialized:', {
+      generalForm: !!this.generalForm,
+      notificationForm: !!this.notificationForm,
+      integrationForm: !!this.integrationForm
+    });
     this.loadSettings();
   }
 
@@ -261,13 +260,16 @@ export class SettingsComponent implements OnInit {
 
   loadSettings(): void {
     this.loading = true;
+    console.log('Loading settings...');
     this.getSettingsData().subscribe({
       next: (data) => {
+        console.log('Settings loaded successfully:', data);
         this.settingsData = data;
         this.populateForms(data);
         this.loading = false;
       },
       error: (error) => {
+        console.error('Error loading settings:', error);
         this.loading = false;
         this.showSnackBar('Error loading settings', 'error');
       }
@@ -321,7 +323,7 @@ export class SettingsComponent implements OnInit {
 
   testEmailConnection(): void {
     this.saving = true;
-    // Simulate connection test
+    // Simulate email test
     setTimeout(() => {
       this.saving = false;
       this.showSnackBar('Email connection test successful', 'success');
@@ -330,19 +332,10 @@ export class SettingsComponent implements OnInit {
 
   testSmsConnection(): void {
     this.saving = true;
-    // Simulate connection test
+    // Simulate SMS test
     setTimeout(() => {
       this.saving = false;
       this.showSnackBar('SMS connection test successful', 'success');
-    }, 2000);
-  }
-
-  testIntegration(service: string): void {
-    this.saving = true;
-    // Simulate integration test
-    setTimeout(() => {
-      this.saving = false;
-      this.showSnackBar(`${service} connection test successful`, 'success');
     }, 2000);
   }
 
@@ -353,8 +346,8 @@ export class SettingsComponent implements OnInit {
     }
   }
 
-  // Email Template Management
-  editEmailTemplate(template: EmailTemplate): void {
+  // Email Template Methods
+  selectEmailTemplate(template: EmailTemplate): void {
     this.selectedEmailTemplate = template;
     this.emailTemplateForm.patchValue({
       name: template.name,
@@ -365,6 +358,12 @@ export class SettingsComponent implements OnInit {
     this.isEditingEmailTemplate = true;
   }
 
+  createNewEmailTemplate(): void {
+    this.selectedEmailTemplate = null;
+    this.emailTemplateForm.reset({ isActive: true });
+    this.isEditingEmailTemplate = true;
+  }
+
   saveEmailTemplate(): void {
     if (this.emailTemplateForm.valid) {
       this.saving = true;
@@ -372,40 +371,33 @@ export class SettingsComponent implements OnInit {
       setTimeout(() => {
         this.saving = false;
         this.isEditingEmailTemplate = false;
-        this.selectedEmailTemplate = null;
-        this.emailTemplateForm.reset();
         this.showSnackBar('Email template saved successfully', 'success');
-        this.loadSettings(); // Refresh data
-      }, 1500);
-    }
-  }
-
-  deleteEmailTemplate(template: EmailTemplate): void {
-    if (confirm(`Are you sure you want to delete the template "${template.name}"?`)) {
-      this.saving = true;
-      // Simulate API call
-      setTimeout(() => {
-        this.saving = false;
-        this.showSnackBar('Email template deleted successfully', 'success');
         this.loadSettings(); // Refresh data
       }, 1000);
     }
   }
 
-  cancelEmailTemplateEdit(): void {
-    this.isEditingEmailTemplate = false;
-    this.selectedEmailTemplate = null;
-    this.emailTemplateForm.reset();
+  deleteEmailTemplate(template: EmailTemplate): void {
+    if (confirm(`Are you sure you want to delete the template "${template.name}"?`)) {
+      this.showSnackBar('Email template deleted successfully', 'success');
+      this.loadSettings(); // Refresh data
+    }
   }
 
-  // SMS Template Management
-  editSmsTemplate(template: SmsTemplate): void {
+  // SMS Template Methods
+  selectSmsTemplate(template: SmsTemplate): void {
     this.selectedSmsTemplate = template;
     this.smsTemplateForm.patchValue({
       name: template.name,
       message: template.message,
       isActive: template.isActive
     });
+    this.isEditingSmsTemplate = true;
+  }
+
+  createNewSmsTemplate(): void {
+    this.selectedSmsTemplate = null;
+    this.smsTemplateForm.reset({ isActive: true });
     this.isEditingSmsTemplate = true;
   }
 
@@ -416,30 +408,17 @@ export class SettingsComponent implements OnInit {
       setTimeout(() => {
         this.saving = false;
         this.isEditingSmsTemplate = false;
-        this.selectedSmsTemplate = null;
-        this.smsTemplateForm.reset();
         this.showSnackBar('SMS template saved successfully', 'success');
-        this.loadSettings(); // Refresh data
-      }, 1500);
-    }
-  }
-
-  deleteSmsTemplate(template: SmsTemplate): void {
-    if (confirm(`Are you sure you want to delete the template "${template.name}"?`)) {
-      this.saving = true;
-      // Simulate API call
-      setTimeout(() => {
-        this.saving = false;
-        this.showSnackBar('SMS template deleted successfully', 'success');
         this.loadSettings(); // Refresh data
       }, 1000);
     }
   }
 
-  cancelSmsTemplateEdit(): void {
-    this.isEditingSmsTemplate = false;
-    this.selectedSmsTemplate = null;
-    this.smsTemplateForm.reset();
+  deleteSmsTemplate(template: SmsTemplate): void {
+    if (confirm(`Are you sure you want to delete the template "${template.name}"?`)) {
+      this.showSnackBar('SMS template deleted successfully', 'success');
+      this.loadSettings(); // Refresh data
+    }
   }
 
   insertVariable(variable: string, isEmail: boolean = true): void {
@@ -454,35 +433,6 @@ export class SettingsComponent implements OnInit {
 
   getCharacterCount(): number {
     return this.smsTemplateForm.get('message')?.value?.length || 0;
-  }
-
-  createNewEmailTemplate(): void {
-    this.selectedEmailTemplate = null;
-    this.emailTemplateForm.reset({
-      name: '',
-      subject: '',
-      body: '',
-      isActive: true
-    });
-    this.isEditingEmailTemplate = true;
-  }
-
-  selectEmailTemplate(template: EmailTemplate): void {
-    this.editEmailTemplate(template);
-  }
-
-  createNewSmsTemplate(): void {
-    this.selectedSmsTemplate = null;
-    this.smsTemplateForm.reset({
-      name: '',
-      message: '',
-      isActive: true
-    });
-    this.isEditingSmsTemplate = true;
-  }
-
-  selectSmsTemplate(template: SmsTemplate): void {
-    this.editSmsTemplate(template);
   }
 
   exportSettings(): void {

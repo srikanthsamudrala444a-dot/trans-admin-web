@@ -59,14 +59,25 @@ export const routes: Routes = [
         loadComponent: () => import('./features/performance-reports/performance-reports.component').then(c => c.PerformanceReportsComponent)
       },
       {
+        path: 'operational-reports',
+        loadComponent: () => import('./features/operational-reports/operational-reports.component').then(c => c.OperationalReportsComponent)
+      },
+      {
+        path: 'reviews-ratings',
+        loadComponent: () => import('./features/reviews-ratings/reviews-ratings.component').then(c => c.ReviewsRatingsComponent)
+      },
+      {
         path: 'notifications',
         loadComponent: () => import('./features/notifications/notifications.component').then(c => c.NotificationsComponent)
       },
       {
         path: 'settings',
-        loadComponent: () => import('./features/settings/settings.component').then(c => c.SettingsComponent),
-        canActivate: [RoleGuard],
-        data: { roles: ['admin'] }
+        loadComponent: () => import('./features/settings/settings.component').then(c => c.SettingsComponent)
+      },
+      {
+        path: 'system-settings',
+        redirectTo: '/settings',
+        pathMatch: 'full'
       },
       {
         path: 'audit-logs',
