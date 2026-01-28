@@ -1,0 +1,181 @@
+<div class="emergency-management-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="title-section">
+      <h1>
+        <mat-icon>emergency</mat-icon>
+        Emergency Management
+      </h1>
+      <p>Monitor and respond to emergency alerts</p>
+    </div>
+    
+    <div class="action-buttons">
+      <button 
+        mat-raised-button 
+        color="primary" 
+        (click)="refreshData()"
+        [disabled]="loading">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="stats-section" *ngIf="stats && !loading">
+    <mat-card class="stat-card critical clickable" (click)="onCriticalAlertsClick()">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon">
+            <mat-icon [matBadge]="stats.criticalAlerts" matBadgeColor="warn">warning</mat-icon>
+          </div>
+          <div class="stat-details">
+            <h3>{{ stats.criticalAlerts }}</h3>
+            <p>Critical Alerts</p>
+          </div>
+        </div>
+        <div class="stat-action">
+          <mat-icon>chevron_right</mat-icon>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card active clickable" (click)="onActiveAlertsClick()">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon">
+            <mat-icon [matBadge]="stats.activeAlerts" matBadgeColor="accent">emergency</mat-icon>
+          </div>
+          <div class="stat-details">
+            <h3>{{ stats.activeAlerts }}</h3>
+            <p>Active Alerts</p>
+          </div>
+        </div>
+        <div class="stat-action">
+          <mat-icon>chevron_right</mat-icon>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card resolved clickable" (click)="onResolvedTodayClick()">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon">
+            <mat-icon>check_circle</mat-icon>
+          </div>
+          <div class="stat-details">
+            <h3>{{ stats.resolvedToday }}</h3>
+            <p>Resolved Today</p>
+          </div>
+        </div>
+        <div class="stat-action">
+          <mat-icon>chevron_right</mat-icon>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card response-time clickable" (click)="onResponseTimeClick()">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon">
+            <mat-icon>timer</mat-icon>
+          </div>
+          <div class="stat-details">
+            <h3>{{ stats.averageResponseTime }}m</h3>
+            <p>Avg Response Time</p>
+          </div>
+        </div>
+        <div class="stat-action">
+          <mat-icon>chevron_right</mat-icon>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div class="loading-section" *ngIf="loading">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading emergency alerts...</p>
+  </div>
+
+  <!-- Simple Alert List for Testing -->
+  <div class="main-content" *ngIf="!loading">
+    <mat-card class="alerts-card">
+      <mat-card-header>
+        <mat-card-title>Emergency Alerts ({{ filteredAlerts.length }} of {{ alerts.length }})</mat-card-title>
+        <mat-card-subtitle *ngIf="isFiltered()">
+          <div class="filter-status">
+            <span>Filtered by: </span>
+            <mat-chip *ngIf="selectedStatus !== 'ALL'" [removable]="true" (removed)="clearStatusFilter()">
+              Status: {{ selectedStatus }}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+            <mat-chip *ngIf="selectedPriority !== 'ALL'" [removable]="true" (removed)="clearPriorityFilter()">
+              Priority: {{ selectedPriority }}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+            <mat-chip *ngIf="selectedType !== 'ALL'" [removable]="true" (removed)="clearTypeFilter()">
+              Type: {{ selectedType }}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+            <button mat-stroked-button (click)="clearFilters()" class="clear-all-btn">
+              <mat-icon>clear_all</mat-icon>
+              Clear All
+            </button>
+          </div>
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="alert-list" *ngIf="filteredAlerts.length > 0; else noAlerts">
+          <mat-card 
+            *ngFor="let alert of filteredAlerts" 
+            class="alert-item"
+            [class]="'priority-' + alert.priority.toLowerCase()"
+            (click)="openAlertDetails(alert)">
+            <mat-card-header>
+              <div mat-card-avatar>
+                <mat-icon [color]="getPriorityColor(alert.priority)">
+                  {{ getPriorityIcon(alert.priority) }}
+                </mat-icon>
+              </div>
+              <mat-card-title>{{ alert.type }}</mat-card-title>
+              <mat-card-subtitle>{{ alert.triggeredBy.name }} ({{ alert.triggeredBy.role }})</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="alert-details">
+                <p><strong>Status:</strong> 
+                  <mat-chip [color]="getStatusColor(alert.status)">
+                    <mat-icon>{{ getStatusIcon(alert.status) }}</mat-icon>
+                    {{ alert.status }}
+                  </mat-chip>
+                </p>
+                <p><strong>Priority:</strong> 
+                  <mat-chip [color]="getPriorityColor(alert.priority)">
+                    <mat-icon>{{ getPriorityIcon(alert.priority) }}</mat-icon>
+                    {{ alert.priority }}
+                  </mat-chip>
+                </p>
+                <p><strong>Location:</strong> {{ alert.location.address }}</p>
+                <p><strong>Time:</strong> {{ formatTimestamp(alert.timestampTriggered) }}</p>
+                <p *ngIf="alert.description"><strong>Description:</strong> {{ alert.description }}</p>
+              </div>
+            </mat-card-content>
+            <mat-card-actions>
+              <button mat-raised-button color="primary" (click)="openAlertDetails(alert); $event.stopPropagation()">
+                View Details
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+        
+        <ng-template #noAlerts>
+          <div class="no-results">
+            <mat-icon>check_circle</mat-icon>
+            <h3>No Emergency Alerts</h3>
+            <p>There are currently no emergency alerts to display.</p>
+          </div>
+        </ng-template>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

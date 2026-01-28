@@ -1,0 +1,27 @@
+.driver-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 400px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.half-width {
+  flex: 1;
+}
+
+mat-dialog-content {
+  padding: 16px 24px;
+}
+
+mat-dialog-actions {
+  padding: 8px 24px 16px;
+}

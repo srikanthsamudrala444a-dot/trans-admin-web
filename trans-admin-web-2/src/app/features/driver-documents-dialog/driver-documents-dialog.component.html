@@ -1,0 +1,200 @@
+<div class="dialog-header">
+  <h2 mat-dialog-title>Driver Documents - {{ data.driverName }}</h2>
+  <button mat-icon-button mat-dialog-close>
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content class="dialog-content">
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Loading driver documents...</p>
+  </div>
+
+  <div
+    *ngIf="!loading && documents && documents.length > 0"
+    class="documents-grid"
+  >
+    <mat-card
+      *ngFor="let document of documents; let i = index"
+      class="document-card"
+    >
+      <mat-card-header>
+        <mat-card-title
+          >{{ document.documentType || document.type || "Document" }} #{{
+            i + 1
+          }}</mat-card-title
+        >
+        <mat-card-subtitle>
+          <mat-chip
+            [class]="
+              getStatusClass(
+                document.status || document.verificationStatus || document.state
+              )
+            "
+          >
+            {{
+              document.status ||
+                document.verificationStatus ||
+                document.state ||
+                "Unknown" | titlecase
+            }}
+          </mat-chip>
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="document-info">
+          <!-- Debug: Show all document properties (can be removed in production) -->
+          <!-- <details style="margin-bottom: 10px;">
+                <summary style="cursor: pointer; color: #666;">🔍 Debug: Document Properties</summary>
+                <pre style="font-size: 11px; background: #f5f5f5; padding: 8px; border-radius: 4px;">{{ document | json }}</pre>
+              </details> -->
+
+          <p
+            *ngIf="
+              document.documentNumber || document.number || document.docNumber
+            "
+          >
+            <strong>Document Number:</strong>
+            {{
+              document.documentNumber || document.number || document.docNumber
+            }}
+          </p>
+          <p
+            *ngIf="
+              document.expiryDate || document.expiry || document.expirationDate
+            "
+          >
+            <strong>Expiry Date:</strong>
+            {{
+              document.expiryDate || document.expiry || document.expirationDate
+                | date
+            }}
+          </p>
+          <p
+            *ngIf="
+              document.uploadDate ||
+              document.createdDate ||
+              document.submittedDate
+            "
+          >
+            <strong>Upload Date:</strong>
+            {{
+              document.uploadDate ||
+                document.createdDate ||
+                document.submittedDate | date
+            }}
+          </p>
+          <p *ngIf="document.remarks || document.notes || document.description">
+            <strong>Remarks:</strong>
+            {{ document.remarks || document.notes || document.description }}
+          </p>
+          <p
+            *ngIf="
+              (document.rejectionReason || document.rejectReason) &&
+              (document.status === 'rejected' || document.status === 'REJECTED')
+            "
+            class="rejection-reason"
+          >
+            <strong>Rejection Reason:</strong>
+            {{ document.rejectionReason || document.rejectReason }}
+          </p>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <!-- Document Status Actions -->
+        <!-- *ngIf="
+            document.status === 'pending' ||
+            document.status === 'PENDING' ||
+            document.verificationStatus === 'pending' ||
+            document.verificationStatus === 'PENDING'
+          " -->
+        <div class="actions">
+          <div class="secondary-actions">
+            <button
+              mat-stroked-button
+              color="primary"
+              *ngIf="document.documentUrl || document.url || document.fileUrl"
+              (click)="
+                viewDocument(
+                  document.documentUrl || document.url || document.fileUrl
+                )
+              "
+            >
+              <mat-icon>visibility</mat-icon>
+              View
+            </button>
+
+            <button
+              mat-stroked-button
+              color="accent"
+              *ngIf="document.documentUrl || document.url || document.fileUrl"
+              (click)="
+                downloadDocument(
+                  document.documentUrl || document.url || document.fileUrl,
+                  document.documentType || document.type
+                )
+              "
+            >
+              <mat-icon>download</mat-icon>
+              Download
+            </button>
+          </div>
+
+          @if(!document.status){
+          <div class="primary-actions">
+            <button
+              mat-raised-button
+              class="approve-btn"
+              (click)="approveDocument(document)"
+              [disabled]="
+                processingDocumentId ===
+                (document.id || document._id || document.documentId)
+              "
+            >
+              <mat-icon>check_circle</mat-icon>
+              Approve
+            </button>
+
+            <button
+              mat-raised-button
+              class="reject-btn"
+              (click)="rejectDocument(document)"
+              [disabled]="
+                processingDocumentId ===
+                (document.id || document._id || document.documentId)
+              "
+            >
+              <mat-icon>cancel</mat-icon>
+              Reject
+            </button>
+          </div>
+          }
+        </div>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <div
+    *ngIf="!loading && (!documents || documents.length === 0)"
+    class="no-documents"
+  >
+    <mat-icon>description</mat-icon>
+    <p>No documents found for this driver.</p>
+    <p>
+      <small>Driver ID: {{ data.driverId }}</small>
+    </p>
+    <p><small>Check browser console for API response details.</small></p>
+  </div>
+
+  <div *ngIf="error" class="error-container">
+    <mat-icon color="warn">error</mat-icon>
+    <p>{{ error }}</p>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Close</button>
+</mat-dialog-actions>

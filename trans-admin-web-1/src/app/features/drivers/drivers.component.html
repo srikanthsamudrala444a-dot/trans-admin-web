@@ -1,0 +1,375 @@
+<div class="drivers-container">
+  <div class="page-header">
+    <h1>Drivers Management</h1>
+    <button mat-raised-button color="primary" (click)="toggleAddForm()">
+      <mat-icon>{{ showAddForm ? "close" : "add" }}</mat-icon>
+      {{ showAddForm ? "Cancel" : "Add Driver" }}
+    </button>
+  </div>
+
+  <!-- Add Driver Form -->
+  @if (showAddForm) {
+  <mat-card class="add-form-card">
+    <mat-card-header>
+      <mat-card-title>Add New Driver</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="driverForm" class="add-driver-form">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>First Name</mat-label>
+            <input
+              matInput
+              formControlName="firstName"
+              placeholder="Enter first name"
+            />
+            <mat-error
+              *ngIf="driverForm.get('firstName')?.hasError('required')"
+            >
+              First name is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Last Name</mat-label>
+            <input
+              matInput
+              formControlName="lastName"
+              placeholder="Enter last name"
+            />
+            <mat-error *ngIf="driverForm.get('lastName')?.hasError('required')">
+              Last name is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Email</mat-label>
+            <input
+              matInput
+              type="email"
+              formControlName="email"
+              placeholder="Enter email address"
+            />
+            <mat-error *ngIf="driverForm.get('email')?.hasError('required')">
+              Email is required
+            </mat-error>
+            <mat-error *ngIf="driverForm.get('email')?.hasError('email')">
+              Please enter a valid email
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Contact Number</mat-label>
+            <input
+              matInput
+              formControlName="contactNumber"
+              placeholder="Enter contact number"
+            />
+            <mat-error
+              *ngIf="driverForm.get('contactNumber')?.hasError('required')"
+            >
+              Contact number is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Date of Birth</mat-label>
+            <input matInput type="date" formControlName="dateOfBirth" />
+            <mat-error
+              *ngIf="driverForm.get('dateOfBirth')?.hasError('required')"
+            >
+              Date of birth is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>License Number</mat-label>
+            <input
+              matInput
+              formControlName="licenseNumber"
+              placeholder="Enter license number"
+            />
+            <mat-error
+              *ngIf="driverForm.get('licenseNumber')?.hasError('required')"
+            >
+              License number is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+          <button mat-button type="button" (click)="resetDriverForm()">
+            Reset
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            type="button"
+            (click)="onSaveDriver()"
+            [disabled]="!driverForm.valid"
+          >
+            <mat-icon>save</mat-icon>
+            Add Driver
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+  }
+
+  <div class="stats-cards">
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon online">radio_button_checked</mat-icon>
+          <div>
+            <h3>{{ onlineDrivers }}</h3>
+            <p>Online Drivers</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon offline">radio_button_checked</mat-icon>
+          <div>
+            <h3>{{ offlineDrivers }}</h3>
+            <p>Offline Drivers</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon pending">pending</mat-icon>
+          <div>
+            <h3>{{ pendingApprovals }}</h3>
+            <p>Pending Approvals</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <mat-card class="filter-card">
+    <mat-card-content>
+      <div class="filters">
+        <mat-form-field appearance="outline">
+          <mat-label>Status</mat-label>
+          <mat-select
+            [(ngModel)]="selectedDriverStatus"
+            (selectionChange)="applyFilters()"
+          >
+            <mat-option value="">All Status</mat-option>
+            <mat-option value="online">Online</mat-option>
+            <mat-option value="offline">Offline</mat-option>
+            <mat-option value="busy">Busy</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Document Status</mat-label>
+          <mat-select
+            [(ngModel)]="selectedDocumentStatus"
+            (selectionChange)="applyFilters()"
+          >
+            <mat-option value="all">All Documents</mat-option>
+            <mat-option value="approved">Approved</mat-option>
+            <mat-option value="pending">Pending</mat-option>
+            <mat-option value="rejected">Rejected</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Search</mat-label>
+          <input
+            matInput
+            placeholder="Search by name, email, or phone"
+            [(ngModel)]="searchTerm"
+            (keyup)="applyFilters()"
+          />
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <div class="table-container">
+      <mat-table
+        [dataSource]="dataSource"
+        matSort
+        (matSortChange)="announceSortChange($event)"
+      >
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <mat-header-cell *matHeaderCellDef mat-sort-header
+            >Driver</mat-header-cell
+          >
+          <mat-cell *matCellDef="let driver">
+            <div class="driver-info">
+              <div class="driver-avatar">
+                @if (driver.photoUrl) {
+                <img
+                  class="driver-avatar"
+                  [src]="driver.photoUrl"
+                  alt="Driver photo"
+                />
+                } @else {
+                <mat-icon>person</mat-icon>
+                }
+              </div>
+              <div>
+                <div class="driver-name">
+                  {{ driver.firstName }} {{ driver.lastName }}
+                </div>
+                <div class="driver-email">{{ driver.email }}</div>
+              </div>
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Phone Column -->
+        <ng-container matColumnDef="phone">
+          <mat-header-cell *matHeaderCellDef mat-sort-header
+            >Phone</mat-header-cell
+          >
+          <mat-cell *matCellDef="let driver">{{
+            driver.contactNumber
+          }}</mat-cell>
+        </ng-container>
+
+        <!-- Avalibaluty Column -->
+        <ng-container matColumnDef="availability">
+          <mat-header-cell *matHeaderCellDef mat-sort-header
+            >availability</mat-header-cell
+          >
+          <mat-cell class="availability" *matCellDef="let driver">
+            <span
+              [class]="
+                driver.onDuty === 'true'
+                  ? 'status-dot online'
+                  : 'status-dot offline'
+              "
+            ></span>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <mat-header-cell *matHeaderCellDef mat-sort-header
+            >Status</mat-header-cell
+          >
+          <mat-cell *matCellDef="let driver">
+            @if(driver.status){
+            <mat-chip [class]="'status-' + driver.status">
+              <mat-icon *ngIf="driver.status === 'online'"
+                >radio_button_checked</mat-icon
+              >
+              <mat-icon *ngIf="driver.status === 'offline'"
+                >radio_button_unchecked</mat-icon
+              >
+              <mat-icon *ngIf="driver.status === 'busy'">local_taxi</mat-icon>
+              <mat-icon *ngIf="driver.status === 'active'"
+                >check_circle</mat-icon
+              >
+              <mat-icon *ngIf="driver.status === 'inactive'"
+                >highlight_off</mat-icon
+              >
+              {{ driver.status | titlecase }}
+            </mat-chip>
+            }
+          </mat-cell>
+        </ng-container>
+
+        <!-- Rating Column -->
+        <ng-container matColumnDef="rating">
+          <mat-header-cell *matHeaderCellDef mat-sort-header
+            >Rating</mat-header-cell
+          >
+          <mat-cell *matCellDef="let driver">
+            <div class="rating">
+              <mat-icon class="star-icon">star</mat-icon>
+              {{ driver.averageRating }} ({{ driver.ratingCount }})
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Earnings Column -->
+        <ng-container matColumnDef="earnings">
+          <mat-header-cell *matHeaderCellDef mat-sort-header
+            >Earnings</mat-header-cell
+          >
+          <mat-cell *matCellDef="let driver"
+            >₹ {{ driver.earnings ? driver.earnings : 0 }}</mat-cell
+          >
+        </ng-container>
+        <!-- Header Row -->
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+
+        <!-- Data Rows -->
+        <mat-row
+          class="data-row"
+          [routerLink]="['/drivers', row.id || row.userId]"
+          *matRowDef="let row; columns: displayedColumns"
+        >
+        </mat-row>
+      </mat-table>
+
+      <!-- Fix the loading -->
+      <!-- @if(isLoading()){
+      <div class="loader">
+        <mat-spinner></mat-spinner>
+      </div>
+      }@else if(dataSource.data.length === 0){
+      <div class="no-data">
+        <h1>No drivers data</h1>
+      </div>
+      } -->
+    </div>
+  </mat-card>
+</div>
+
+<div class="custom-paginator-container">
+  <mat-paginator
+    #paginator
+    [length]="totalItems"
+    [pageSize]="itemsPerPage"
+    [pageSizeOptions]="[5, 10, 25, 50]"
+    [showFirstLastButtons]="true"
+    aria-label="Drivers pagination"
+  >
+  </mat-paginator>
+
+  <div class="page-jump-container">
+    <span class="page-jump-label">Go to page:</span>
+    <input
+      type="number"
+      class="page-jump-input"
+      [(ngModel)]="pageJumpValue"
+      [min]="1"
+      [max]="totalPages"
+      (keyup.enter)="jumpToPage()"
+      placeholder="#"
+    />
+    <button
+      mat-icon-button
+      class="page-jump-button"
+      color="primary"
+      (click)="jumpToPage()"
+      [disabled]="
+        !pageJumpValue || pageJumpValue < 1 || pageJumpValue > totalPages
+      "
+      matTooltip="Jump to page"
+    >
+      <mat-icon>arrow_forward</mat-icon>
+    </button>
+  </div>
+</div>

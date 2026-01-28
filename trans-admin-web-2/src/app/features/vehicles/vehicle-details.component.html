@@ -1,0 +1,116 @@
+<mat-card class="vehicle-details-card">
+  @if(isLoading){
+  <div class="loader">
+    <mat-spinner></mat-spinner>
+  </div>
+  }@else if(!isLoading && errorMessage){
+  <div>
+    {{ errorMessage }}
+  </div>
+  }@else if(vehicle){
+  <mat-card-header>
+    <mat-card-title>
+      Vehicle Details
+      <button
+        mat-icon-button
+        color="primary"
+        (click)="openDocumentsDialog(vehicle)"
+        matTooltip="View Documents"
+        class="documents-btn"
+      >
+        <mat-icon>description</mat-icon>
+      </button>
+    </mat-card-title>
+    <mat-card-subtitle
+      >ID:
+      <strong>{{ vehicle.id || vehicle.vehicleId }}</strong></mat-card-subtitle
+    >
+  </mat-card-header>
+  <mat-card-content>
+    <div class="vehicle-details-grid">
+      <!-- Basic Information -->
+      <h3 class="section-title">Basic Information</h3>
+      <div class="vehicle-detail-row">
+        <span class="label">Make & Model:</span>
+        <span class="value">{{ vehicle.make }} {{ vehicle.model }}</span>
+      </div>
+      <div class="vehicle-detail-row">
+        <span class="label">Year:</span>
+        <span class="value">{{ vehicle.yearOfManufacture }}</span>
+      </div>
+      <div class="vehicle-detail-row">
+        <span class="label">Color:</span>
+        <span class="value">{{ vehicle.color }}</span>
+      </div>
+      <div class="vehicle-detail-row">
+        <span class="label">Plate Number:</span>
+        <span class="value">{{ vehicle.registrationNumber }}</span>
+      </div>
+      <div class="vehicle-detail-row">
+        <span class="label">Type:</span>
+        <span class="value">{{ vehicle.type | titlecase }}</span>
+      </div>
+
+      <!-- Status -->
+      <h3 class="section-title">Status</h3>
+      <div class="vehicle-detail-row">
+        <span class="label">Status:</span>
+        <span class="value">{{ vehicle.ownershipStatus | titlecase }}</span>
+      </div>
+      <div class="vehicle-detail-row">
+        <span class="label">Documents Status:</span>
+        <span class="value">{{ vehicle.active | titlecase }}</span>
+      </div>
+      <div class="vehicle-detail-row">
+        <span class="label">Assigned Driver:</span>
+        <span class="value">{{ vehicle.driverId }}</span>
+      </div>
+
+      <!-- Service & Documents -->
+      <h3 class="section-title">Service & Documents</h3>
+      <div class="vehicle-detail-row">
+        <span class="label">Last Service Date:</span>
+        <span class="value">{{
+          vehicle.lastServiceDate | date : "medium"
+        }}</span>
+      </div>
+      <div class="vehicle-detail-row" *ngIf="vehicle.registrationCertificate">
+        <span class="label">Registration Certificate:</span>
+        <span class="value">{{ vehicle.registrationCertificate }}</span>
+      </div>
+      <div class="vehicle-detail-row" *ngIf="vehicle.insuranceExpiry">
+        <span class="label">Insurance Expiry:</span>
+        <span class="value">{{
+          vehicle.insuranceExpiry | date : "mediumDate"
+        }}</span>
+      </div>
+      <div class="vehicle-detail-row" *ngIf="vehicle.fitnessCertificate">
+        <span class="label">Fitness Certificate:</span>
+        <span class="value">{{ vehicle.fitnessCertificate }}</span>
+      </div>
+      <div class="vehicle-detail-row" *ngIf="vehicle.permitType">
+        <span class="label">Permit Type:</span>
+        <span class="value">{{ vehicle.permitType }}</span>
+      </div>
+
+      <!-- Photo -->
+      <div class="vehicle-detail-row" *ngIf="vehicle.photoUrl">
+        <span class="label">Photo:</span>
+        <span class="value">
+          <img
+            [src]="vehicle.photoUrl"
+            alt="Vehicle Photo"
+            class="vehicle-photo"
+            width="120"
+            height="80"
+        /></span>
+      </div>
+    </div>
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-raised-button color="primary" (click)="backToVehicles()">
+      <mat-icon>arrow_back</mat-icon> Back to Vehicles
+    </button>
+  </mat-card-actions>
+  }
+</mat-card>

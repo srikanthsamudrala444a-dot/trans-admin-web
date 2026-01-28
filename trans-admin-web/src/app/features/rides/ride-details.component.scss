@@ -1,0 +1,229 @@
+.ride-details-card {
+  max-width: 700px;
+  margin: 32px auto;
+  padding: 24px;
+  background: #1e1e1e;
+  color: #f5f5f5;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.error-message {
+  text-align: center;
+  padding: 40px;
+  color: #ff6b6b;
+  
+  button {
+    margin-top: 16px;
+  }
+}
+
+mat-card-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+mat-card-subtitle {
+  font-size: 1rem;
+  color: #bbb;
+  margin-bottom: 12px;
+  text-align: center;
+  width: 100%;
+}
+
+.ride-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 12px 20px;
+  margin-top: 16px;
+  align-items: center;
+}
+
+.ride-detail-row {
+  display: contents;
+}
+
+.label {
+  font-weight: 600;
+  color: #ccc;
+  text-align: right;
+  justify-self: end;
+}
+
+.value {
+  color: #fff;
+  text-align: left;
+  justify-self: start;
+  word-break: break-word;
+}
+
+.section-title {
+  grid-column: 1 / -1;
+  margin: 24px 0 8px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: white;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 4px;
+}
+
+// Status styling
+.value {
+  &.status-pending {
+    color: #ffa726;
+    font-weight: 500;
+  }
+  
+  &.status-accepted {
+    color: #42a5f5;
+    font-weight: 500;
+  }
+  
+  &.status-started {
+    color: #66bb6a;
+    font-weight: 500;
+  }
+  
+  &.status-completed {
+    color: #4caf50;
+    font-weight: 500;
+  }
+  
+  &.status-cancelled {
+    color: #f44336;
+    font-weight: 500;
+  }
+  
+  &.payment-completed {
+    color: #4caf50;
+    font-weight: 500;
+  }
+  
+  &.payment-pending {
+    color: #ffa726;
+    font-weight: 500;
+  }
+  
+  &.payment-failed {
+    color: #f44336;
+    font-weight: 500;
+  }
+}
+
+mat-card-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px 0 0;
+  margin-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  
+  button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+img {
+    border-radius: 8px;
+    margin-top: 8px;
+    max-width: 120px;
+    height: auto;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+}
+
+.label {
+    font-weight: 600;
+    color: #555;
+    text-align: right;
+}
+
+.value {
+    color: #222;
+    text-align: left;
+}
+
+.ride-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 12px 24px;
+    margin-top: 16px;
+}
+
+.ride-detail-row {
+    display: contents;
+}
+
+.ride-details-card {
+  max-width: 600px;
+  margin: 32px auto;
+  padding: 24px;
+  background: #222;
+  color: #fff;
+}
+
+.ride-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 16px 24px;
+  margin-top: 16px;
+  align-items: center;
+  justify-items: center;
+}
+
+.ride-detail-row {
+  display: contents;
+}
+
+.label {
+  font-weight: 600;
+  color: #fff;
+  text-align: right;
+  justify-self: end;
+}
+
+.value {
+  color: #fff;
+  text-align: left;
+  justify-self: start;
+}
+
+mat-card-title, mat-card-subtitle {
+  color: #fff;
+  text-align: center;
+  width: 100%;
+}
+
+mat-card-actions {
+  display: flex;
+  justify-content: left;
+}
+
+.driver-details-photo {
+  border-radius: 8px;
+  margin-top: 8px;
+}

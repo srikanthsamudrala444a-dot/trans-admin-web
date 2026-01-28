@@ -1,0 +1,61 @@
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h1>Financial Dashboard</h1>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card gradient-green">
+      <div class="stat-icon">💰</div>
+      <div class="stat-content">
+        <div class="stat-label">Total Revenue</div>
+        <div class="stat-value">${{ stats.totalRevenue | number: '1.0-0' }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card gradient-red">
+      <div class="stat-icon">💸</div>
+      <div class="stat-content">
+        <div class="stat-label">Total Expenses</div>
+        <div class="stat-value">${{ stats.totalExpenses | number: '1.0-0' }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card gradient-blue">
+      <div class="stat-icon">📈</div>
+      <div class="stat-content">
+        <div class="stat-label">Net Profit</div>
+        <div class="stat-value">${{ stats.netProfit | number: '1.0-0' }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card gradient-orange">
+      <div class="stat-icon">🧾</div>
+      <div class="stat-content">
+        <div class="stat-label">Paid Trips</div>
+        <div class="stat-value">{{ stats.totalTrips }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card gradient-purple">
+      <div class="stat-icon">🚗</div>
+      <div class="stat-content">
+        <div class="stat-label">Avg Trip Amount</div>
+        <div class="stat-value">${{ stats.avgTripAmount | number: '1.0-2' }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="charts-container">
+    <div class="chart-card">
+      <div class="chart-wrapper">
+        <canvas #revenueChart></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-wrapper">
+        <canvas #expenseChart></canvas>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,740 @@
+// Operational Reports Component Styles
+
+.operational-reports-container {
+  padding: 24px;
+  background: #f8f9fa;
+  min-height: 100vh;
+
+  // Header Section Styles
+  .header-section {
+    margin-bottom: 32px;
+    
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      
+      .page-title {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 600;
+        color: #2c3e50;
+        display: flex;
+        align-items: center;
+        
+        mat-icon {
+          margin-right: 12px;
+          font-size: 32px;
+          width: 32px;
+          height: 32px;
+          color: #3f51b5;
+        }
+      }
+      
+      .header-controls {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        
+        .time-period-select {
+          min-width: 200px;
+        }
+        
+        button {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-weight: 500;
+          
+          mat-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+          }
+        }
+      }
+    }
+  }
+
+  // Loading State Styles
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    
+    .loading-card {
+      padding: 40px;
+      text-align: center;
+      border-radius: 12px;
+      
+      .loading-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        
+        .loading-spinner {
+          font-size: 48px;
+          width: 48px;
+          height: 48px;
+          color: #3f51b5;
+          animation: spin 2s linear infinite;
+        }
+        
+        p {
+          margin: 0;
+          color: #666;
+          font-size: 16px;
+        }
+      }
+    }
+  }
+
+  // Metrics Grid Styles
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+    
+    .metric-card {
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      }
+      
+      mat-card-content {
+        padding: 24px !important;
+        
+        .metric-icon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 64px;
+          height: 64px;
+          border-radius: 50%;
+          margin-bottom: 16px;
+          
+          mat-icon {
+            font-size: 32px;
+            width: 32px;
+            height: 32px;
+            color: white;
+          }
+        }
+        
+        .metric-value {
+          font-size: 32px;
+          font-weight: 700;
+          margin-bottom: 4px;
+          color: #2c3e50;
+        }
+        
+        .metric-label {
+          font-size: 14px;
+          color: #666;
+          margin-bottom: 12px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        
+        .metric-change {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 12px;
+          font-weight: 500;
+          
+          &.positive {
+            color: #27ae60;
+          }
+          
+          &.negative {
+            color: #e74c3c;
+          }
+          
+          mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+          }
+        }
+      }
+      
+      // Card-specific colors
+      &.vehicles-card .metric-icon {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+      
+      &.utilization-card .metric-icon {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      }
+      
+      &.maintenance-card .metric-icon {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      }
+      
+      &.demand-card .metric-icon {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+      }
+    }
+  }
+
+  // Tab Container Styles
+  .tab-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    
+    .mat-mdc-tab-group {
+      .mat-mdc-tab-header {
+        border-bottom: 1px solid #e0e0e0;
+        background: #fafafa;
+        
+        .mat-mdc-tab {
+          min-width: 160px;
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          
+          &.mdc-tab--active {
+            color: #3f51b5;
+          }
+        }
+      }
+      
+      .mat-mdc-tab-body-wrapper {
+        padding: 32px;
+        background: white;
+      }
+    }
+  }
+
+  // Vehicle Utilization Styles
+  .vehicle-utilization-content {
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      
+      h3 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+        color: #2c3e50;
+      }
+      
+      .filter-controls {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        
+        mat-form-field {
+          width: 140px;
+        }
+      }
+    }
+    
+    .utilization-table {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      
+      .mat-mdc-table {
+        width: 100%;
+        
+        .mat-mdc-header-row {
+          background: #f8f9fa;
+          
+          .mat-mdc-header-cell {
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid #e0e0e0;
+          }
+        }
+        
+        .mat-mdc-row {
+          &:hover {
+            background-color: #f8f9fa;
+          }
+          
+          .mat-mdc-cell {
+            padding: 16px 12px;
+            border-bottom: 1px solid #f0f0f0;
+          }
+        }
+        
+        .vehicle-id-cell {
+          font-weight: 600;
+          color: #3f51b5;
+        }
+        
+        .status-cell {
+          .status-chip {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            
+            &.active {
+              background: #e8f5e8;
+              color: #2e7d32;
+            }
+            
+            &.inactive {
+              background: #ffebee;
+              color: #c62828;
+            }
+            
+            &.maintenance {
+              background: #fff3e0;
+              color: #f57c00;
+            }
+          }
+        }
+        
+        .utilization-cell {
+          .utilization-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            
+            .progress-bar {
+              flex: 1;
+              height: 8px;
+              background: #e0e0e0;
+              border-radius: 4px;
+              overflow: hidden;
+              
+              .progress-fill {
+                height: 100%;
+                border-radius: 4px;
+                transition: width 0.3s ease;
+                
+                &.high {
+                  background: linear-gradient(90deg, #4caf50, #2e7d32);
+                }
+                
+                &.medium {
+                  background: linear-gradient(90deg, #ff9800, #f57c00);
+                }
+                
+                &.low {
+                  background: linear-gradient(90deg, #f44336, #c62828);
+                }
+              }
+            }
+            
+            .percentage {
+              font-weight: 600;
+              min-width: 40px;
+              text-align: right;
+              
+              &.high {
+                color: #2e7d32;
+              }
+              
+              &.medium {
+                color: #f57c00;
+              }
+              
+              &.low {
+                color: #c62828;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Maintenance Schedule Styles
+  .maintenance-schedule-content {
+    .schedule-table {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      
+      .mat-mdc-table {
+        width: 100%;
+        
+        .mat-mdc-header-row {
+          background: #f8f9fa;
+          
+          .mat-mdc-header-cell {
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid #e0e0e0;
+          }
+        }
+        
+        .mat-mdc-row {
+          &:hover {
+            background-color: #f8f9fa;
+          }
+          
+          .mat-mdc-cell {
+            padding: 16px 12px;
+            border-bottom: 1px solid #f0f0f0;
+          }
+          
+          &.overdue {
+            border-left: 4px solid #f44336;
+            background-color: #ffebee;
+          }
+          
+          &.due-soon {
+            border-left: 4px solid #ff9800;
+            background-color: #fff3e0;
+          }
+        }
+        
+        .priority-cell {
+          .priority-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            
+            &.high {
+              background: #ffebee;
+              color: #c62828;
+            }
+            
+            &.medium {
+              background: #fff3e0;
+              color: #f57c00;
+            }
+            
+            &.low {
+              background: #e8f5e8;
+              color: #2e7d32;
+            }
+          }
+        }
+        
+        .type-cell {
+          font-weight: 500;
+          color: #3f51b5;
+        }
+        
+        .date-cell {
+          &.overdue {
+            color: #f44336;
+            font-weight: 600;
+          }
+          
+          &.due-soon {
+            color: #ff9800;
+            font-weight: 600;
+          }
+        }
+      }
+    }
+  }
+
+  // Geographical Demand Styles
+  .geographical-demand-content {
+    .demand-visualization {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+      margin-bottom: 32px;
+      
+      .heatmap-container {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        
+        h4 {
+          margin: 0 0 16px 0;
+          font-size: 16px;
+          font-weight: 600;
+          color: #2c3e50;
+        }
+        
+        #demandHeatmap {
+          width: 100%;
+          border: 1px solid #e0e0e0;
+          border-radius: 4px;
+        }
+      }
+      
+      .demand-legend {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        
+        h4 {
+          margin: 0 0 16px 0;
+          font-size: 16px;
+          font-weight: 600;
+          color: #2c3e50;
+        }
+        
+        .legend-items {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          
+          .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            
+            .legend-color {
+              width: 20px;
+              height: 20px;
+              border-radius: 4px;
+            }
+            
+            .legend-label {
+              font-size: 14px;
+              color: #666;
+            }
+          }
+        }
+      }
+    }
+    
+    .demand-areas-table {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      
+      .mat-mdc-table {
+        width: 100%;
+        
+        .mat-mdc-header-row {
+          background: #f8f9fa;
+          
+          .mat-mdc-header-cell {
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid #e0e0e0;
+          }
+        }
+        
+        .mat-mdc-row {
+          &:hover {
+            background-color: #f8f9fa;
+          }
+          
+          .mat-mdc-cell {
+            padding: 16px 12px;
+            border-bottom: 1px solid #f0f0f0;
+          }
+        }
+        
+        .demand-level-cell {
+          .demand-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            
+            .demand-dot {
+              width: 12px;
+              height: 12px;
+              border-radius: 50%;
+              
+              &.very-high {
+                background: #d32f2f;
+              }
+              
+              &.high {
+                background: #f57c00;
+              }
+              
+              &.medium {
+                background: #fbc02d;
+              }
+              
+              &.low {
+                background: #689f38;
+              }
+              
+              &.very-low {
+                background: #388e3c;
+              }
+            }
+            
+            .demand-text {
+              font-weight: 500;
+              text-transform: capitalize;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Error State Styles
+  .error-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    background: white;
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+    
+    mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      color: #f44336;
+      margin-bottom: 16px;
+    }
+    
+    h3 {
+      margin: 0 0 8px 0;
+      color: #2c3e50;
+    }
+    
+    p {
+      margin: 0 0 24px 0;
+      color: #666;
+      max-width: 400px;
+    }
+    
+    button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+
+  // Responsive Design
+  @media (max-width: 1200px) {
+    .geographical-demand-content .demand-visualization {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    
+    .header-section .header-content {
+      flex-direction: column;
+      gap: 16px;
+      align-items: flex-start;
+      
+      .header-controls {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        
+        .time-period-select {
+          min-width: 160px;
+        }
+      }
+    }
+    
+    .metrics-grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    
+    .tab-container .mat-mdc-tab-body-wrapper {
+      padding: 16px;
+    }
+    
+    .vehicle-utilization-content .section-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    
+    // Hide some table columns on mobile
+    .utilization-table,
+    .schedule-table,
+    .demand-areas-table {
+      .mat-mdc-table {
+        .mat-mdc-header-cell,
+        .mat-mdc-cell {
+          &:nth-child(n+5) {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    .header-section .header-content .header-controls {
+      flex-direction: column;
+      width: 100%;
+      
+      button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+    
+    .utilization-table,
+    .schedule-table,
+    .demand-areas-table {
+      .mat-mdc-table {
+        .mat-mdc-header-cell,
+        .mat-mdc-cell {
+          &:nth-child(n+4) {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Animation Keyframes
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Custom Scrollbar for tables
+.utilization-table,
+.schedule-table,
+.demand-areas-table {
+  .mat-mdc-table {
+    &::-webkit-scrollbar {
+      height: 8px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 4px;
+      
+      &:hover {
+        background: #a1a1a1;
+      }
+    }
+  }
+}

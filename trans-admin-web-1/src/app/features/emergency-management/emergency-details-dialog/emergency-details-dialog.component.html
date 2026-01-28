@@ -1,0 +1,334 @@
+<div class="emergency-details-dialog">
+  <div class="dialog-header">
+    <div class="header-content">
+      <div class="alert-summary">
+        <div class="alert-type">
+          <mat-icon>{{ getTypeIcon(alert.type) }}</mat-icon>
+          <span>{{ alert.type }} Alert</span>
+        </div>
+        <div class="alert-chips">
+          <mat-chip [style.background-color]="getPriorityColor(alert.priority)" class="priority-chip">
+            {{ alert.priority }}
+          </mat-chip>
+          <mat-chip [style.background-color]="getStatusColor(alert.status)" class="status-chip">
+            {{ alert.status }}
+          </mat-chip>
+        </div>
+      </div>
+      <button mat-icon-button mat-dialog-close>
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    
+    <div class="alert-id">
+      Alert ID: {{ alert.id }}
+    </div>
+  </div>
+
+  <div class="dialog-content" mat-dialog-content>
+    <mat-tab-group>
+      <!-- Overview Tab -->
+      <mat-tab label="Overview">
+        <div class="tab-content">
+          <div class="overview-grid">
+            <!-- Triggered By Section -->
+            <mat-card class="info-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>person</mat-icon>
+                  Triggered By
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="user-details">
+                  <div class="user-info">
+                    <strong>{{ alert.triggeredBy.name }}</strong>
+                    <div class="user-role">{{ alert.triggeredBy.role }}</div>
+                    <div class="user-phone">
+                      <mat-icon>phone</mat-icon>
+                      {{ alert.triggeredBy.phone }}
+                    </div>
+                  </div>
+                  <div class="user-actions">
+                    <button mat-raised-button color="primary" (click)="onInitiateCall()">
+                      <mat-icon>call</mat-icon>
+                      Call Now
+                    </button>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Location Section -->
+            <mat-card class="info-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>location_on</mat-icon>
+                  Location
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="location-details">
+                  <div class="address">{{ alert.location.address }}</div>
+                  <div class="coordinates">
+                    {{ alert.location.latitude }}, {{ alert.location.longitude }}
+                  </div>
+                  <div class="location-actions">
+                    <button mat-raised-button color="accent" (click)="onViewMap()">
+                      <mat-icon>map</mat-icon>
+                      View on Map
+                    </button>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Timing Section -->
+            <mat-card class="info-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>access_time</mat-icon>
+                  Timeline
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="timeline">
+                  <div class="timeline-item">
+                    <strong>Triggered:</strong>
+                    <div>{{ alert.timestampTriggered | date:'medium' }}</div>
+                    <div class="time-ago">({{ getTimeSince(alert.timestampTriggered) }})</div>
+                  </div>
+                  <div class="timeline-item" *ngIf="alert.timestampResponded">
+                    <strong>Responded:</strong>
+                    <div>{{ alert.timestampResponded | date:'medium' }}</div>
+                    <div class="time-ago">({{ getTimeSince(alert.timestampResponded) }})</div>
+                  </div>
+                  <div class="timeline-item" *ngIf="alert.timestampResolved">
+                    <strong>Resolved:</strong>
+                    <div>{{ alert.timestampResolved | date:'medium' }}</div>
+                    <div class="time-ago">({{ getTimeSince(alert.timestampResolved) }})</div>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Ride Details Section -->
+            <mat-card class="info-card" *ngIf="alert.rideDetails">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>local_taxi</mat-icon>
+                  Ride Details
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="ride-info">
+                  <div class="info-row">
+                    <strong>Ride ID:</strong> {{ alert.rideDetails.rideId }}
+                  </div>
+                  <div class="info-row" *ngIf="alert.rideDetails.driverName">
+                    <strong>Driver:</strong> {{ alert.rideDetails.driverName }}
+                  </div>
+                  <div class="info-row" *ngIf="alert.rideDetails.passengerName">
+                    <strong>Passenger:</strong> {{ alert.rideDetails.passengerName }}
+                  </div>
+                  <div class="info-row" *ngIf="alert.rideDetails.vehicleNumber">
+                    <strong>Vehicle:</strong> {{ alert.rideDetails.vehicleNumber }}
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Description Section -->
+            <mat-card class="info-card full-width" *ngIf="alert.description">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>description</mat-icon>
+                  Description
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <p>{{ alert.description }}</p>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Contacts Tab -->
+      <mat-tab label="Emergency Contacts">
+        <div class="tab-content">
+          <div class="contacts-section" *ngIf="alert.emergencyContacts && alert.emergencyContacts.length > 0">
+            <div class="contacts-list">
+              <mat-card *ngFor="let contact of alert.emergencyContacts" class="contact-card">
+                <mat-card-content>
+                  <div class="contact-info">
+                    <div class="contact-details">
+                      <strong>{{ contact.name }}</strong>
+                      <div class="relationship">{{ contact.relationship }}</div>
+                      <div class="phone">{{ contact.phone }}</div>
+                    </div>
+                    <div class="contact-status">
+                      <mat-chip [class.contacted]="contact.contacted" 
+                                [class.not-contacted]="!contact.contacted">
+                        {{ contact.contacted ? 'Contacted' : 'Not Contacted' }}
+                      </mat-chip>
+                      <div *ngIf="contact.contactedAt" class="contacted-time">
+                        {{ contact.contactedAt | date:'short' }}
+                      </div>
+                    </div>
+                    <div class="contact-actions">
+                      <button mat-raised-button 
+                              [disabled]="contact.contacted"
+                              (click)="onContactEmergencyContact(contact.name)">
+                        <mat-icon>call</mat-icon>
+                        Contact
+                      </button>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+          </div>
+          
+          <div class="no-contacts" *ngIf="!alert.emergencyContacts || alert.emergencyContacts.length === 0">
+            <mat-icon>contact_phone</mat-icon>
+            <h3>No Emergency Contacts</h3>
+            <p>No emergency contacts are available for this user.</p>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Authorities Tab -->
+      <mat-tab label="Authorities">
+        <div class="tab-content">
+          <div class="authorities-section">
+            <div class="authorities-list" *ngIf="alert.authorities && alert.authorities.length > 0">
+              <mat-card *ngFor="let authority of alert.authorities" class="authority-card">
+                <mat-card-content>
+                  <div class="authority-info">
+                    <div class="authority-details">
+                      <strong>{{ authority.type }}</strong>
+                      <div class="case-number" *ngIf="authority.caseNumber">
+                        Case #: {{ authority.caseNumber }}
+                      </div>
+                    </div>
+                    <div class="authority-status">
+                      <mat-chip [class.contacted]="authority.contacted" 
+                                [class.not-contacted]="!authority.contacted">
+                        {{ authority.contacted ? 'Contacted' : 'Not Contacted' }}
+                      </mat-chip>
+                      <div *ngIf="authority.contactedAt" class="contacted-time">
+                        {{ authority.contactedAt | date:'short' }}
+                      </div>
+                      <div *ngIf="authority.responseTime" class="response-time">
+                        ETA: {{ authority.responseTime }} minutes
+                      </div>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+
+            <div class="contact-authorities">
+              <h4>Contact Additional Authorities</h4>
+              <div class="authority-buttons">
+                <button *ngFor="let authority of authorityTypes" 
+                        mat-raised-button 
+                        color="warn"
+                        (click)="onContactAuthority(authority.value)">
+                  <mat-icon>{{ authority.value === 'POLICE' ? 'local_police' : 
+                                authority.value === 'AMBULANCE' ? 'local_hospital' : 
+                                authority.value === 'FIRE' ? 'local_fire_department' : 'security' }}</mat-icon>
+                  {{ authority.label }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Response Tab -->
+      <mat-tab label="Response">
+        <div class="tab-content">
+          <div class="response-section">
+            <!-- Response History -->
+            <mat-card class="response-history" *ngIf="alert.respondedBy">
+              <mat-card-header>
+                <mat-card-title>Response History</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="response-item">
+                  <div class="responder">
+                    <strong>{{ alert.respondedBy.name }}</strong>
+                    <span class="role">({{ alert.respondedBy.role }})</span>
+                  </div>
+                  <div class="response-time">{{ alert.timestampResponded | date:'medium' }}</div>
+                  <div class="response-notes" *ngIf="alert.responseNotes">{{ alert.responseNotes }}</div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- New Response Form -->
+            <mat-card class="response-form" *ngIf="alert.status === 'ACTIVE'">
+              <mat-card-header>
+                <mat-card-title>Record Response</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <form [formGroup]="responseForm" (ngSubmit)="onRespond()">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Response Type</mat-label>
+                    <mat-select formControlName="responseType">
+                      <mat-option *ngFor="let type of responseTypes" [value]="type.value">
+                        {{ type.label }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Response Notes</mat-label>
+                    <textarea matInput formControlName="notes" rows="4" 
+                              placeholder="Describe the response action taken..."></textarea>
+                  </mat-form-field>
+
+                  <div class="form-actions">
+                    <button mat-raised-button color="primary" type="submit" 
+                            [disabled]="!responseForm.valid">
+                      <mat-icon>send</mat-icon>
+                      Record Response
+                    </button>
+                  </div>
+                </form>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+
+  <div class="dialog-actions" mat-dialog-actions>
+    <div class="action-buttons">
+      <button mat-raised-button color="warn" (click)="onEscalate()" 
+              *ngIf="alert.status === 'ACTIVE' || alert.status === 'RESPONDING'">
+        <mat-icon>keyboard_arrow_up</mat-icon>
+        Escalate
+      </button>
+      
+      <button mat-raised-button color="primary" (click)="onResolve()" 
+              *ngIf="alert.status === 'ACTIVE' || alert.status === 'RESPONDING'">
+        <mat-icon>check_circle</mat-icon>
+        Mark Resolved
+      </button>
+      
+      <button mat-stroked-button (click)="onDismiss()" 
+              *ngIf="alert.status === 'ACTIVE'">
+        <mat-icon>cancel</mat-icon>
+        Dismiss as False Alarm
+      </button>
+      
+      <button mat-button (click)="close()">
+        Close
+      </button>
+    </div>
+  </div>
+</div>

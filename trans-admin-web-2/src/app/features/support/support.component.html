@@ -1,0 +1,565 @@
+<div class="support-container">
+  <div class="page-header">
+    <h1>Customer Support & Issue Resolution</h1>
+    <p>Comprehensive dispute resolution, refund processing, and safety incident management</p>
+  </div>
+
+  <!-- Analytics Overview -->
+  <div class="stats-cards" *ngIf="analytics">
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon open">support_agent</mat-icon>
+          <div>
+            <h3>{{analytics.ticketSummary.totalTickets}}</h3>
+            <p>Total Tickets</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+    
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon progress">account_balance_wallet</mat-icon>
+          <div>
+            <h3>₹{{analytics.refundSummary.totalRefundAmount | number:'1.0-0'}}</h3>
+            <p>Total Refunds</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+    
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon critical">warning</mat-icon>
+          <div>
+            <h3>{{analytics.incidentSummary.incidentsBySeverity.critical}}</h3>
+            <p>Critical Incidents</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon success">sentiment_satisfied</mat-icon>
+          <div>
+            <h3>{{analytics.passengerSatisfaction.averageRating}}/5</h3>
+            <p>Customer Satisfaction</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Main Tabs -->
+  <mat-card class="tabs-container">
+    <mat-tab-group [(selectedIndex)]="selectedTabIndex" animationDuration="300ms">
+      
+      <!-- Dispute Resolution Console -->
+      <mat-tab label="Dispute Resolution Console" [disabled]="loadingTickets">
+        <ng-template matTabContent>
+          <div class="tab-content">
+            
+            <!-- Filters -->
+            <mat-card class="filter-card">
+              <mat-card-content>
+                <div class="filters-header">
+                  <h3>Filter Support Tickets</h3>
+                  <div class="filter-actions">
+                    <button mat-button (click)="clearTicketFilters()">Clear All</button>
+                    <button mat-raised-button color="primary" (click)="exportTickets()">
+                      <mat-icon>download</mat-icon> Export
+                    </button>
+                  </div>
+                </div>
+                
+                <div class="filters-grid">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Ticket Type</mat-label>
+                    <mat-select [(ngModel)]="ticketFilters.type" multiple (selectionChange)="applyTicketFilters()">
+                      <mat-option *ngFor="let type of ticketTypes" [value]="type.value">
+                        {{type.label}}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Priority</mat-label>
+                    <mat-select [(ngModel)]="ticketFilters.priority" multiple (selectionChange)="applyTicketFilters()">
+                      <mat-option *ngFor="let priority of priorities" [value]="priority.value">
+                        {{priority.label}}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Status</mat-label>
+                    <mat-select [(ngModel)]="ticketFilters.status" multiple (selectionChange)="applyTicketFilters()">
+                      <mat-option *ngFor="let status of ticketStatuses" [value]="status.value">
+                        {{status.label}}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Search</mat-label>
+                    <input matInput [(ngModel)]="ticketFilters.searchQuery" placeholder="Search tickets..." 
+                           (keyup.enter)="applyTicketFilters()">
+                    <mat-icon matSuffix>search</mat-icon>
+                  </mat-form-field>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Support Tickets Table -->
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>Support Tickets</mat-card-title>
+                <mat-card-subtitle>{{supportTickets.length}} tickets found</mat-card-subtitle>
+              </mat-card-header>
+              
+              <div *ngIf="loadingTickets" class="loading-container">
+                <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+              </div>
+
+              <mat-table [dataSource]="supportTickets" *ngIf="!loadingTickets">
+                <ng-container matColumnDef="ticketNumber">
+                  <mat-header-cell *matHeaderCellDef>Ticket #</mat-header-cell>
+                  <mat-cell *matCellDef="let ticket">
+                    <span class="ticket-number">{{ticket.ticketNumber}}</span>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="passenger">
+                  <mat-header-cell *matHeaderCellDef>Passenger</mat-header-cell>
+                  <mat-cell *matCellDef="let ticket">
+                    <div class="user-info">
+                      <div class="user-avatar">{{ticket.passengerName.charAt(0)}}</div>
+                      <div>
+                        <div class="user-name">{{ticket.passengerName}}</div>
+                        <div class="user-id">ID: {{ticket.passengerId}}</div>
+                      </div>
+                    </div>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="type">
+                  <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
+                  <mat-cell *matCellDef="let ticket">
+                    <div class="ticket-type">
+                      <div class="type-badge">{{ticket.type | titlecase}}</div>
+                      <div class="subject">{{ticket.subject}}</div>
+                    </div>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="priority">
+                  <mat-header-cell *matHeaderCellDef>Priority</mat-header-cell>
+                  <mat-cell *matCellDef="let ticket">
+                    <mat-chip [style.background-color]="getPriorityColor(ticket.priority)" 
+                             [style.color]="'white'">
+                      {{ticket.priority | titlecase}}
+                    </mat-chip>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="status">
+                  <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+                  <mat-cell *matCellDef="let ticket">
+                    <mat-chip [style.background-color]="getStatusColor(ticket.status)" 
+                             [style.color]="'white'">
+                      {{ticket.status | titlecase}}
+                    </mat-chip>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="assignee">
+                  <mat-header-cell *matHeaderCellDef>Assignee</mat-header-cell>
+                  <mat-cell *matCellDef="let ticket">
+                    <span *ngIf="ticket.assignedToName; else unassigned">{{ticket.assignedToName}}</span>
+                    <ng-template #unassigned>
+                      <span class="unassigned">Unassigned</span>
+                    </ng-template>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="created">
+                  <mat-header-cell *matHeaderCellDef>Created</mat-header-cell>
+                  <mat-cell *matCellDef="let ticket">{{ticket.createdAt | date:'MMM dd, yyyy HH:mm'}}</mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                  <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+                  <mat-cell *matCellDef="let ticket">
+                    <button mat-icon-button [matMenuTriggerFor]="ticketMenu" 
+                            [matMenuTriggerData]="{ticket: ticket}">
+                      <mat-icon>more_vert</mat-icon>
+                    </button>
+                  </mat-cell>
+                </ng-container>
+
+                <mat-header-row *matHeaderRowDef="ticketDisplayedColumns"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: ticketDisplayedColumns;" class="ticket-row"></mat-row>
+              </mat-table>
+            </mat-card>
+          </div>
+        </ng-template>
+      </mat-tab>
+
+      <!-- Manual Refund Processing -->
+      <mat-tab label="Manual Refund Processing" [disabled]="loadingRefunds">
+        <ng-template matTabContent>
+          <div class="tab-content">
+            
+            <!-- Refund Filters -->
+            <mat-card class="filter-card">
+              <mat-card-content>
+                <div class="filters-header">
+                  <h3>Filter Refund Requests</h3>
+                  <div class="filter-actions">
+                    <button mat-button (click)="clearRefundFilters()">Clear All</button>
+                    <button mat-raised-button color="primary" (click)="exportRefunds()">
+                      <mat-icon>download</mat-icon> Export
+                    </button>
+                  </div>
+                </div>
+                
+                <div class="filters-grid">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Status</mat-label>
+                    <mat-select [(ngModel)]="refundFilters.status" multiple (selectionChange)="applyRefundFilters()">
+                      <mat-option *ngFor="let status of refundStatuses" [value]="status.value">
+                        {{status.label}}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Refund Type</mat-label>
+                    <mat-select [(ngModel)]="refundFilters.refundType" multiple (selectionChange)="applyRefundFilters()">
+                      <mat-option value="full">Full Refund</mat-option>
+                      <mat-option value="partial">Partial Refund</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Min Amount</mat-label>
+                    <input matInput type="number" [(ngModel)]="refundFilters.amountRange!.min" 
+                           placeholder="0" (blur)="applyRefundFilters()">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Max Amount</mat-label>
+                    <input matInput type="number" [(ngModel)]="refundFilters.amountRange!.max" 
+                           placeholder="10000" (blur)="applyRefundFilters()">
+                  </mat-form-field>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Refund Requests Table -->
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>Refund Requests</mat-card-title>
+                <mat-card-subtitle>{{refundRequests.length}} requests found</mat-card-subtitle>
+              </mat-card-header>
+              
+              <div *ngIf="loadingRefunds" class="loading-container">
+                <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+              </div>
+
+              <mat-table [dataSource]="refundRequests" *ngIf="!loadingRefunds">
+                <ng-container matColumnDef="passenger">
+                  <mat-header-cell *matHeaderCellDef>Passenger</mat-header-cell>
+                  <mat-cell *matCellDef="let refund">
+                    <div class="user-info">
+                      <div class="user-avatar">{{refund.passengerName.charAt(0)}}</div>
+                      <div>
+                        <div class="user-name">{{refund.passengerName}}</div>
+                        <div class="user-id">ID: {{refund.passengerId}}</div>
+                      </div>
+                    </div>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="refundType">
+                  <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
+                  <mat-cell *matCellDef="let refund">
+                    <mat-chip [class]="'refund-type-' + refund.refundType">
+                      {{refund.refundType | titlecase}}
+                    </mat-chip>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="originalAmount">
+                  <mat-header-cell *matHeaderCellDef>Original Amount</mat-header-cell>
+                  <mat-cell *matCellDef="let refund">₹{{refund.originalAmount}}</mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="refundAmount">
+                  <mat-header-cell *matHeaderCellDef>Refund Amount</mat-header-cell>
+                  <mat-cell *matCellDef="let refund">
+                    <span class="refund-amount">₹{{refund.refundAmount}}</span>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="status">
+                  <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+                  <mat-cell *matCellDef="let refund">
+                    <mat-chip [style.background-color]="getStatusColor(refund.status)" 
+                             [style.color]="'white'">
+                      {{refund.status | titlecase}}
+                    </mat-chip>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="created">
+                  <mat-header-cell *matHeaderCellDef>Created</mat-header-cell>
+                  <mat-cell *matCellDef="let refund">{{refund.createdAt | date:'MMM dd, yyyy HH:mm'}}</mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                  <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+                  <mat-cell *matCellDef="let refund">
+                    <button mat-icon-button [matMenuTriggerFor]="refundMenu" 
+                            [matMenuTriggerData]="{refund: refund}">
+                      <mat-icon>more_vert</mat-icon>
+                    </button>
+                  </mat-cell>
+                </ng-container>
+
+                <mat-header-row *matHeaderRowDef="refundDisplayedColumns"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: refundDisplayedColumns;" class="refund-row"></mat-row>
+              </mat-table>
+            </mat-card>
+          </div>
+        </ng-template>
+      </mat-tab>
+
+      <!-- Safety Incident Logging -->
+      <mat-tab label="Safety Incident Logging" [disabled]="loadingIncidents">
+        <ng-template matTabContent>
+          <div class="tab-content">
+            
+            <!-- Incident Filters -->
+            <mat-card class="filter-card">
+              <mat-card-content>
+                <div class="filters-header">
+                  <h3>Filter Safety Incidents</h3>
+                  <div class="filter-actions">
+                    <button mat-button (click)="clearIncidentFilters()">Clear All</button>
+                    <button mat-raised-button color="primary" (click)="exportIncidents()">
+                      <mat-icon>download</mat-icon> Export
+                    </button>
+                  </div>
+                </div>
+                
+                <div class="filters-grid">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Incident Type</mat-label>
+                    <mat-select [(ngModel)]="incidentFilters.incidentType" multiple (selectionChange)="applyIncidentFilters()">
+                      <mat-option *ngFor="let type of incidentTypes" [value]="type.value">
+                        {{type.label}}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Severity</mat-label>
+                    <mat-select [(ngModel)]="incidentFilters.severity" multiple (selectionChange)="applyIncidentFilters()">
+                      <mat-option *ngFor="let severity of severityLevels" [value]="severity.value">
+                        {{severity.label}}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Status</mat-label>
+                    <mat-select [(ngModel)]="incidentFilters.status" multiple (selectionChange)="applyIncidentFilters()">
+                      <mat-option value="reported">Reported</mat-option>
+                      <mat-option value="investigating">Investigating</mat-option>
+                      <mat-option value="resolved">Resolved</mat-option>
+                      <mat-option value="closed">Closed</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Search</mat-label>
+                    <input matInput [(ngModel)]="incidentFilters.searchQuery" placeholder="Search incidents..." 
+                           (keyup.enter)="applyIncidentFilters()">
+                    <mat-icon matSuffix>search</mat-icon>
+                  </mat-form-field>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Safety Incidents Table -->
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>Safety Incidents</mat-card-title>
+                <mat-card-subtitle>{{safetyIncidents.length}} incidents found</mat-card-subtitle>
+              </mat-card-header>
+              
+              <div *ngIf="loadingIncidents" class="loading-container">
+                <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+              </div>
+
+              <mat-table [dataSource]="safetyIncidents" *ngIf="!loadingIncidents">
+                <ng-container matColumnDef="incidentNumber">
+                  <mat-header-cell *matHeaderCellDef>Incident #</mat-header-cell>
+                  <mat-cell *matCellDef="let incident">
+                    <span class="incident-number">{{incident.incidentNumber}}</span>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="passenger">
+                  <mat-header-cell *matHeaderCellDef>Passenger</mat-header-cell>
+                  <mat-cell *matCellDef="let incident">
+                    <div class="user-info">
+                      <div class="user-avatar">{{incident.passengerName.charAt(0)}}</div>
+                      <div>
+                        <div class="user-name">{{incident.passengerName}}</div>
+                        <div class="user-id">ID: {{incident.passengerId}}</div>
+                      </div>
+                    </div>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="driver">
+                  <mat-header-cell *matHeaderCellDef>Driver</mat-header-cell>
+                  <mat-cell *matCellDef="let incident">
+                    <div class="user-info" *ngIf="incident.driverName">
+                      <div class="user-avatar">{{incident.driverName.charAt(0)}}</div>
+                      <div>
+                        <div class="user-name">{{incident.driverName}}</div>
+                        <div class="user-id">ID: {{incident.driverId}}</div>
+                      </div>
+                    </div>
+                    <span *ngIf="!incident.driverName" class="no-data">N/A</span>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="type">
+                  <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
+                  <mat-cell *matCellDef="let incident">
+                    <div class="incident-type">{{incident.incidentType | titlecase}}</div>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="severity">
+                  <mat-header-cell *matHeaderCellDef>Severity</mat-header-cell>
+                  <mat-cell *matCellDef="let incident">
+                    <mat-chip [style.background-color]="getSeverityColor(incident.severity)" 
+                             [style.color]="'white'">
+                      {{incident.severity | titlecase}}
+                    </mat-chip>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="status">
+                  <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+                  <mat-cell *matCellDef="let incident">
+                    <mat-chip [style.background-color]="getStatusColor(incident.status)" 
+                             [style.color]="'white'">
+                      {{incident.status | titlecase}}
+                    </mat-chip>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="created">
+                  <mat-header-cell *matHeaderCellDef>Reported</mat-header-cell>
+                  <mat-cell *matCellDef="let incident">{{incident.createdAt | date:'MMM dd, yyyy HH:mm'}}</mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                  <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+                  <mat-cell *matCellDef="let incident">
+                    <button mat-icon-button [matMenuTriggerFor]="incidentMenu" 
+                            [matMenuTriggerData]="{incident: incident}">
+                      <mat-icon>more_vert</mat-icon>
+                    </button>
+                  </mat-cell>
+                </ng-container>
+
+                <mat-header-row *matHeaderRowDef="incidentDisplayedColumns"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: incidentDisplayedColumns;" class="incident-row"></mat-row>
+              </mat-table>
+            </mat-card>
+          </div>
+        </ng-template>
+      </mat-tab>
+
+    </mat-tab-group>
+  </mat-card>
+</div>
+
+<!-- Context Menus -->
+<mat-menu #ticketMenu="matMenu">
+  <ng-template matMenuContent let-ticket="ticket">
+    <button mat-menu-item (click)="assignTicket(ticket.id)" 
+            [disabled]="ticket.assignedTo">
+      <mat-icon>person_add</mat-icon>
+      <span>Assign Ticket</span>
+    </button>
+    <button mat-menu-item (click)="resolveTicket(ticket.id)"
+            [disabled]="ticket.status === 'resolved' || ticket.status === 'closed'">
+      <mat-icon>check_circle</mat-icon>
+      <span>Resolve Ticket</span>
+    </button>
+    <mat-divider></mat-divider>
+    <button mat-menu-item>
+      <mat-icon>visibility</mat-icon>
+      <span>View Details</span>
+    </button>
+    <button mat-menu-item>
+      <mat-icon>edit</mat-icon>
+      <span>Edit</span>
+    </button>
+  </ng-template>
+</mat-menu>
+
+<mat-menu #refundMenu="matMenu">
+  <ng-template matMenuContent let-refund="refund">
+    <button mat-menu-item (click)="processRefund(refund.id)"
+            [disabled]="refund.status === 'completed' || refund.status === 'processing'">
+      <mat-icon>account_balance_wallet</mat-icon>
+      <span>Process Refund</span>
+    </button>
+    <mat-divider></mat-divider>
+    <button mat-menu-item>
+      <mat-icon>visibility</mat-icon>
+      <span>View Details</span>
+    </button>
+    <button mat-menu-item>
+      <mat-icon>receipt</mat-icon>
+      <span>View Transaction</span>
+    </button>
+  </ng-template>
+</mat-menu>
+
+<mat-menu #incidentMenu="matMenu">
+  <ng-template matMenuContent let-incident="incident">
+    <button mat-menu-item (click)="takeIncidentAction(incident.id)"
+            [disabled]="incident.status === 'resolved' || incident.status === 'closed'">
+      <mat-icon>gavel</mat-icon>
+      <span>Take Action</span>
+    </button>
+    <mat-divider></mat-divider>
+    <button mat-menu-item>
+      <mat-icon>visibility</mat-icon>
+      <span>View Details</span>
+    </button>
+    <button mat-menu-item>
+      <mat-icon>edit_note</mat-icon>
+      <span>Add Investigation Note</span>
+    </button>
+    <button mat-menu-item>
+      <mat-icon>attach_file</mat-icon>
+      <span>View Evidence</span>
+    </button>
+  </ng-template>
+</mat-menu>

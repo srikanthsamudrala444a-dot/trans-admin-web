@@ -1,0 +1,143 @@
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+}
+
+.dialog-content {
+  min-height: 300px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.loading-container,
+.no-documents,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  color: #666;
+}
+
+.loading-container p,
+.no-documents p {
+  margin-top: 16px;
+}
+
+.no-documents mat-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.error-container {
+  color: #f44336;
+}
+
+.error-container mat-icon {
+  margin-right: 8px;
+}
+
+.documents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  padding: 16px;
+}
+
+.document-card {
+  max-width: 100%;
+}
+
+.document-info p {
+  margin: 8px 0;
+}
+
+.status-approved {
+  background-color: #4caf50;
+  color: #fff;
+}
+.status-pending {
+  background-color: #ff9800;
+  color: #fff;
+}
+.status-rejected {
+  background-color: #f44336;
+  color: #fff;
+}
+.status-expired {
+  background-color: #9e9e9e;
+  color: #fff;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.primary-actions,
+.secondary-actions {
+  display: flex;
+  gap: 12px;
+  flex: 1;
+}
+
+.primary-actions button,
+.secondary-actions button {
+  flex: 1;
+  min-width: 120px;
+}
+
+.document-status-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.status-date {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.reject-dialog-content {
+  min-width: 400px;
+}
+
+.reject-dialog-content mat-form-field {
+  width: 100%;
+  margin-top: 16px;
+}
+
+.rejection-reason {
+  color: #f44336;
+  font-style: italic;
+}
+
+.primary-actions button.approve-btn {
+  background-color: #4caf50;
+  color: #fff;
+}
+
+.primary-actions button.approve-btn:hover {
+  background-color: #43a047;
+}
+
+.primary-actions button.reject-btn {
+  background-color: #f44336;
+  color: #fff;
+}
+
+.primary-actions button.reject-btn:hover {
+  background-color: #e53935;
+}

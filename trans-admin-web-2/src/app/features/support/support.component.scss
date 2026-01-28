@@ -1,0 +1,376 @@
+.support-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.page-header {
+  margin-bottom: 32px;
+  
+  h1 {
+    margin: 0 0 8px 0;
+    color: #333;
+    font-weight: 600;
+    font-size: 2rem;
+  }
+  
+  p {
+    margin: 0;
+    color: #666;
+    font-size: 1rem;
+  }
+}
+
+// Statistics Cards
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+  
+  .mat-card-content {
+    padding: 24px !important;
+  }
+}
+
+.stat-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  
+  h3 {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #fff;
+  }
+  
+  p {
+    margin: 0;
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+}
+
+.stat-icon {
+  font-size: 36px;
+  width: 36px;
+  height: 36px;
+  
+  &.open { color: #ff5722; }
+  &.progress { color: #ff9800; }
+  &.closed { color: #4caf50; }
+  &.critical { color: #f44336; }
+  &.success { color: #4caf50; }
+}
+
+// Tabs Container
+.tabs-container {
+  .mat-tab-group {
+    .mat-tab-header {
+      .mat-tab-label-container {
+        .mat-tab-list {
+          .mat-tab-labels {
+            .mat-tab-label {
+              font-weight: 500;
+              font-size: 14px;
+              min-width: 200px;
+              
+              &.mat-tab-label-active {
+                font-weight: 600;
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    .mat-tab-body-wrapper {
+      .mat-tab-body {
+        overflow: visible !important;
+      }
+    }
+  }
+}
+
+// Tab Content
+.tab-content {
+  padding: 24px 0;
+  min-height: 600px;
+}
+
+// Filter Cards
+.filter-card {
+  margin-bottom: 24px;
+  
+  .mat-card-content {
+    padding: 24px !important;
+  }
+}
+
+.filters-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  
+  h3 {
+    margin: 0;
+    color: #fff;
+    font-weight: 600;
+  }
+}
+
+.filter-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  align-items: end;
+  
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+// Loading Container
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+// User Info Components
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0; // Allow flexbox to shrink
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.user-name {
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-id {
+  font-size: 0.75rem;
+  color: #999;
+  white-space: nowrap;
+}
+
+// Ticket Specific Styling
+.ticket-number {
+  font-weight: 600;
+  color: #1976d2;
+  font-family: 'Courier New', monospace;
+}
+
+.ticket-type {
+  max-width: 250px;
+  
+  .type-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    background: #e3f2fd;
+    color: #1976d2;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  
+  .subject {
+    font-size: 0.875rem;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+// Refund Specific Styling
+.refund-amount {
+  font-weight: 600;
+  color: #2e7d32;
+  font-size: 1rem;
+}
+
+.refund-type-full {
+  background-color: #e8f5e8 !important;
+  color: #2e7d32 !important;
+}
+
+.refund-type-partial {
+  background-color: #fff3e0 !important;
+  color: #e65100 !important;
+}
+
+// Incident Specific Styling
+.incident-number {
+  font-weight: 600;
+  color: #d32f2f;
+  font-family: 'Courier New', monospace;
+}
+
+.incident-type {
+  font-weight: 500;
+  color: #333;
+  text-transform: capitalize;
+}
+
+// Status and Priority Chips
+mat-chip {
+  font-weight: 500 !important;
+  font-size: 0.75rem !important;
+  border-radius: 12px !important;
+}
+
+// Table Styling
+.mat-table {
+  width: 100%;
+  
+  .mat-header-cell {
+    font-weight: 600 !important;
+    color: #333 !important;
+    font-size: 0.875rem !important;
+  }
+  
+  .mat-cell {
+    padding: 12px 8px !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+  }
+  
+  .mat-row {
+    &:hover {
+      background-color: #f8f9fa;
+    }
+  }
+}
+
+.ticket-row,
+.refund-row,
+.incident-row {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+// General Utility Classes
+.unassigned {
+  color: #999;
+  font-style: italic;
+  font-size: 0.875rem;
+}
+
+.no-data {
+  color: #999;
+  font-style: italic;
+}
+
+// Success and Error Snackbars
+::ng-deep {
+  .success-snackbar {
+    background-color: #4caf50 !important;
+    color: white !important;
+  }
+  
+  .error-snackbar {
+    background-color: #f44336 !important;
+    color: white !important;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .support-container {
+    padding: 0 8px;
+  }
+  
+  .stats-cards {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  
+  .filters-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .filters-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .filter-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  
+  .user-info {
+    .user-name,
+    .user-id {
+      font-size: 0.75rem;
+    }
+  }
+  
+  .ticket-type,
+  .subject {
+    max-width: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .page-header {
+    h1 {
+      font-size: 1.5rem;
+    }
+    
+    p {
+      font-size: 0.875rem;
+    }
+  }
+  
+  .tab-content {
+    padding: 16px 0;
+  }
+}

@@ -1,0 +1,42 @@
+<div class="driver-location-container">
+  <h2>Driver Location</h2>
+
+  <mat-form-field appearance="fill" (ngSubmit)="updateLocation()">
+    <div mat-card class="form-group">
+      <mat-card-content>
+        <mat-label for="driverId">Driver ID</mat-label>
+        <input matInput type="text" id="driverId" [(ngModel)]="driverId" name="driverId" required />
+      </mat-card-content>
+    </div>
+
+    <div mat-card class="form-group">
+        <mat-card-content>
+          <mat-label for="latitude">Latitude</mat-label>
+          <input matInput id="latitude" type="text" [(ngModel)]="latitude" name="latitude" required />
+        </mat-card-content>
+    </div>
+
+    <div mat-card class="form-group">
+      <mat-card-content>
+        <mat-label for="longitude">Longitude</mat-label>
+        <input matInput type="text" id="longitude" [(ngModel)]="longitude" name="longitude" required />
+      </mat-card-content>
+    </div>
+    <button  mat-raised-button color="primary" (click)="updateLocation()">
+        <mat-icon>update</mat-icon>
+         Update Location
+    </button>
+  </mat-form-field>
+
+  <!-- Nearby Drivers -->
+  <div class="nearby-section">
+    <h3>Nearby Drivers</h3>
+    <button (click)="fetchNearby()">Find Nearby</button>
+
+    <ul>
+      <li *ngFor="let driver of nearbyDrivers">
+        {{ driver.name }} - {{ driver.latitude }}, {{ driver.longitude }}
+      </li>
+    </ul>
+  </div>
+</div>

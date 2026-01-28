@@ -1,0 +1,613 @@
+.pricing-management {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e0e0e0;
+
+    .header-content {
+      flex: 1;
+
+      .page-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 0 0 8px 0;
+        font-size: 28px;
+        font-weight: 500;
+        color: #1976d2;
+
+        mat-icon {
+          font-size: 32px;
+          width: 32px;
+          height: 32px;
+        }
+      }
+
+      .page-description {
+        margin: 0;
+        color: #000 !important;
+        font-size: 16px;
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+
+      button {
+        min-width: 140px;
+
+        mat-icon {
+          margin-right: 8px;
+        }
+      }
+    }
+  }
+
+  .overview-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 32px;
+
+    .overview-card {
+      text-align: center;
+      
+      mat-card-header {
+        padding-bottom: 8px;
+        
+        mat-card-title {
+          font-size: 14px;
+          font-weight: 500;
+          color: #fff;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+      }
+
+      mat-card-content {
+        .metric-value {
+          font-size: 36px;
+          font-weight: 600;
+          color: #1976d2;
+          margin-bottom: 4px;
+
+          &.positive {
+            color: #4caf50;
+          }
+
+          &.negative {
+            color: #f44336;
+          }
+        }
+
+        .metric-label {
+          font-size: 12px;
+          color: #fff;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+      }
+    }
+  }
+
+  .pricing-tabs {
+    .mat-mdc-tab-body-wrapper {
+      margin-top: 24px;
+    }
+
+    // Override Angular Material tab label colors
+    ::ng-deep .mat-mdc-tab .mdc-tab__text-label {
+      color: #000 !important;
+    }
+
+    ::ng-deep .mat-mdc-tab:not(.mdc-tab--active) .mdc-tab__text-label {
+      color: #000 !important;
+    }
+
+    ::ng-deep .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
+      color: #000 !important;
+    }
+
+    .tab-content {
+      .content-card {
+        margin-bottom: 24px;
+
+        mat-card-header {
+          position: relative;
+          padding-bottom: 16px;
+
+          .card-actions {
+            position: absolute;
+            top: 0;
+            right: 0;
+          }
+
+          mat-card-title {
+            font-size: 20px;
+            font-weight: 500;
+            color: #fff;
+          }
+
+          mat-card-subtitle {
+            font-size: 14px;
+            color: #fff;
+            margin-top: 4px;
+          }
+        }
+      }
+    }
+  }
+
+  // Surge Events Grid
+  .surge-events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 20px;
+    margin-top: 16px;
+
+    .surge-event-card {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      background: #fafafa;
+
+      .event-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+
+        h3 {
+          margin: 0;
+          font-size: 18px;
+          font-weight: 500;
+          color: #333;
+        }
+
+        .surge-chip {
+          font-weight: 600;
+          font-size: 14px;
+
+          &.surge-high {
+            background-color: #f44336;
+            color: white;
+          }
+
+          &.surge-medium {
+            background-color: #ff9800;
+            color: white;
+          }
+
+          &.surge-low {
+            background-color: #4caf50;
+            color: white;
+          }
+
+          &.surge-none {
+            background-color: #9e9e9e;
+            color: white;
+          }
+        }
+      }
+
+      .event-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 16px;
+
+        .detail-item {
+          display: flex;
+          justify-content: space-between;
+
+          .label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+          }
+
+          .value {
+            font-size: 12px;
+            color: #333;
+            font-weight: 600;
+          }
+        }
+      }
+
+      .event-actions {
+        display: flex;
+        justify-content: flex-end;
+
+        button {
+          min-width: 120px;
+        }
+      }
+    }
+  }
+
+  // Zone Metrics Grid
+  .zone-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+    margin-top: 16px;
+
+    .zone-metric-card {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      background: white;
+
+      .metric-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+
+        h4 {
+          margin: 0;
+          font-size: 16px;
+          font-weight: 500;
+          color: #333;
+        }
+
+        .last-updated {
+          font-size: 11px;
+          color: #999;
+          background: #f5f5f5;
+          padding: 4px 8px;
+          border-radius: 4px;
+        }
+      }
+
+      .metric-stats {
+        margin-bottom: 16px;
+
+        .stat-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+          margin-bottom: 8px;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+
+          .stat-item {
+            .stat-label {
+              display: block;
+              font-size: 11px;
+              color: #666;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              margin-bottom: 4px;
+            }
+
+            .stat-value {
+              display: block;
+              font-size: 16px;
+              font-weight: 600;
+              color: #333;
+
+              &.high {
+                color: #f44336;
+              }
+
+              &.medium {
+                color: #ff9800;
+              }
+
+              &.normal {
+                color: #4caf50;
+              }
+
+              &.multiplier {
+                &.high {
+                  color: #f44336;
+                }
+
+                &.medium {
+                  color: #ff9800;
+                }
+
+                &.low {
+                  color: #4caf50;
+                }
+
+                &.none {
+                  color: #666;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      .metric-actions {
+        display: flex;
+        justify-content: flex-end;
+
+        button {
+          min-width: 130px;
+        }
+      }
+    }
+  }
+
+  // Zones Grid
+  .zones-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 20px;
+    margin-top: 16px;
+
+    .zone-card {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      background: white;
+
+      .zone-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+
+        h3 {
+          margin: 0;
+          font-size: 18px;
+          font-weight: 500;
+          color: #fff;
+        }
+
+        .active-chip {
+          background-color: #4caf50;
+          color: white;
+        }
+
+        .inactive-chip {
+          background-color: #9e9e9e;
+          color: white;
+        }
+      }
+
+      .zone-description {
+        color: #fff;
+        font-size: 14px;
+        line-height: 1.4;
+        margin-bottom: 16px;
+      }
+
+      .zone-stats {
+        margin-bottom: 16px;
+
+        .stat {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 8px;
+
+          .label {
+            font-size: 12px;
+            color: #fff;
+            font-weight: 500;
+          }
+
+          .value {
+            font-size: 12px;
+            color: #fff;
+            font-weight: 600;
+          }
+        }
+      }
+
+      .zone-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+    }
+  }
+
+  // Analytics Content
+  .analytics-content {
+    .analytics-summary {
+      margin-bottom: 32px;
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+
+        .summary-item {
+          text-align: center;
+          padding: 20px;
+          border: 1px solid #e0e0e0;
+          border-radius: 8px;
+          background: #fafafa;
+
+          .summary-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1976d2;
+            margin-bottom: 8px;
+
+            &.positive {
+              color: #4caf50;
+            }
+
+            &.negative {
+              color: #f44336;
+            }
+          }
+
+          .summary-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+        }
+      }
+    }
+
+    .zone-performance-section {
+      h3 {
+        margin-bottom: 16px;
+        font-size: 18px;
+        font-weight: 500;
+        color: #fff;
+      }
+
+      .performance-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+
+        .performance-card {
+          border: 1px solid #e0e0e0;
+          border-radius: 8px;
+          padding: 20px;
+          background: white;
+
+          h4 {
+            margin: 0 0 16px 0;
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+          }
+
+          .performance-stats {
+            .perf-stat {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 8px;
+
+              .label {
+                font-size: 12px;
+                color: #666;
+                font-weight: 500;
+              }
+
+              .value {
+                font-size: 12px;
+                color: #333;
+                font-weight: 600;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Loading and Empty States
+  .loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: #666;
+
+    mat-spinner {
+      margin-bottom: 16px;
+    }
+
+    p {
+      margin: 0;
+      font-size: 14px;
+    }
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: #666;
+    text-align: center;
+
+    mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      margin-bottom: 16px;
+      color: #ccc;
+    }
+
+    h3 {
+      margin: 0 0 8px 0;
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    p {
+      margin: 0;
+      font-size: 14px;
+    }
+  }
+
+  .section-note {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    padding: 40px;
+    margin: 0;
+  }
+
+  // Responsive Design
+  @media (max-width: 768px) {
+    padding: 16px;
+
+    .page-header {
+      flex-direction: column;
+      gap: 16px;
+      align-items: stretch;
+
+      .header-actions {
+        justify-content: stretch;
+
+        button {
+          flex: 1;
+        }
+      }
+    }
+
+    .overview-cards {
+      grid-template-columns: 1fr;
+    }
+
+    .surge-events-grid,
+    .zone-metrics-grid,
+    .zones-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .zone-metric-card .metric-stats .stat-row {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+// Global snackbar styles
+.success-snackbar {
+  --mdc-snackbar-container-color: #4caf50;
+}
+
+.error-snackbar {
+  --mdc-snackbar-container-color: #f44336;
+}
+
+.info-snackbar {
+  --mdc-snackbar-container-color: #2196f3;
+}

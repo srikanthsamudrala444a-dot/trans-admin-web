@@ -1,0 +1,130 @@
+<div class="dialog-container">
+  <div class="dialog-header">
+    <h2 mat-dialog-title>
+      <mat-icon>{{ isEdit ? 'edit' : 'add_circle_outline' }}</mat-icon>
+      {{ isEdit ? 'Edit Promotion' : 'Create New Promotion' }}
+    </h2>
+    <button mat-icon-button (click)="onCancel()" class="close-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content class="dialog-content">
+    <form [formGroup]="promotionForm" class="promotion-form">
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Promotion Name</mat-label>
+          <input matInput formControlName="name" placeholder="Enter promotion name">
+          <mat-error *ngIf="promotionForm.get('name')?.hasError('required')">
+            Promotion name is required
+          </mat-error>
+          <mat-error *ngIf="promotionForm.get('name')?.hasError('minlength')">
+            Name must be at least 3 characters long
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Promotion Type</mat-label>
+          <mat-select formControlName="type">
+            <mat-option *ngFor="let type of promotionTypes" [value]="type.value">
+              {{ type.label }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="promotionForm.get('type')?.hasError('required')">
+            Please select a promotion type
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row" *ngIf="promotionForm.get('type')?.value === 'discount-code' || promotionForm.get('type')?.value === 'offer'">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Promotion Code</mat-label>
+          <input matInput formControlName="code" placeholder="Enter promotion code" style="text-transform: uppercase;">
+          <mat-error *ngIf="promotionForm.get('code')?.hasError('required')">
+            Promotion code is required
+          </mat-error>
+          <mat-error *ngIf="promotionForm.get('code')?.hasError('minlength')">
+            Code must be at least 3 characters long
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row two-columns">
+        <mat-form-field appearance="outline">
+          <mat-label>Discount Type</mat-label>
+          <mat-select formControlName="discountType">
+            <mat-option *ngFor="let type of discountTypes" [value]="type.value">
+              {{ type.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Discount Value</mat-label>
+          <input matInput formControlName="discountValue" type="number" min="1">
+          <span matSuffix>{{ getDiscountLabel() }}</span>
+          <mat-error *ngIf="promotionForm.get('discountValue')?.hasError('required')">
+            Discount value is required
+          </mat-error>
+          <mat-error *ngIf="promotionForm.get('discountValue')?.hasError('min')">
+            Value must be greater than 0
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Maximum Usage</mat-label>
+          <input matInput formControlName="maxUsage" type="number" min="1" placeholder="Enter maximum usage limit">
+          <mat-error *ngIf="promotionForm.get('maxUsage')?.hasError('required')">
+            Maximum usage is required
+          </mat-error>
+          <mat-error *ngIf="promotionForm.get('maxUsage')?.hasError('min')">
+            Usage must be at least 1
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row two-columns">
+        <mat-form-field appearance="outline">
+          <mat-label>Valid From</mat-label>
+          <input matInput [matDatepicker]="startPicker" formControlName="validFrom">
+          <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+          <mat-datepicker #startPicker></mat-datepicker>
+          <mat-error *ngIf="promotionForm.get('validFrom')?.hasError('required')">
+            Start date is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Valid To</mat-label>
+          <input matInput [matDatepicker]="endPicker" formControlName="validTo">
+          <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+          <mat-datepicker #endPicker></mat-datepicker>
+          <mat-error *ngIf="promotionForm.get('validTo')?.hasError('required')">
+            End date is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description (Optional)</mat-label>
+          <textarea matInput formControlName="description" rows="3" placeholder="Enter promotion description"></textarea>
+        </mat-form-field>
+      </div>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="dialog-actions">
+    <button mat-button (click)="onCancel()" class="cancel-btn">
+      Cancel
+    </button>
+    <button mat-raised-button color="primary" (click)="onSave()" [disabled]="!promotionForm.valid" class="save-btn">
+      <mat-icon>{{ isEdit ? 'save' : 'add' }}</mat-icon>
+      {{ isEdit ? 'Update Promotion' : 'Create Promotion' }}
+    </button>
+  </mat-dialog-actions>
+</div>

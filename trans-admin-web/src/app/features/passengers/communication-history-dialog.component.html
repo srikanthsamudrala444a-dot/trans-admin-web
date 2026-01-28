@@ -1,0 +1,118 @@
+<h2 mat-dialog-title>
+  <mat-icon>schedule</mat-icon>
+  Communication History - {{ data.passengerName }}
+</h2>
+
+<mat-dialog-content>
+  @if(loading) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading communication history...</p>
+    </div>
+  }
+  
+  @else if(error) {
+    <div class="error-container">
+      <mat-icon color="warn">error</mat-icon>
+      <p>{{ error }}</p>
+      <button mat-button color="primary" (click)="refreshHistory()">
+        <mat-icon>refresh</mat-icon>
+        Retry
+      </button>
+    </div>
+  }
+  
+  @else {
+    @if(communications.length === 0) {
+      <div class="no-data">
+        <mat-icon>inbox</mat-icon>
+        <p>No communication history found for this passenger</p>
+      </div>
+    }
+    
+    @else {
+      <div class="summary-stats">
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon>email</mat-icon>
+              <div class="stat-info">
+                <span class="stat-number">{{ communications.length }}</span>
+                <span class="stat-label">Total Communications</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <mat-table [dataSource]="dataSource" class="communication-table">
+        <!-- Type Column -->
+        <ng-container matColumnDef="type">
+          <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
+          <mat-cell *matCellDef="let communication">
+            <mat-chip-set>
+              <mat-chip>{{ communication.type }}</mat-chip>
+            </mat-chip-set>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Subject Column -->
+        <ng-container matColumnDef="subject">
+          <mat-header-cell *matHeaderCellDef>Subject & Message</mat-header-cell>
+          <mat-cell *matCellDef="let communication">
+            <div class="message-content">
+              <div class="subject">{{ communication.subject }}</div>
+              <div class="message">{{ communication.message }}</div>
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Channel Column -->
+        <ng-container matColumnDef="channel">
+          <mat-header-cell *matHeaderCellDef>Channel</mat-header-cell>
+          <mat-cell *matCellDef="let communication">
+            <div class="channel-info">
+              <mat-icon>{{ getChannelIcon(communication.channel) }}</mat-icon>
+              <span>{{ communication.channel }}</span>
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Sent At Column -->
+        <ng-container matColumnDef="sentAt">
+          <mat-header-cell *matHeaderCellDef>Sent At</mat-header-cell>
+          <mat-cell *matCellDef="let communication">
+            {{ communication.sentAt | date:'medium' }}
+          </mat-cell>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+          <mat-cell *matCellDef="let communication">
+            <mat-chip-set>
+              <mat-chip [color]="getStatusColor(communication.status)" selected>
+                {{ communication.status }}
+              </mat-chip>
+            </mat-chip-set>
+          </mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns" class="communication-row"></mat-row>
+      </mat-table>
+    }
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <div class="dialog-actions">
+    <button mat-button (click)="refreshHistory()" [disabled]="loading">
+      <mat-icon>refresh</mat-icon>
+      Refresh
+    </button>
+    <div class="action-buttons">
+      <button mat-button (click)="onClose()">Close</button>
+    </div>
+  </div>
+</mat-dialog-actions>

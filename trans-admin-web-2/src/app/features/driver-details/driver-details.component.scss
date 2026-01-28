@@ -1,0 +1,136 @@
+.driver-details-card {
+  max-width: 700px;
+  margin: 32px auto;
+  padding: 24px;
+  background: #1e1e1e;
+  color: #f5f5f5;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+mat-card-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.verify-btn {
+  mat-icon {
+    margin-right: 4px;
+  }
+}
+
+.verified-btn {
+  background-color: #4caf50 !important;
+  color: white !important;
+  cursor: default;
+
+  mat-icon {
+    margin-right: 4px;
+  }
+
+  &:disabled {
+    opacity: 1 !important;
+    background-color: #4caf50 !important;
+    color: white !important;
+  }
+}
+
+.documents-btn {
+  // No additional styles needed
+}
+
+mat-card-subtitle {
+  font-size: 1rem;
+  color: #bbb;
+  margin-bottom: 12px;
+  text-align: center;
+  width: 100%;
+}
+
+.driver-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 12px 20px;
+  margin-top: 16px;
+  align-items: center;
+}
+
+.driver-detail-row {
+  display: contents;
+}
+
+.label {
+  font-weight: 600;
+  color: #ccc;
+  text-align: right;
+  justify-self: end;
+}
+
+.value {
+  color: #fff;
+  text-align: left;
+  justify-self: start;
+  word-break: break-word;
+}
+
+.section-title {
+  grid-column: 1 / -1;
+  margin: 24px 0 8px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: white;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 4px;
+}
+
+.vehicle-separator {
+  grid-column: 1 / -1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 16px 0;
+}
+
+.driver-details-photo {
+  border-radius: 8px;
+  margin-top: 8px;
+  max-width: 120px;
+  height: auto;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+mat-card-actions {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 16px;
+}
+
+button[mat-raised-button] {
+  font-weight: 600;
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.rides-history-link {
+  color: #1976d2;
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 500;
+}
+.rides-history-link:hover {
+  text-decoration: none;
+}

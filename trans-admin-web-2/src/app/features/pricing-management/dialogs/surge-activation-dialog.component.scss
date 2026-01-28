@@ -1,0 +1,307 @@
+.surge-activation-dialog {
+  width: 600px;
+  max-width: 90vw;
+
+  .dialog-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 0 16px 0;
+    border-bottom: 1px solid #e0e0e0;
+
+    .dialog-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: #ff9800;
+    }
+
+    .dialog-title-content {
+      h2 {
+        margin: 0 0 4px 0;
+        font-size: 24px;
+        font-weight: 500;
+        color: #333;
+      }
+
+      p {
+        margin: 0;
+        font-size: 14px;
+        color: #666;
+      }
+    }
+  }
+
+  .dialog-content {
+    padding: 24px 0;
+    max-height: 70vh;
+    overflow-y: auto;
+
+    .surge-form {
+      .current-status {
+        background: #f5f5f5;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 24px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+
+        .status-item {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+
+          .label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+          }
+
+          .value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+
+            &.active {
+              color: #ff9800;
+            }
+
+            &.normal {
+              color: #4caf50;
+            }
+          }
+        }
+      }
+
+      .form-section {
+        margin-bottom: 24px;
+
+        h3 {
+          margin: 0 0 16px 0;
+          font-size: 16px;
+          font-weight: 500;
+          color: #333;
+        }
+
+        .full-width {
+          width: 100%;
+        }
+
+        .multiplier-section {
+          margin-bottom: 16px;
+
+          .slider-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 12px;
+          }
+
+          .multiplier-slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: #e0e0e0;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            margin-bottom: 16px;
+
+            &:hover {
+              opacity: 1;
+            }
+
+            &::-webkit-slider-thumb {
+              appearance: none;
+              width: 20px;
+              height: 20px;
+              border-radius: 50%;
+              background: #ff9800;
+              cursor: pointer;
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            }
+
+            &::-moz-range-thumb {
+              width: 20px;
+              height: 20px;
+              border-radius: 50%;
+              background: #ff9800;
+              cursor: pointer;
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+              border: none;
+            }
+          }
+
+          .multiplier-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: #f5f5f5;
+            border-radius: 8px;
+
+            .multiplier-value {
+              font-size: 24px;
+              font-weight: 600;
+              color: #1976d2;
+            }
+
+            .multiplier-impact {
+              font-size: 12px;
+              font-weight: 500;
+              padding: 4px 8px;
+              border-radius: 4px;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+
+              &.low {
+                background: #4caf50;
+                color: white;
+              }
+
+              &.medium {
+                background: #ff9800;
+                color: white;
+              }
+
+              &.high {
+                background: #f44336;
+                color: white;
+              }
+            }
+          }
+        }
+      }
+
+      .impact-estimation {
+        background: #e3f2fd;
+        border-radius: 8px;
+        padding: 16px;
+        border-left: 4px solid #2196f3;
+
+        h3 {
+          margin: 0 0 16px 0;
+          font-size: 14px;
+          font-weight: 500;
+          color: #1976d2;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .impact-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+          gap: 12px;
+
+          .impact-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+
+            .impact-label {
+              font-size: 11px;
+              color: #666;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              font-weight: 500;
+            }
+
+            .impact-value {
+              font-size: 14px;
+              font-weight: 600;
+              color: #333;
+
+              &.positive {
+                color: #4caf50;
+              }
+
+              &.negative {
+                color: #f44336;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .dialog-actions {
+    padding: 16px 0 0 0;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+
+    .cancel-btn {
+      min-width: 100px;
+    }
+
+    .activate-btn {
+      min-width: 140px;
+
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
+  }
+
+  // Responsive Design
+  @media (max-width: 768px) {
+    width: 95vw;
+
+    .dialog-content {
+      .surge-form {
+        .current-status {
+          grid-template-columns: 1fr;
+        }
+
+        .impact-estimation .impact-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    }
+
+    .dialog-actions {
+      flex-direction: column-reverse;
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+}
+
+// Angular Material customizations
+::ng-deep {
+  .mat-mdc-slider {
+    .mdc-slider__track--active_fill {
+      background-color: #ff9800;
+    }
+
+    .mdc-slider__thumb {
+      background-color: #ff9800;
+    }
+
+    .mdc-slider__thumb--focused .mdc-slider__thumb-knob {
+      border-color: #ff9800;
+    }
+  }
+
+  .surge-activation-dialog {
+    .mat-mdc-form-field {
+      margin-bottom: 16px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    .mat-mdc-select-panel {
+      max-height: 200px;
+    }
+  }
+}

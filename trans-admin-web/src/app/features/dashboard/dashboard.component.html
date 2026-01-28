@@ -1,0 +1,112 @@
+ <div class="dashboard-container">
+      <div class="page-header">
+        <h1>Dashboard</h1>
+        <p>Welcome back! Here's what's happening with your cab service.</p>
+      </div>
+      
+      <div class="stats-grid">
+        <mat-card class="stats-card">
+          <mat-card-content>
+            <div class="stat-item">
+              <mat-icon class="stat-icon rides">local_taxi</mat-icon>
+              <div class="stat-content">
+                <h3>{{stats?.totalRides?.today || 0}}</h3>
+                <p>Rides Today</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+        
+        <mat-card class="stats-card">
+          <mat-card-content>
+            <div class="stat-item">
+              <mat-icon class="stat-icon drivers">person</mat-icon>
+              <div class="stat-content">
+                <h3>{{stats?.activeDrivers || 0}}</h3>
+                <p>Active Drivers</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+        
+        <mat-card class="stats-card">
+          <mat-card-content>
+            <div class="stat-item">
+              <mat-icon class="stat-icon passengers">people</mat-icon>
+              <div class="stat-content">
+                <h3>{{stats?.totalPassengers || 0}}</h3>
+                <p>Total Passengers</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+        
+        <mat-card class="stats-card">
+          <mat-card-content>
+            <div class="stat-item">
+              <mat-icon class="stat-icon revenue">attach_money</mat-icon>
+              <div class="stat-content">
+                <h3>\${{stats?.revenue?.today || 0}}</h3>
+                <p>Revenue Today</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+      
+      <div class="charts-section">
+        <div class="charts-grid">
+          <mat-card class="chart-card">
+            <mat-card-header>
+              <mat-card-title>Weekly Rides Overview</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="chart-placeholder">
+                <mat-icon>bar_chart</mat-icon>
+                <p>Chart.js integration ready</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+          
+          <mat-card class="chart-card">
+            <mat-card-header>
+              <mat-card-title>Revenue Trends</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="chart-placeholder">
+                <mat-icon>show_chart</mat-icon>
+                <p>Line chart placeholder</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+      
+      <div class="quick-actions">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Quick Actions</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="action-buttons">
+              <button mat-raised-button color="primary" (click)="openAddDriverDialog()">
+                <mat-icon>add</mat-icon>
+                Add Driver
+              </button>
+              <button mat-raised-button color="accent" (click)="openAddVehicleDialog()">
+                <mat-icon>directions_car</mat-icon>
+                Add Vehicle
+              </button>
+              <button mat-raised-button>
+                <mat-icon>notifications</mat-icon>
+                Send Notification
+              </button>
+              <button mat-raised-button>
+                <mat-icon>settings</mat-icon>
+                Manage Settings
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>

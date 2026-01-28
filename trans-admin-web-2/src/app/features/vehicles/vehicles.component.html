@@ -1,0 +1,228 @@
+<div class="vehicles-container">
+  <div class="page-header">
+    <h1>Vehicles Management</h1>
+    <button mat-raised-button color="primary" (click)="toggleAddForm()">
+      <mat-icon>{{ showAddForm ? 'close' : 'add' }}</mat-icon>
+      {{ showAddForm ? 'Cancel' : 'Add Vehicle' }}
+    </button>
+  </div>
+
+  <!-- Add Vehicle Form -->
+  @if (showAddForm) {
+  <mat-card class="add-form-card">
+    <mat-card-header>
+      <mat-card-title>Add New Vehicle</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="vehicleForm" class="add-vehicle-form">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Make</mat-label>
+            <input matInput formControlName="make" placeholder="e.g., Toyota">
+            <mat-error *ngIf="vehicleForm.get('make')?.hasError('required')">
+              Make is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Model</mat-label>
+            <input matInput formControlName="model" placeholder="e.g., Camry">
+            <mat-error *ngIf="vehicleForm.get('model')?.hasError('required')">
+              Model is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Registration Number</mat-label>
+            <input matInput formControlName="registrationNumber" placeholder="e.g., MH-12-AB-1234">
+            <mat-error *ngIf="vehicleForm.get('registrationNumber')?.hasError('required')">
+              Registration number is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Year</mat-label>
+            <input matInput type="number" formControlName="yearOfManufacture" placeholder="e.g., 2020">
+            <mat-error *ngIf="vehicleForm.get('yearOfManufacture')?.hasError('required')">
+              Year is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Vehicle Type</mat-label>
+            <mat-select formControlName="type">
+              <mat-option value="sedan">Sedan</mat-option>
+              <mat-option value="suv">SUV</mat-option>
+              <mat-option value="hatchback">Hatchback</mat-option>
+              <mat-option value="auto">Auto</mat-option>
+            </mat-select>
+            <mat-error *ngIf="vehicleForm.get('type')?.hasError('required')">
+              Vehicle type is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Color</mat-label>
+            <input matInput formControlName="color" placeholder="e.g., White">
+            <mat-error *ngIf="vehicleForm.get('color')?.hasError('required')">
+              Color is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+          <button mat-button type="button" (click)="resetVehicleForm()">Reset</button>
+          <button mat-raised-button color="primary" type="button" (click)="onSaveVehicle()" [disabled]="!vehicleForm.valid">
+            <mat-icon>save</mat-icon>
+            Add Vehicle
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+  }
+
+  <mat-card class="filter-card">
+    <mat-card-content>
+      <div class="filters">
+        <mat-form-field appearance="outline">
+          <mat-label>Type</mat-label>
+          <mat-select>
+            <mat-option value="all">All Types</mat-option>
+            <mat-option value="sedan">Sedan</mat-option>
+            <mat-option value="suv">SUV</mat-option>
+            <mat-option value="hatchback">Hatchback</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Status</mat-label>
+          <mat-select>
+            <mat-option value="all">All Status</mat-option>
+            <mat-option value="active">Active</mat-option>
+            <mat-option value="maintenance">Maintenance</mat-option>
+            <mat-option value="inactive">Inactive</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Search</mat-label>
+          <input matInput placeholder="Search by plate number or model" />
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    @if(loading){
+    <div class="loader">
+      <mat-spinner></mat-spinner>
+    </div>
+    }@else {
+    <mat-table [dataSource]="vehicles">
+      <ng-container matColumnDef="vehicle">
+        <mat-header-cell *matHeaderCellDef>Vehicle</mat-header-cell>
+        <mat-cell *matCellDef="let vehicle">
+          <div class="vehicle-info">
+            <mat-icon class="vehicle-icon">directions_car</mat-icon>
+            <div>
+              <div class="vehicle-model">
+                {{ vehicle.make }} {{ vehicle.model }}
+              </div>
+              <div class="vehicle-year">
+                {{ vehicle.year }} • {{ vehicle.color }}
+              </div>
+            </div>
+          </div>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="plateNumber">
+        <mat-header-cell *matHeaderCellDef>Plate Number</mat-header-cell>
+        <mat-cell *matCellDef="let vehicle">
+          <strong>{{ vehicle.registrationNumber }}</strong>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="driver">
+        <mat-header-cell *matHeaderCellDef>Driver</mat-header-cell>
+        <mat-cell *matCellDef="let vehicle">
+          <span *ngIf="vehicle.driverId; else noDriver">{{
+            vehicle.driverId
+          }}</span>
+          <ng-template #noDriver>
+            <span class="no-driver">Not Assigned</span>
+          </ng-template>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="type">
+        <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
+        <mat-cell *matCellDef="let vehicle">
+          <mat-chip class="type-chip">{{ vehicle.type | titlecase }}</mat-chip>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+        <mat-cell *matCellDef="let vehicle">
+          <mat-chip [class]="vehicle.active ? 'status-active' : 'status-inactive'">
+            {{ vehicle.active ? 'Active' : 'Inactive' }}
+          </mat-chip>
+        </mat-cell>
+      </ng-container>
+
+
+
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row 
+        class="data-row clickable-row"
+        [routerLink]="['/vehicles', row.id || row.vehicleId]"
+        *matRowDef="let row; columns: displayedColumns">
+      </mat-row>
+    </mat-table>
+    }
+  </mat-card>
+</div>
+
+<div class="custom-paginator-container">
+  <mat-paginator
+    #paginator
+    [length]="totalItems"
+    [pageSize]="itemsPerPage"
+    [pageSizeOptions]="[5, 10, 25, 50]"
+    [showFirstLastButtons]="true"
+    aria-label="Vehicles pagination"
+  >
+  </mat-paginator>
+
+  <div class="page-jump-container">
+    <span class="page-jump-label">Go to page:</span>
+    <input
+      type="number"
+      class="page-jump-input"
+      [(ngModel)]="pageJumpValue"
+      [min]="1"
+      [max]="totalPages"
+      (keyup.enter)="jumpToPage()"
+      placeholder="#"
+    />
+    <button
+      mat-icon-button
+      class="page-jump-button"
+      color="primary"
+      (click)="jumpToPage()"
+      [disabled]="
+        !pageJumpValue || pageJumpValue < 1 || pageJumpValue > totalPages
+      "
+      matTooltip="Jump to page"
+    >
+      <mat-icon>arrow_forward</mat-icon>
+    </button>
+  </div>
+</div>

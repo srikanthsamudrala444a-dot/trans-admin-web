@@ -1,0 +1,491 @@
+<div class="create-incentive-dialog">
+  <div class="dialog-header">
+    <h2 mat-dialog-title>
+      <mat-icon>{{ isEditMode ? 'edit' : 'add' }}</mat-icon>
+      {{ isEditMode ? 'Edit Incentive' : 'Create New Incentive' }}
+    </h2>
+    <button mat-icon-button (click)="onCancel()" class="close-btn">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content class="dialog-content">
+    <form [formGroup]="incentiveForm" class="incentive-form">
+      
+      <!-- Stepper for form sections -->
+      <mat-stepper #stepper orientation="horizontal" linear>
+        
+        <!-- Basic Information Step -->
+        <mat-step [stepControl]="getBasicInfoFormGroup()" [completed]="isStepValid(0)">
+          <ng-template matStepLabel>Basic Information</ng-template>
+          
+          <div formGroupName="basicInfo" class="step-content">
+            <div class="form-grid">
+              
+              <!-- Incentive Name -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Incentive Name</mat-label>
+                <input matInput formControlName="name" placeholder="Enter incentive name">
+                <mat-error *ngIf="incentiveForm.get('basicInfo.name')?.hasError('required')">
+                  Incentive name is required
+                </mat-error>
+                <mat-error *ngIf="incentiveForm.get('basicInfo.name')?.hasError('minlength')">
+                  Name must be at least 3 characters long
+                </mat-error>
+              </mat-form-field>
+
+              <!-- Description -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Description</mat-label>
+                <textarea matInput formControlName="description" 
+                          placeholder="Describe the incentive and its benefits"
+                          rows="3"></textarea>
+                <mat-error *ngIf="incentiveForm.get('basicInfo.description')?.hasError('required')">
+                  Description is required
+                </mat-error>
+                <mat-error *ngIf="incentiveForm.get('basicInfo.description')?.hasError('minlength')">
+                  Description must be at least 10 characters long
+                </mat-error>
+              </mat-form-field>
+
+              <!-- Incentive Type -->
+              <mat-form-field appearance="outline">
+                <mat-label>Incentive Type</mat-label>
+                <mat-select formControlName="type">
+                  <mat-option *ngFor="let type of incentiveTypes" [value]="type.value">
+                    <div class="type-option">
+                      <span class="type-label">{{ type.label }}</span>
+                      <span class="type-description">{{ type.description }}</span>
+                    </div>
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="incentiveForm.get('basicInfo.type')?.hasError('required')">
+                  Incentive type is required
+                </mat-error>
+              </mat-form-field>
+
+              <!-- Status -->
+              <mat-form-field appearance="outline">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="status">
+                  <mat-option value="draft">Draft</mat-option>
+                  <mat-option value="active">Active</mat-option>
+                  <mat-option value="paused">Paused</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+            </div>
+
+            <!-- Type Description -->
+            <mat-card *ngIf="getSelectedTypeDescription()" class="info-card">
+              <mat-card-content>
+                <div class="info-content">
+                  <mat-icon>info</mat-icon>
+                  <p>{{ getSelectedTypeDescription() }}</p>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </mat-step>
+
+        <!-- Rules Configuration Step -->
+        <mat-step [stepControl]="getRulesFormGroup()" [completed]="isStepValid(1)">
+          <ng-template matStepLabel>Rules & Triggers</ng-template>
+          
+          <div formGroupName="rules" class="step-content">
+            <div class="form-grid">
+              
+              <!-- Trigger Event -->
+              <mat-form-field appearance="outline">
+                <mat-label>Trigger Event</mat-label>
+                <mat-select formControlName="triggerEvent">
+                  <mat-option *ngFor="let event of triggerEvents" [value]="event.value">
+                    {{ event.label }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="incentiveForm.get('rules.triggerEvent')?.hasError('required')">
+                  Trigger event is required
+                </mat-error>
+              </mat-form-field>
+
+              <!-- Frequency -->
+              <mat-form-field appearance="outline">
+                <mat-label>Frequency</mat-label>
+                <mat-select formControlName="frequency">
+                  <mat-option *ngFor="let freq of frequencyOptions" [value]="freq.value">
+                    {{ freq.label }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="incentiveForm.get('rules.frequency')?.hasError('required')">
+                  Frequency is required
+                </mat-error>
+              </mat-form-field>
+
+            </div>
+
+            <!-- Conditions Section -->
+            <div class="conditions-section">
+              <div class="section-header">
+                <h4>Additional Conditions</h4>
+                <button mat-stroked-button type="button" (click)="addCondition()">
+                  <mat-icon>add</mat-icon>
+                  Add Condition
+                </button>
+              </div>
+
+              <div formArrayName="conditions" class="conditions-list">
+                <div *ngFor="let condition of conditionsArray.controls; let i = index" 
+                     [formGroupName]="i" class="condition-item">
+                  <mat-card>
+                    <mat-card-content>
+                      <div class="condition-form">
+                        <mat-form-field appearance="outline">
+                          <mat-label>Field</mat-label>
+                          <input matInput formControlName="field" placeholder="e.g., user_type, ride_amount">
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline">
+                          <mat-label>Operator</mat-label>
+                          <mat-select formControlName="operator">
+                            <mat-option value="equals">Equals</mat-option>
+                            <mat-option value="greater_than">Greater Than</mat-option>
+                            <mat-option value="less_than">Less Than</mat-option>
+                            <mat-option value="between">Between</mat-option>
+                            <mat-option value="in">In List</mat-option>
+                          </mat-select>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline">
+                          <mat-label>Value</mat-label>
+                          <input matInput formControlName="value" placeholder="Enter value">
+                        </mat-form-field>
+
+                        <button mat-icon-button type="button" (click)="removeCondition(i)" class="remove-btn">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </div>
+
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>Description</mat-label>
+                        <input matInput formControlName="description" 
+                               placeholder="Describe this condition">
+                      </mat-form-field>
+                    </mat-card-content>
+                  </mat-card>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-step>
+
+        <!-- Reward Configuration Step -->
+        <mat-step [stepControl]="getRewardsFormGroup()" [completed]="isStepValid(2)">
+          <ng-template matStepLabel>Reward Configuration</ng-template>
+          
+          <div formGroupName="rewards" class="step-content">
+            <div class="form-grid">
+              
+              <!-- Reward Type -->
+              <mat-form-field appearance="outline">
+                <mat-label>Reward Type</mat-label>
+                <mat-select formControlName="type">
+                  <mat-option *ngFor="let type of rewardTypes" 
+                              [value]="type.value"
+                              [disabled]="!isRewardTypeApplicable(type.value)">
+                    {{ type.label }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="incentiveForm.get('rewards.type')?.hasError('required')">
+                  Reward type is required
+                </mat-error>
+              </mat-form-field>
+
+              <!-- Reward Value -->
+              <mat-form-field appearance="outline">
+                <mat-label>Reward Value</mat-label>
+                <input matInput type="number" formControlName="value" 
+                       placeholder="Enter reward value" min="0">
+                <span matPrefix *ngIf="incentiveForm.get('rewards.type')?.value === 'fixed_amount'">$</span>
+                <span matSuffix *ngIf="incentiveForm.get('rewards.type')?.value === 'percentage'">%</span>
+                <span matSuffix *ngIf="incentiveForm.get('rewards.type')?.value === 'points'">pts</span>
+                <mat-error *ngIf="incentiveForm.get('rewards.value')?.hasError('required')">
+                  Reward value is required
+                </mat-error>
+                <mat-error *ngIf="incentiveForm.get('rewards.value')?.hasError('min')">
+                  Value must be greater than 0
+                </mat-error>
+              </mat-form-field>
+
+              <!-- Max Value (for percentage rewards) -->
+              <mat-form-field appearance="outline" 
+                              *ngIf="incentiveForm.get('rewards.type')?.value === 'percentage'">
+                <mat-label>Maximum Value</mat-label>
+                <input matInput type="number" formControlName="maxValue" 
+                       placeholder="Optional maximum cap">
+                <span matPrefix>$</span>
+              </mat-form-field>
+
+              <!-- Currency -->
+              <mat-form-field appearance="outline" 
+                              *ngIf="incentiveForm.get('rewards.type')?.value === 'fixed_amount'">
+                <mat-label>Currency</mat-label>
+                <mat-select formControlName="currency">
+                  <mat-option value="USD">USD ($)</mat-option>
+                  <mat-option value="EUR">EUR (€)</mat-option>
+                  <mat-option value="GBP">GBP (£)</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+            </div>
+
+            <!-- Reward Preview -->
+            <mat-card class="preview-card">
+              <mat-card-header>
+                <mat-card-title>Reward Preview</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="reward-preview">
+                  <div class="preview-item">
+                    <span class="label">Type:</span>
+                    <span class="value">{{ getRewardTypeLabel() }}</span>
+                  </div>
+                  <div class="preview-item" *ngIf="getRewardValue()">
+                    <span class="label">Value:</span>
+                    <span class="value">
+                      <span *ngIf="getRewardType() === 'fixed_amount'">
+                        ${{ getRewardValue() }}
+                      </span>
+                      <span *ngIf="getRewardType() === 'percentage'">
+                        {{ getRewardValue() }}%
+                      </span>
+                      <span *ngIf="getRewardType() === 'points'">
+                        {{ getRewardValue() }} points
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </mat-step>
+
+        <!-- Eligibility Criteria Step -->
+        <mat-step [stepControl]="getEligibilityFormGroup()" [completed]="isStepValid(3)">
+          <ng-template matStepLabel>Eligibility</ng-template>
+          
+          <div formGroupName="eligibility" class="step-content">
+            <div class="form-grid">
+              
+              <!-- User Types -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Eligible User Types</mat-label>
+                <mat-select formControlName="userTypes" multiple>
+                  <mat-option value="new_user">New Users</mat-option>
+                  <mat-option value="existing_user">Existing Users</mat-option>
+                  <mat-option value="premium_user">Premium Users</mat-option>
+                  <mat-option value="all_users">All Users</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <!-- Minimum Rides -->
+              <mat-form-field appearance="outline">
+                <mat-label>Minimum Rides</mat-label>
+                <input matInput type="number" formControlName="minRides" 
+                       placeholder="Optional" min="0">
+                <mat-hint>Leave empty for no minimum</mat-hint>
+              </mat-form-field>
+
+              <!-- Minimum Spending -->
+              <mat-form-field appearance="outline">
+                <mat-label>Minimum Spending</mat-label>
+                <input matInput type="number" formControlName="minSpending" 
+                       placeholder="Optional" min="0">
+                <span matPrefix>$</span>
+                <mat-hint>Leave empty for no minimum</mat-hint>
+              </mat-form-field>
+
+            </div>
+
+            <!-- Additional Options -->
+            <div class="eligibility-options">
+              <mat-checkbox formControlName="excludeExistingPromotions">
+                Exclude users with existing active promotions
+              </mat-checkbox>
+            </div>
+          </div>
+        </mat-step>
+
+        <!-- Budget & Limitations Step -->
+        <mat-step [stepControl]="getBudgetFormGroup()" [completed]="isStepValid(4)">
+          <ng-template matStepLabel>Budget & Limits</ng-template>
+          
+          <div formGroupName="budget" class="step-content">
+            <div class="form-grid">
+              
+              <!-- Total Budget -->
+              <mat-form-field appearance="outline">
+                <mat-label>Total Budget</mat-label>
+                <input matInput type="number" formControlName="totalBudget" 
+                       placeholder="Enter total budget" min="1">
+                <span matPrefix>$</span>
+                <mat-error *ngIf="incentiveForm.get('budget.totalBudget')?.hasError('required')">
+                  Total budget is required
+                </mat-error>
+                <mat-error *ngIf="incentiveForm.get('budget.totalBudget')?.hasError('min')">
+                  Budget must be at least $1
+                </mat-error>
+              </mat-form-field>
+
+              <!-- Max Redemptions Per User -->
+              <mat-form-field appearance="outline">
+                <mat-label>Max Uses Per User</mat-label>
+                <input matInput type="number" formControlName="maxRedemptionsPerUser" 
+                       placeholder="Optional" min="1">
+                <mat-hint>Leave empty for unlimited</mat-hint>
+              </mat-form-field>
+
+              <!-- Max Total Redemptions -->
+              <mat-form-field appearance="outline">
+                <mat-label>Max Total Uses</mat-label>
+                <input matInput type="number" formControlName="maxTotalRedemptions" 
+                       placeholder="Optional" min="1">
+                <mat-hint>Leave empty for unlimited</mat-hint>
+              </mat-form-field>
+
+              <!-- Daily Limit -->
+              <mat-form-field appearance="outline">
+                <mat-label>Daily Limit</mat-label>
+                <input matInput type="number" formControlName="dailyLimit" 
+                       placeholder="Optional" min="1">
+                <mat-hint>Max redemptions per day</mat-hint>
+              </mat-form-field>
+
+              <!-- Monthly Limit -->
+              <mat-form-field appearance="outline">
+                <mat-label>Monthly Limit</mat-label>
+                <input matInput type="number" formControlName="monthlyLimit" 
+                       placeholder="Optional" min="1">
+                <mat-hint>Max redemptions per month</mat-hint>
+              </mat-form-field>
+
+            </div>
+
+            <!-- Budget Calculations -->
+            <mat-card class="calculations-card">
+              <mat-card-header>
+                <mat-card-title>Budget Calculations</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="calculation-grid">
+                  <div class="calc-item">
+                    <span class="calc-label">Estimated Cost:</span>
+                    <span class="calc-value">${{ calculateEstimatedCost() | number:'1.2-2' }}</span>
+                  </div>
+                  <div class="calc-item">
+                    <span class="calc-label">Potential Reach:</span>
+                    <span class="calc-value">{{ calculatePotentialReach() | number }} users</span>
+                  </div>
+                  <div class="calc-item">
+                    <span class="calc-label">Cost Per User:</span>
+                    <span class="calc-value">
+                      ${{ (calculateEstimatedCost() / (calculatePotentialReach() || 1)) | number:'1.2-2' }}
+                    </span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </mat-step>
+
+        <!-- Validity Period Step -->
+        <mat-step [stepControl]="getValidityFormGroup()" [completed]="isStepValid(5)">
+          <ng-template matStepLabel>Validity Period</ng-template>
+          
+          <div formGroupName="validity" class="step-content">
+            <div class="form-grid">
+              
+              <!-- Valid From -->
+              <mat-form-field appearance="outline">
+                <mat-label>Valid From</mat-label>
+                <input matInput [matDatepicker]="startPicker" formControlName="validFrom">
+                <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+                <mat-datepicker #startPicker></mat-datepicker>
+                <mat-error *ngIf="incentiveForm.get('validity.validFrom')?.hasError('required')">
+                  Start date is required
+                </mat-error>
+              </mat-form-field>
+
+              <!-- Valid To -->
+              <mat-form-field appearance="outline">
+                <mat-label>Valid To</mat-label>
+                <input matInput [matDatepicker]="endPicker" formControlName="validTo">
+                <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+                <mat-datepicker #endPicker></mat-datepicker>
+                <mat-error *ngIf="incentiveForm.get('validity.validTo')?.hasError('required')">
+                  End date is required
+                </mat-error>
+              </mat-form-field>
+
+            </div>
+
+            <!-- Period Summary -->
+            <mat-card class="period-card" 
+                      *ngIf="incentiveForm.get('validity.validFrom')?.value && incentiveForm.get('validity.validTo')?.value">
+              <mat-card-content>
+                <div class="period-summary">
+                  <mat-icon>schedule</mat-icon>
+                  <div class="period-info">
+                    <p><strong>Campaign Duration:</strong> 
+                      {{ 
+                        (incentiveForm.get('validity.validTo')?.value?.getTime() - 
+                         incentiveForm.get('validity.validFrom')?.value?.getTime()) / 
+                        (1000 * 60 * 60 * 24) | number:'1.0-0' 
+                      }} days
+                    </p>
+                    <p class="date-range">
+                      {{ incentiveForm.get('validity.validFrom')?.value | date:'mediumDate' }} - 
+                      {{ incentiveForm.get('validity.validTo')?.value | date:'mediumDate' }}
+                    </p>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </mat-step>
+
+      </mat-stepper>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="dialog-actions">
+    <div class="actions-container">
+      <div class="secondary-actions">
+        <button mat-button (click)="onCancel()">Cancel</button>
+      </div>
+      
+      <div class="primary-actions">
+        <button mat-button 
+                *ngIf="stepper.selectedIndex > 0" 
+                (click)="stepper.previous()">
+          Previous
+        </button>
+        
+        <button mat-button 
+                *ngIf="stepper.selectedIndex < 5" 
+                (click)="stepper.next()"
+                [disabled]="!isStepValid(stepper.selectedIndex)">
+          Next
+        </button>
+        
+        <button mat-raised-button 
+                color="primary" 
+                *ngIf="stepper.selectedIndex === 5"
+                (click)="onSubmit()" 
+                [disabled]="!incentiveForm.valid || isLoading">
+          <mat-icon *ngIf="isLoading" class="loading-spinner">refresh</mat-icon>
+          {{ isEditMode ? 'Update Incentive' : 'Create Incentive' }}
+        </button>
+      </div>
+    </div>
+  </mat-dialog-actions>
+</div>

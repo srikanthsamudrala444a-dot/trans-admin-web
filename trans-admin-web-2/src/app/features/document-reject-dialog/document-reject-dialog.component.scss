@@ -1,0 +1,24 @@
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+}
+
+.reject-dialog-content {
+  min-width: 400px;
+  padding: 20px 24px;
+}
+
+.reject-dialog-content p {
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.reject-dialog-content mat-form-field {
+  width: 100%;
+}
+
+mat-dialog-actions {
+  padding: 16px 24px;
+}

@@ -1,0 +1,625 @@
+<!-- Financial Incentives Management Dashboard -->
+<div class="financial-incentives-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="page-title">
+      <h1>
+        <mat-icon>card_giftcard</mat-icon>
+        Financial Incentives Management
+      </h1>
+      <p class="subtitle">Manage loyalty programs, cashback offers, and user rewards</p>
+    </div>
+    
+    <!-- Analytics Cards -->
+    <div class="analytics-grid" *ngIf="analytics">
+      <mat-card class="analytics-card">
+        <mat-card-content>
+          <div class="metric">
+            <mat-icon class="metric-icon active">trending_up</mat-icon>
+            <div class="metric-content">
+              <span class="metric-label">Total Redemptions</span>
+              <span class="metric-value">{{ analytics.totalRedemptions | number }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="analytics-card">
+        <mat-card-content>
+          <div class="metric">
+            <mat-icon class="metric-icon cost">attach_money</mat-icon>
+            <div class="metric-content">
+              <span class="metric-label">Total Cost</span>
+              <span class="metric-value">{{ formatCurrency(analytics.totalCost) }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="analytics-card">
+        <mat-card-content>
+          <div class="metric">
+            <mat-icon class="metric-icon roi">bar_chart</mat-icon>
+            <div class="metric-content">
+              <span class="metric-label">Average ROI</span>
+              <span class="metric-value">{{ formatPercentage(analytics.averageROI) }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="analytics-card">
+        <mat-card-content>
+          <div class="metric">
+            <mat-icon class="metric-icon active">people</mat-icon>
+            <div class="metric-content">
+              <span class="metric-label">Active Programs</span>
+              <span class="metric-value">{{ analytics.activePrograms | number }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <mat-tab-group [(selectedIndex)]="selectedTabIndex" (selectedTabChange)="onTabChange($event.index)">
+    
+    <!-- Incentives Management Tab -->
+    <mat-tab label="Incentives">
+      <ng-template matTabContent>
+        <div class="tab-content">
+          
+          <!-- Filters Section -->
+          <mat-card class="filters-card">
+            <mat-card-header>
+              <mat-card-title>Filters & Search</mat-card-title>
+              <div class="header-actions">
+                <button mat-stroked-button (click)="clearFilters()" class="clear-btn">
+                  <mat-icon>clear</mat-icon>
+                  Clear All
+                </button>
+                <button mat-raised-button color="primary" (click)="createIncentive()" class="create-btn">
+                  <mat-icon>add</mat-icon>
+                  New Incentive
+                </button>
+              </div>
+            </mat-card-header>
+            
+            <mat-card-content>
+              <form [formGroup]="filterForm" class="filters-form">
+                <div class="filter-row">
+                  
+                  <!-- Search -->
+                  <mat-form-field appearance="outline" class="search-field">
+                    <mat-label>Search incentives...</mat-label>
+                    <input matInput 
+                           formControlName="searchQuery" 
+                           placeholder="Search by name, description...">
+                    <mat-icon matSuffix>search</mat-icon>
+                  </mat-form-field>
+
+                  <!-- Status Filter -->
+                  <mat-form-field appearance="outline">
+                    <mat-label>Status</mat-label>
+                    <mat-select formControlName="status" multiple>
+                      <mat-option *ngFor="let status of incentiveStatuses" [value]="status.value">
+                        {{ status.label }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <!-- Type Filter -->
+                  <mat-form-field appearance="outline">
+                    <mat-label>Incentive Type</mat-label>
+                    <mat-select formControlName="type" multiple>
+                      <mat-option *ngFor="let type of incentiveTypes" [value]="type.value">
+                        {{ type.label }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                </div>
+
+                <div class="filter-row">
+                  
+                  <!-- Date Range -->
+                  <div formGroupName="dateRange" class="date-range-group">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Start Date</mat-label>
+                      <input matInput [matDatepicker]="startPicker" formControlName="startDate">
+                      <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+                      <mat-datepicker #startPicker></mat-datepicker>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                      <mat-label>End Date</mat-label>
+                      <input matInput [matDatepicker]="endPicker" formControlName="endDate">
+                      <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+                      <mat-datepicker #endPicker></mat-datepicker>
+                    </mat-form-field>
+                  </div>
+
+                  <!-- Budget Range -->
+                  <div formGroupName="budgetRange" class="budget-range-group">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Min Budget</mat-label>
+                      <input matInput type="number" formControlName="min" placeholder="0">
+                      <span matPrefix>$</span>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                      <mat-label>Max Budget</mat-label>
+                      <input matInput type="number" formControlName="max" placeholder="No limit">
+                      <span matPrefix>$</span>
+                    </mat-form-field>
+                  </div>
+
+                </div>
+              </form>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Actions Bar -->
+          <div class="actions-bar">
+            <div class="results-info">
+              <span>Showing {{ incentivesDataSource.data.length }} of {{ totalItems }} incentives</span>
+            </div>
+            <div class="actions">
+              <button mat-stroked-button (click)="exportIncentivesData()">
+                <mat-icon>file_download</mat-icon>
+                Export Data
+              </button>
+            </div>
+          </div>
+
+          <!-- Incentives Table -->
+          <mat-card class="table-card">
+            <div class="table-container">
+              <table mat-table [dataSource]="incentivesDataSource" matSort class="incentives-table">
+
+                <!-- Name Column -->
+                <ng-container matColumnDef="name">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+                  <td mat-cell *matCellDef="let incentive">
+                    <div class="incentive-name">
+                      <mat-icon [class]="'type-icon ' + incentive.type">{{ getTypeIcon(incentive.type) }}</mat-icon>
+                      <div class="name-content">
+                        <span class="name">{{ incentive.name }}</span>
+                        <span class="description">{{ incentive.description }}</span>
+                      </div>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- Type Column -->
+                <ng-container matColumnDef="type">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
+                  <td mat-cell *matCellDef="let incentive">
+                    <mat-chip [class]="'type-chip ' + incentive.type">
+                      {{ getIncentiveTypeLabel(incentive.type) }}
+                    </mat-chip>
+                  </td>
+                </ng-container>
+
+                <!-- Status Column -->
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+                  <td mat-cell *matCellDef="let incentive">
+                    <mat-chip [color]="getStatusColor(incentive.status)" selected>
+                      {{ incentive.status | titlecase }}
+                    </mat-chip>
+                  </td>
+                </ng-container>
+
+                <!-- Redemptions Column -->
+                <ng-container matColumnDef="redemptions">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Redemptions</th>
+                  <td mat-cell *matCellDef="let incentive">
+                    <div class="redemptions-cell">
+                      <span class="count">{{ incentive.performance.totalRedemptions | number }}</span>
+                      <mat-progress-bar 
+                        mode="determinate" 
+                        [value]="(incentive.performance.totalRedemptions / incentive.budget.totalBudget) * 100"
+                        class="usage-bar">
+                      </mat-progress-bar>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- Cost Column -->
+                <ng-container matColumnDef="cost">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Cost</th>
+                  <td mat-cell *matCellDef="let incentive">
+                    <div class="cost-cell">
+                      <span class="spent">{{ formatCurrency(incentive.performance.totalCost) }}</span>
+                      <span class="budget">/ {{ formatCurrency(incentive.budget.totalBudget) }}</span>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- ROI Column -->
+                <ng-container matColumnDef="roi">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>ROI</th>
+                  <td mat-cell *matCellDef="let incentive">
+                    <span [class]="'roi-value ' + (incentive.performance.roi > 0 ? 'positive' : 'negative')">
+                      {{ formatPercentage(incentive.performance.roi) }}
+                    </span>
+                  </td>
+                </ng-container>
+
+                <!-- Valid Period Column -->
+                <ng-container matColumnDef="validPeriod">
+                  <th mat-header-cell *matHeaderCellDef>Valid Period</th>
+                  <td mat-cell *matCellDef="let incentive">
+                    <div class="date-range">
+                      <span>{{ formatDate(incentive.validFrom) }}</span>
+                      <mat-icon class="date-separator">arrow_forward</mat-icon>
+                      <span>{{ formatDate(incentive.validTo) }}</span>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- Actions Column -->
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef>Actions</th>
+                  <td mat-cell *matCellDef="let incentive">
+                    <div class="actions-cell">
+                      <button mat-icon-button [matMenuTriggerFor]="actionMenu">
+                        <mat-icon>more_vert</mat-icon>
+                      </button>
+                      
+                      <mat-menu #actionMenu="matMenu">
+                        <button mat-menu-item (click)="editIncentive(incentive)">
+                          <mat-icon>edit</mat-icon>
+                          Edit
+                        </button>
+                        <button mat-menu-item (click)="duplicateIncentive(incentive)">
+                          <mat-icon>content_copy</mat-icon>
+                          Duplicate
+                        </button>
+                        <button mat-menu-item (click)="toggleIncentiveStatus(incentive)">
+                          <mat-icon>{{ incentive.status === 'active' ? 'pause' : 'play_arrow' }}</mat-icon>
+                          {{ incentive.status === 'active' ? 'Pause' : 'Activate' }}
+                        </button>
+                        <mat-divider></mat-divider>
+                        <button mat-menu-item (click)="deleteIncentive(incentive)" class="delete-action">
+                          <mat-icon>delete</mat-icon>
+                          Delete
+                        </button>
+                      </mat-menu>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+              </table>
+
+              <!-- Loading Spinner -->
+              <div *ngIf="isLoading" class="loading-container">
+                <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+                <p>Loading incentives...</p>
+              </div>
+
+              <!-- No Data Message -->
+              <div *ngIf="!isLoading && incentivesDataSource.data.length === 0" class="no-data-container">
+                <mat-icon class="no-data-icon">card_giftcard</mat-icon>
+                <h3>No incentives found</h3>
+                <p>Create your first incentive program to get started</p>
+                <button mat-raised-button color="primary" (click)="createIncentive()">
+                  <mat-icon>add</mat-icon>
+                  Create Incentive
+                </button>
+              </div>
+            </div>
+
+            <!-- Pagination -->
+            <mat-paginator 
+              [length]="totalItems"
+              [pageSize]="pageSize"
+              [pageSizeOptions]="[5, 10, 25, 50]"
+              (page)="onPageChange($event)"
+              showFirstLastButtons>
+            </mat-paginator>
+          </mat-card>
+
+        </div>
+      </ng-template>
+    </mat-tab>
+
+    <!-- Loyalty Programs Tab -->
+    <mat-tab label="Loyalty Programs">
+      <ng-template matTabContent>
+        <div class="tab-content">
+          
+          <!-- Loyalty Programs Header -->
+          <div class="section-header">
+            <h2>Loyalty Programs</h2>
+            <button mat-raised-button color="primary">
+              <mat-icon>add</mat-icon>
+              New Loyalty Program
+            </button>
+          </div>
+
+          <!-- Loyalty Programs Grid -->
+          <div class="programs-grid">
+            <mat-card *ngFor="let program of loyaltyPrograms" class="program-card loyalty-card">
+              <mat-card-header>
+                <mat-icon mat-card-avatar class="program-avatar loyalty">stars</mat-icon>
+                <mat-card-title>{{ program.name }}</mat-card-title>
+                <mat-card-subtitle>{{ program.description }}</mat-card-subtitle>
+              </mat-card-header>
+              
+              <mat-card-content>
+                <div class="program-stats">
+                  <div class="stat">
+                    <span class="label">Active Members</span>
+                    <span class="value">{{ program.activeMembers | number }}</span>
+                  </div>
+                  <div class="stat">
+                    <span class="label">Points Earned</span>
+                    <span class="value">{{ program.totalPointsEarned | number }}</span>
+                  </div>
+                  <div class="stat">
+                    <span class="label">Points Redeemed</span>
+                    <span class="value">{{ program.totalPointsRedeemed | number }}</span>
+                  </div>
+                </div>
+                
+                <div class="program-tiers">
+                  <h4>Tier Structure</h4>
+                  <div class="tiers-list">
+                    <div *ngFor="let tier of program.tiers" class="tier-item">
+                      <span class="tier-name">{{ tier.name }}</span>
+                      <span class="tier-threshold">{{ tier.pointsRequired }} pts</span>
+                    </div>
+                  </div>
+                </div>
+              </mat-card-content>
+              
+              <mat-card-actions>
+                <button mat-button>
+                  <mat-icon>edit</mat-icon>
+                  Edit
+                </button>
+                <button mat-button>
+                  <mat-icon>analytics</mat-icon>
+                  Analytics
+                </button>
+                <button mat-button [matMenuTriggerFor]="loyaltyMenu">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                
+                <mat-menu #loyaltyMenu="matMenu">
+                  <button mat-menu-item>
+                    <mat-icon>content_copy</mat-icon>
+                    Duplicate
+                  </button>
+                  <button mat-menu-item>
+                    <mat-icon>pause</mat-icon>
+                    Pause
+                  </button>
+                  <mat-divider></mat-divider>
+                  <button mat-menu-item class="delete-action">
+                    <mat-icon>delete</mat-icon>
+                    Delete
+                  </button>
+                </mat-menu>
+              </mat-card-actions>
+            </mat-card>
+          </div>
+
+        </div>
+      </ng-template>
+    </mat-tab>
+
+    <!-- Referral Programs Tab -->
+    <mat-tab label="Referral Programs">
+      <ng-template matTabContent>
+        <div class="tab-content">
+          
+          <!-- Referral Programs Header -->
+          <div class="section-header">
+            <h2>Referral Programs</h2>
+            <button mat-raised-button color="primary">
+              <mat-icon>add</mat-icon>
+              New Referral Program
+            </button>
+          </div>
+
+          <!-- Referral Programs Grid -->
+          <div class="programs-grid">
+            <mat-card *ngFor="let program of referralPrograms" class="program-card referral-card">
+              <mat-card-header>
+                <mat-icon mat-card-avatar class="program-avatar referral">people</mat-icon>
+                <mat-card-title>{{ program.name }}</mat-card-title>
+                <mat-card-subtitle>{{ program.description }}</mat-card-subtitle>
+              </mat-card-header>
+              
+              <mat-card-content>
+                <div class="program-stats">
+                  <div class="stat">
+                    <span class="label">Total Referrals</span>
+                    <span class="value">{{ program.totalReferrals | number }}</span>
+                  </div>
+                  <div class="stat">
+                    <span class="label">Successful</span>
+                    <span class="value">{{ program.successfulReferrals | number }}</span>
+                  </div>
+                  <div class="stat">
+                    <span class="label">Conversion Rate</span>
+                    <span class="value">{{ formatPercentage(program.conversionRate) }}</span>
+                  </div>
+                </div>
+                
+                <div class="referral-rewards">
+                  <h4>Reward Structure</h4>
+                  <div class="rewards-info">
+                    <div class="reward-item">
+                      <mat-icon>person</mat-icon>
+                      <span>Referrer: {{ getRewardValue(program.referrerReward) }}</span>
+                    </div>
+                    <div class="reward-item">
+                      <mat-icon>person_add</mat-icon>
+                      <span>Referee: {{ getRewardValue(program.refereeReward) }}</span>
+                    </div>
+                  </div>
+                </div>
+              </mat-card-content>
+              
+              <mat-card-actions>
+                <button mat-button>
+                  <mat-icon>edit</mat-icon>
+                  Edit
+                </button>
+                <button mat-button>
+                  <mat-icon>analytics</mat-icon>
+                  Analytics
+                </button>
+                <button mat-button [matMenuTriggerFor]="referralMenu">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                
+                <mat-menu #referralMenu="matMenu">
+                  <button mat-menu-item>
+                    <mat-icon>content_copy</mat-icon>
+                    Duplicate
+                  </button>
+                  <button mat-menu-item>
+                    <mat-icon>pause</mat-icon>
+                    Pause
+                  </button>
+                  <mat-divider></mat-divider>
+                  <button mat-menu-item class="delete-action">
+                    <mat-icon>delete</mat-icon>
+                    Delete
+                  </button>
+                </mat-menu>
+              </mat-card-actions>
+            </mat-card>
+          </div>
+
+        </div>
+      </ng-template>
+    </mat-tab>
+
+    <!-- Analytics Tab -->
+    <mat-tab label="Analytics">
+      <ng-template matTabContent>
+        <div class="tab-content">
+          
+          <!-- Analytics Header -->
+          <div class="section-header">
+            <h2>Incentives Analytics</h2>
+            <div class="analytics-actions">
+              <mat-form-field appearance="outline" class="period-selector">
+                <mat-label>Time Period</mat-label>
+                <mat-select value="30">
+                  <mat-option value="7">Last 7 days</mat-option>
+                  <mat-option value="30">Last 30 days</mat-option>
+                  <mat-option value="90">Last 90 days</mat-option>
+                  <mat-option value="365">Last year</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Analytics Content -->
+          <div class="analytics-content" *ngIf="analytics">
+            
+            <!-- Performance Metrics -->
+            <div class="metrics-section">
+              <h3>Performance Overview</h3>
+              <div class="analytics-grid">
+                
+                <mat-card class="metric-card">
+                  <mat-card-content>
+                    <div class="metric-header">
+                      <mat-icon>trending_up</mat-icon>
+                      <h4>Total Revenue Impact</h4>
+                    </div>
+                    <div class="metric-value large">
+                      {{ formatCurrency(analytics.totalRevenueImpact) }}
+                    </div>
+                    <div class="metric-change positive">
+                      <mat-icon>arrow_upward</mat-icon>
+                      +15.3% from last period
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+
+                <mat-card class="metric-card">
+                  <mat-card-content>
+                    <div class="metric-header">
+                      <mat-icon>people</mat-icon>
+                      <h4>User Engagement</h4>
+                    </div>
+                    <div class="metric-value large">
+                      {{ formatPercentage(analytics.userEngagementRate) }}
+                    </div>
+                    <div class="metric-change positive">
+                      <mat-icon>arrow_upward</mat-icon>
+                      +8.7% engagement boost
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+
+                <mat-card class="metric-card">
+                  <mat-card-content>
+                    <div class="metric-header">
+                      <mat-icon>repeat</mat-icon>
+                      <h4>Retention Rate</h4>
+                    </div>
+                    <div class="metric-value large">
+                      {{ formatPercentage(analytics.retentionRate) }}
+                    </div>
+                    <div class="metric-change positive">
+                      <mat-icon>arrow_upward</mat-icon>
+                      +12.1% retention increase
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+
+              </div>
+            </div>
+
+            <!-- Top Performing Incentives -->
+            <mat-card class="top-performers-card">
+              <mat-card-header>
+                <mat-card-title>Top Performing Incentives</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="performers-list">
+                  <div *ngFor="let incentive of analytics.topPerformers" class="performer-item">
+                    <div class="performer-info">
+                      <mat-icon [class]="'performer-icon ' + incentive.type">{{ getTypeIcon(incentive.type) }}</mat-icon>
+                      <div class="performer-details">
+                        <span class="performer-name">{{ incentive.name }}</span>
+                        <span class="performer-type">{{ getIncentiveTypeLabel(incentive.type) }}</span>
+                      </div>
+                    </div>
+                    <div class="performer-metrics">
+                      <div class="metric-item">
+                        <span class="metric-label">ROI</span>
+                        <span class="metric-value">{{ formatPercentage(incentive.roi) }}</span>
+                      </div>
+                      <div class="metric-item">
+                        <span class="metric-label">Usage</span>
+                        <span class="metric-value">{{ incentive.redemptions | number }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+          </div>
+
+        </div>
+      </ng-template>
+    </mat-tab>
+
+  </mat-tab-group>
+
+</div>

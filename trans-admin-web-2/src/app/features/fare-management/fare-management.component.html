@@ -1,0 +1,309 @@
+<div class="fare-management">
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <mat-icon>attach_money</mat-icon>
+        Fare & Tariff Management
+      </h1>
+      <p class="page-description">
+        Configure base fares, per-kilometer/minute charges, minimum fares, and waiting charges for different vehicle categories.
+      </p>
+    </div>
+    <div class="header-actions">
+      <button mat-raised-button color="primary" (click)="onAddVehicleCategory()">
+        <mat-icon>add</mat-icon>
+        Add Vehicle Category
+      </button>
+      <button mat-raised-button color="accent" (click)="onAddFareStructure()">
+        <mat-icon>add_circle</mat-icon>
+        Add Fare Structure
+      </button>
+    </div>
+  </div>
+
+  <div class="loading-state" *ngIf="isLoading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading fare management data...</p>
+  </div>
+
+  <mat-tab-group 
+    class="fare-tabs" 
+    *ngIf="!isLoading"
+    [selectedIndex]="selectedTabIndex"
+    (selectedTabChange)="onTabChanged($event.index)">
+    
+    <!-- Vehicle Categories Tab -->
+    <mat-tab label="Vehicle Categories">
+      <div class="tab-content">
+        <mat-card class="content-card">
+          <mat-card-header>
+            <mat-card-title>Vehicle Categories</mat-card-title>
+            <mat-card-subtitle>Manage different types of vehicles and their specifications</mat-card-subtitle>
+            <div class="card-actions">
+              <button mat-icon-button (click)="onAddVehicleCategory()">
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="vehicle-categories-grid" *ngIf="vehicleCategories.length > 0; else noCategories">
+              <div 
+                class="vehicle-category-card" 
+                *ngFor="let category of vehicleCategories"
+                [class.inactive]="!category.isActive">
+                <div class="category-header">
+                  <div class="category-info">
+                    <mat-icon class="category-icon">{{ category.icon }}</mat-icon>
+                    <div class="category-details">
+                      <h3>{{ category.name }}</h3>
+                      <mat-chip 
+                        [class]="category.isActive ? 'active-chip' : 'inactive-chip'"
+                        [disabled]="!category.isActive">
+                        {{ category.isActive ? 'Active' : 'Inactive' }}
+                      </mat-chip>
+                    </div>
+                  </div>
+                  <div class="category-actions">
+                    <button mat-icon-button (click)="onEditVehicleCategory(category)">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="onDeleteVehicleCategory(category)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+                <div class="category-description">{{ category.description }}</div>
+                <div class="category-specs">
+                  <div class="spec-item">
+                    <span class="label">Capacity:</span>
+                    <span class="value">{{ category.capacity }} passengers</span>
+                  </div>
+                  <div class="spec-item">
+                    <span class="label">Features:</span>
+                    <span class="value">{{ category.features.length }} items</span>
+                  </div>
+                </div>
+                <div class="category-features">
+                  <mat-chip-listbox>
+                    <mat-chip *ngFor="let feature of category.features">{{ feature }}</mat-chip>
+                  </mat-chip-listbox>
+                </div>
+              </div>
+            </div>
+            <ng-template #noCategories>
+              <div class="empty-state">
+                <mat-icon>directions_car</mat-icon>
+                <h3>No Vehicle Categories</h3>
+                <p>Start by adding vehicle categories to manage your fleet</p>
+                <button mat-raised-button color="primary" (click)="onAddVehicleCategory()">
+                  <mat-icon>add</mat-icon>
+                  Add First Category
+                </button>
+              </div>
+            </ng-template>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+    <!-- Fare Structures Tab -->
+    <mat-tab label="Fare Structures">
+      <div class="tab-content">
+        <mat-card class="content-card">
+          <mat-card-header>
+            <mat-card-title>Fare Structures</mat-card-title>
+            <mat-card-subtitle>Configure pricing for each vehicle category</mat-card-subtitle>
+            <div class="card-actions">
+              <button mat-icon-button (click)="onAddFareStructure()">
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="fare-structures-grid" *ngIf="fareStructures.length > 0; else noFareStructures">
+              <div 
+                class="fare-structure-card" 
+                *ngFor="let structure of fareStructures"
+                [class.inactive]="!structure.isActive">
+                <div class="structure-header">
+                  <div class="vehicle-info">
+                    <mat-icon>{{ structure.vehicleCategory.icon }}</mat-icon>
+                    <div class="vehicle-details">
+                      <h3>{{ structure.vehicleCategory.name }}</h3>
+                      <mat-chip 
+                        [class]="structure.isActive ? 'active-chip' : 'inactive-chip'"
+                        [disabled]="!structure.isActive">
+                        {{ structure.isActive ? 'Active' : 'Inactive' }}
+                      </mat-chip>
+                    </div>
+                  </div>
+                  <div class="structure-actions">
+                    <button mat-icon-button (click)="onEditFareStructure(structure)">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="onDeleteFareStructure(structure)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+                
+                <div class="fare-breakdown">
+                  <div class="fare-grid">
+                    <div class="fare-item">
+                      <span class="fare-label">Base Fare</span>
+                      <span class="fare-value">${{ structure.baseFare | number:'1.2-2' }}</span>
+                    </div>
+                    <div class="fare-item">
+                      <span class="fare-label">Per Kilometer</span>
+                      <span class="fare-value">${{ structure.perKilometerCharge | number:'1.2-2' }}</span>
+                    </div>
+                    <div class="fare-item">
+                      <span class="fare-label">Per Minute</span>
+                      <span class="fare-value">${{ structure.perMinuteCharge | number:'1.2-2' }}</span>
+                    </div>
+                    <div class="fare-item">
+                      <span class="fare-label">Minimum Fare</span>
+                      <span class="fare-value">${{ structure.minimumFare | number:'1.2-2' }}</span>
+                    </div>
+                    <div class="fare-item">
+                      <span class="fare-label">Waiting Charge</span>
+                      <span class="fare-value">${{ structure.waitingChargePerMinute | number:'1.2-2' }}/min</span>
+                    </div>
+                    <div class="fare-item">
+                      <span class="fare-label">Cancellation</span>
+                      <span class="fare-value">${{ structure.cancellationCharge | number:'1.2-2' }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="surcharge-info">
+                  <div class="surcharge-item">
+                    <span class="surcharge-label">Night Surcharge:</span>
+                    <span class="surcharge-value">{{ structure.nightSurcharge }}%</span>
+                  </div>
+                  <div class="surcharge-item">
+                    <span class="surcharge-label">Peak Hour Surcharge:</span>
+                    <span class="surcharge-value">{{ structure.peakHourSurcharge }}%</span>
+                  </div>
+                </div>
+
+                <div class="structure-meta">
+                  <small>Effective from: {{ structure.effectiveFrom | date:'short' }}</small>
+                  <small>Last updated: {{ structure.updatedAt | date:'short' }}</small>
+                </div>
+              </div>
+            </div>
+            <ng-template #noFareStructures>
+              <div class="empty-state">
+                <mat-icon>attach_money</mat-icon>
+                <h3>No Fare Structures</h3>
+                <p>Configure fare structures for your vehicle categories</p>
+                <button mat-raised-button color="primary" (click)="onAddFareStructure()">
+                  <mat-icon>add</mat-icon>
+                  Add First Structure
+                </button>
+              </div>
+            </ng-template>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+    <!-- Fare Calculator Tab -->
+    <mat-tab label="Fare Calculator" style="color: black;">
+      <div class="tab-content">
+        <mat-card class="content-card">
+          <mat-card-header>
+            <mat-card-title>Fare Calculator </mat-card-title>
+            <mat-card-subtitle>Test fare calculations for different scenarios</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="fare-calculator-container">
+              <p class="section-note">Fare calculator will be implemented here</p>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+    <!-- Analytics Tab -->
+    <mat-tab label="Analytics & Reports">
+      <div class="tab-content">
+        <mat-card class="content-card">
+          <mat-card-header>
+            <mat-card-title>Fare Analytics</mat-card-title>
+            <mat-card-subtitle>Revenue insights and fare performance metrics</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="analytics-container" *ngIf="analytics">
+              <div class="analytics-summary">
+                <div class="summary-grid">
+                  <div class="summary-item">
+                    <div class="summary-value">${{ analytics.totalRevenue | number:'1.2-2' }}</div>
+                    <div class="summary-label">Total Revenue</div>
+                  </div>
+                  <div class="summary-item">
+                    <div class="summary-value">{{ analytics.totalTrips | number }}</div>
+                    <div class="summary-label">Total Trips</div>
+                  </div>
+                  <div class="summary-item">
+                    <div class="summary-value">${{ (analytics.totalRevenue / analytics.totalTrips) | number:'1.2-2' }}</div>
+                    <div class="summary-label">Average Fare</div>
+                  </div>
+                  <div class="summary-item">
+                    <div class="summary-value">{{ analytics.popularCategories.length }}</div>
+                    <div class="summary-label">Active Categories</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="category-performance">
+                <h3>Category Performance</h3>
+                <div class="performance-grid">
+                  <div class="performance-card" *ngFor="let category of analytics.popularCategories">
+                    <h4>{{ category.categoryName }}</h4>
+                    <div class="performance-stats">
+                      <div class="perf-stat">
+                        <span class="label">Trips</span>
+                        <span class="value">{{ category.trips | number }}</span>
+                      </div>
+                      <div class="perf-stat">
+                        <span class="label">Revenue</span>
+                        <span class="value">${{ category.revenue | number:'1.2-2' }}</span>
+                      </div>
+                      <div class="perf-stat">
+                        <span class="label">Market Share</span>
+                        <span class="value">{{ category.percentage }}%</span>
+                      </div>
+                      <div class="perf-stat">
+                        <span class="label">Avg Fare</span>
+                        <span class="value">${{ (category.revenue / category.trips) | number:'1.2-2' }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+    <!-- Settings Tab -->
+    <mat-tab label="Settings">
+      <div class="tab-content">
+        <mat-card class="content-card">
+          <mat-card-header>
+            <mat-card-title>Fare Settings</mat-card-title>
+            <mat-card-subtitle>Global fare configuration and policies</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="settings-container">
+              <p class="section-note">Fare settings configuration will be implemented here</p>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

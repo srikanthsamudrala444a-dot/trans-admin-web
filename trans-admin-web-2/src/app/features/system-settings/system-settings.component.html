@@ -1,0 +1,830 @@
+<div class="system-settings-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="header-content">
+      <h1 class="page-title">
+        <mat-icon>settings</mat-icon>
+        System Settings
+      </h1>
+      <div class="header-controls">
+        <input #fileInput type="file" accept=".json" (change)="importSettings($event)" style="display: none;">
+        
+        <button mat-outlined-button (click)="fileInput.click()" [disabled]="loading">
+          <mat-icon>upload</mat-icon>
+          Import
+        </button>
+        
+        <button mat-raised-button color="accent" (click)="exportSettings()" [disabled]="loading">
+          <mat-icon>download</mat-icon>
+          Export
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-card class="loading-card">
+      <div class="loading-content">
+        <mat-spinner></mat-spinner>
+        <p>Loading system settings...</p>
+      </div>
+    </mat-card>
+  </div>
+
+  <!-- Debug Info -->
+  <div *ngIf="!loading" class="debug-info" style="background: #f5f5f5; padding: 1rem; margin: 1rem 0; border-radius: 4px;">
+    <p><strong>Debug Information:</strong></p>
+    <p>Loading: {{ loading }}</p>
+    <p>Settings Data Available: {{ !!settingsData }}</p>
+    <p>General Form Valid: {{ generalForm.valid }}</p>
+    <p>Component Initialized: System Settings component is loaded</p>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading" class="content-section">
+    
+    <mat-tab-group class="settings-tabs" animationDuration="300ms">
+      
+      <!-- General Settings Tab -->
+      <mat-tab label="General">
+        <div class="tab-content">
+          <form [formGroup]="generalForm" class="settings-form">
+            
+            <!-- Application Settings -->
+            <mat-card class="settings-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>info</mat-icon>
+                  Application Settings
+                </mat-card-title>
+                <mat-card-subtitle>Basic application configuration</mat-card-subtitle>
+              </mat-card-header>
+              
+              <mat-card-content>
+                <div class="form-grid">
+                  <mat-form-field appearance="outline">
+                    <mat-label>App Name</mat-label>
+                    <input matInput formControlName="appName" placeholder="Enter application name">
+                    <mat-error *ngIf="generalForm.get('appName')?.hasError('required')">
+                      App name is required
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>App Version</mat-label>
+                    <input matInput formControlName="appVersion" placeholder="e.g., 1.0.0">
+                    <mat-error *ngIf="generalForm.get('appVersion')?.hasError('required')">
+                      Version is required
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Default Language</mat-label>
+                    <mat-select formControlName="language">
+                      <mat-option *ngFor="let lang of languageOptions" [value]="lang.value">
+                        {{ lang.label }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Timezone</mat-label>
+                    <mat-select formControlName="timeZone">
+                      <mat-option *ngFor="let tz of timezoneOptions" [value]="tz.value">
+                        {{ tz.label }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Currency & Units -->
+            <mat-card class="settings-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>attach_money</mat-icon>
+                  Currency & Units
+                </mat-card-title>
+                <mat-card-subtitle>Configure currency and measurement units</mat-card-subtitle>
+              </mat-card-header>
+              
+              <mat-card-content>
+                <div class="form-grid">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Default Currency</mat-label>
+                    <mat-select formControlName="defaultCurrency" (selectionChange)="onCurrencyChange($event.value)">
+                      <mat-option *ngFor="let currency of currencyOptions" [value]="currency.value">
+                        {{ currency.label }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Currency Symbol</mat-label>
+                    <input matInput formControlName="currencySymbol" readonly>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Distance Unit</mat-label>
+                    <mat-select formControlName="distanceUnit">
+                      <mat-option *ngFor="let unit of distanceUnitOptions" [value]="unit.value">
+                        {{ unit.label }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Weight Unit</mat-label>
+                    <mat-select formControlName="weightUnit">
+                      <mat-option *ngFor="let unit of weightUnitOptions" [value]="unit.value">
+                        {{ unit.label }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Date & Time Formats -->
+            <mat-card class="settings-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>schedule</mat-icon>
+                  Date & Time Formats
+                </mat-card-title>
+                <mat-card-subtitle>Configure date and time display formats</mat-card-subtitle>
+              </mat-card-header>
+              
+              <mat-card-content>
+                <div class="form-grid">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Date Format</mat-label>
+                    <mat-select formControlName="dateFormat">
+                      <mat-option value="DD/MM/YYYY">DD/MM/YYYY</mat-option>
+                      <mat-option value="MM/DD/YYYY">MM/DD/YYYY</mat-option>
+                      <mat-option value="YYYY-MM-DD">YYYY-MM-DD</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Time Format</mat-label>
+                    <mat-select formControlName="timeFormat">
+                      <mat-option value="24h">24 Hour (23:59)</mat-option>
+                      <mat-option value="12h">12 Hour (11:59 PM)</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- System Modes -->
+            <mat-card class="settings-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>build</mat-icon>
+                  System Modes
+                </mat-card-title>
+                <mat-card-subtitle>Enable or disable system features</mat-card-subtitle>
+              </mat-card-header>
+              
+              <mat-card-content>
+                <div class="toggle-options">
+                  <div class="toggle-item">
+                    <div class="toggle-info">
+                      <h4>Maintenance Mode</h4>
+                      <p>Temporarily disable user access for maintenance</p>
+                    </div>
+                    <mat-slide-toggle formControlName="maintenanceMode" color="warn"></mat-slide-toggle>
+                  </div>
+
+                  <mat-divider></mat-divider>
+
+                  <div class="toggle-item">
+                    <div class="toggle-info">
+                      <h4>Debug Mode</h4>
+                      <p>Enable detailed logging and error reporting</p>
+                    </div>
+                    <mat-slide-toggle formControlName="debugMode" color="accent"></mat-slide-toggle>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Save Button -->
+            <div class="form-actions">
+              <button mat-raised-button color="primary" (click)="saveGeneralSettings()" [disabled]="generalForm.invalid || saving">
+                <mat-spinner *ngIf="saving" diameter="20"></mat-spinner>
+                <mat-icon *ngIf="!saving">save</mat-icon>
+                {{ saving ? 'Saving...' : 'Save General Settings' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </mat-tab>
+
+      <!-- Notifications Tab -->
+      <mat-tab label="Notifications">
+        <div class="tab-content">
+          <form [formGroup]="notificationForm" class="settings-form">
+            
+            <!-- Notification Options -->
+            <mat-card class="settings-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>notifications</mat-icon>
+                  Notification Settings
+                </mat-card-title>
+                <mat-card-subtitle>Configure notification preferences</mat-card-subtitle>
+              </mat-card-header>
+              
+              <mat-card-content>
+                <div class="toggle-options">
+                  <div class="toggle-item">
+                    <div class="toggle-info">
+                      <h4>Email Notifications</h4>
+                      <p>Send notifications via email</p>
+                    </div>
+                    <mat-slide-toggle formControlName="emailEnabled" color="primary"></mat-slide-toggle>
+                  </div>
+
+                  <mat-divider></mat-divider>
+
+                  <div class="toggle-item">
+                    <div class="toggle-info">
+                      <h4>SMS Notifications</h4>
+                      <p>Send notifications via SMS</p>
+                    </div>
+                    <mat-slide-toggle formControlName="smsEnabled" color="primary"></mat-slide-toggle>
+                  </div>
+
+                  <mat-divider></mat-divider>
+
+                  <div class="toggle-item">
+                    <div class="toggle-info">
+                      <h4>Push Notifications</h4>
+                      <p>Send push notifications to mobile apps</p>
+                    </div>
+                    <mat-slide-toggle formControlName="pushEnabled" color="primary"></mat-slide-toggle>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Email Configuration -->
+            <mat-card class="settings-card" *ngIf="notificationForm.get('emailEnabled')?.value">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>email</mat-icon>
+                  Email Configuration
+                </mat-card-title>
+                <mat-card-subtitle>Configure SMTP settings for email delivery</mat-card-subtitle>
+              </mat-card-header>
+              
+              <mat-card-content>
+                <div class="form-grid">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>SMTP Host</mat-label>
+                    <input matInput formControlName="emailHost" placeholder="e.g., smtp.gmail.com">
+                    <mat-error *ngIf="notificationForm.get('emailHost')?.hasError('required')">
+                      SMTP host is required
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>SMTP Port</mat-label>
+                    <input matInput type="number" formControlName="emailPort" placeholder="587">
+                    <mat-error *ngIf="notificationForm.get('emailPort')?.hasError('required')">
+                      Port is required
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Username</mat-label>
+                    <input matInput type="email" formControlName="emailUsername" placeholder="your-email@domain.com">
+                    <mat-error *ngIf="notificationForm.get('emailUsername')?.hasError('required')">
+                      Username is required
+                    </mat-error>
+                    <mat-error *ngIf="notificationForm.get('emailUsername')?.hasError('email')">
+                      Please enter a valid email
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Password</mat-label>
+                    <input matInput type="password" formControlName="emailPassword" placeholder="Enter password">
+                    <mat-error *ngIf="notificationForm.get('emailPassword')?.hasError('required')">
+                      Password is required
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <div class="test-connection">
+                  <button mat-outlined-button (click)="testEmailConnection()" [disabled]="saving">
+                    <mat-spinner *ngIf="saving" diameter="20"></mat-spinner>
+                    <mat-icon *ngIf="!saving">check_circle</mat-icon>
+                    Test Connection
+                  </button>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- SMS Configuration -->
+            <mat-card class="settings-card" *ngIf="notificationForm.get('smsEnabled')?.value">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>sms</mat-icon>
+                  SMS Configuration
+                </mat-card-title>
+                <mat-card-subtitle>Configure SMS service provider settings</mat-card-subtitle>
+              </mat-card-header>
+              
+              <mat-card-content>
+                <div class="form-grid">
+                  <mat-form-field appearance="outline">
+                    <mat-label>SMS Provider</mat-label>
+                    <mat-select formControlName="smsProvider">
+                      <mat-option *ngFor="let provider of smsProviderOptions" [value]="provider.value">
+                        {{ provider.label }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>API Key</mat-label>
+                    <input matInput type="password" formControlName="smsApiKey" placeholder="Enter API key">
+                    <mat-error *ngIf="notificationForm.get('smsApiKey')?.hasError('required')">
+                      API key is required
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>From Number</mat-label>
+                    <input matInput formControlName="smsFromNumber" placeholder="+1234567890">
+                    <mat-error *ngIf="notificationForm.get('smsFromNumber')?.hasError('required')">
+                      From number is required
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <div class="test-connection">
+                  <button mat-outlined-button (click)="testSmsConnection()" [disabled]="saving">
+                    <mat-spinner *ngIf="saving" diameter="20"></mat-spinner>
+                    <mat-icon *ngIf="!saving">check_circle</mat-icon>
+                    Test Connection
+                  </button>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Save Button -->
+            <div class="form-actions">
+              <button mat-raised-button color="primary" (click)="saveNotificationSettings()" [disabled]="notificationForm.invalid || saving">
+                <mat-spinner *ngIf="saving" diameter="20"></mat-spinner>
+                <mat-icon *ngIf="!saving">save</mat-icon>
+                {{ saving ? 'Saving...' : 'Save Notification Settings' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </mat-tab>
+
+      <!-- Integrations Tab -->
+      <mat-tab label="Integrations">
+        <div class="tab-content">
+          <form [formGroup]="integrationForm" class="settings-form">
+            
+            <!-- Core Services -->
+            <mat-card class="settings-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>map</mat-icon>
+                  Core Services
+                </mat-card-title>
+                <mat-card-subtitle>Essential service API keys</mat-card-subtitle>
+              </mat-card-header>
+              
+              <mat-card-content>
+                <div class="form-grid">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Google Maps API Key</mat-label>
+                    <input matInput type="password" formControlName="googleMapsApiKey" placeholder="AIza...">
+                    <mat-hint>Required for map display and geocoding</mat-hint>
+                    <mat-error *ngIf="integrationForm.get('googleMapsApiKey')?.hasError('required')">
+                      Google Maps API key is required
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Firebase API Key</mat-label>
+                    <input matInput type="password" formControlName="firebaseApiKey" placeholder="AIza...">
+                    <mat-hint>Required for real-time features and push notifications</mat-hint>
+                    <mat-error *ngIf="integrationForm.get('firebaseApiKey')?.hasError('required')">
+                      Firebase API key is required
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Payment Services -->
+            <mat-card class="settings-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>payment</mat-icon>
+                  Payment Services
+                </mat-card-title>
+                <mat-card-subtitle>Configure payment gateway integration</mat-card-subtitle>
+              </mat-card-header>
+              
+              <mat-card-content>
+                <div class="form-grid">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Stripe Publishable Key</mat-label>
+                    <input matInput formControlName="stripePublishableKey" placeholder="pk_test_...">
+                    <mat-hint>Public key for client-side Stripe integration</mat-hint>
+                    <mat-error *ngIf="integrationForm.get('stripePublishableKey')?.hasError('required')">
+                      Stripe publishable key is required
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Stripe Secret Key</mat-label>
+                    <input matInput type="password" formControlName="stripeSecretKey" placeholder="sk_test_...">
+                    <mat-hint>Secret key for server-side payment processing</mat-hint>
+                    <mat-error *ngIf="integrationForm.get('stripeSecretKey')?.hasError('required')">
+                      Stripe secret key is required
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Communication Services -->
+            <mat-card class="settings-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>phone</mat-icon>
+                  Communication Services
+                </mat-card-title>
+                <mat-card-subtitle>Optional: Twilio for SMS and voice calls</mat-card-subtitle>
+              </mat-card-header>
+              
+              <mat-card-content>
+                <div class="form-grid">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Twilio Account SID</mat-label>
+                    <input matInput formControlName="twilioAccountSid" placeholder="AC...">
+                    <mat-hint>Optional: For enhanced SMS and voice features</mat-hint>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Twilio Auth Token</mat-label>
+                    <input matInput type="password" formControlName="twilioAuthToken" placeholder="Auth token">
+                    <mat-hint>Keep this secure and never share publicly</mat-hint>
+                  </mat-form-field>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Cloud Services -->
+            <mat-card class="settings-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>cloud</mat-icon>
+                  Cloud Services
+                </mat-card-title>
+                <mat-card-subtitle>Optional: AWS for file storage and services</mat-card-subtitle>
+              </mat-card-header>
+              
+              <mat-card-content>
+                <div class="form-grid">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>AWS Access Key</mat-label>
+                    <input matInput formControlName="awsAccessKey" placeholder="AKIA...">
+                    <mat-hint>Optional: For file storage and cloud services</mat-hint>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>AWS Secret Key</mat-label>
+                    <input matInput type="password" formControlName="awsSecretKey" placeholder="Secret key">
+                    <mat-hint>Keep this secure and never share publicly</mat-hint>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>AWS Region</mat-label>
+                    <mat-select formControlName="awsRegion">
+                      <mat-option value="us-east-1">US East (N. Virginia)</mat-option>
+                      <mat-option value="us-west-1">US West (N. California)</mat-option>
+                      <mat-option value="us-west-2">US West (Oregon)</mat-option>
+                      <mat-option value="eu-west-1">Europe (Ireland)</mat-option>
+                      <mat-option value="eu-central-1">Europe (Frankfurt)</mat-option>
+                      <mat-option value="ap-southeast-1">Asia Pacific (Singapore)</mat-option>
+                      <mat-option value="ap-south-1">Asia Pacific (Mumbai)</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Save Button -->
+            <div class="form-actions">
+              <button mat-raised-button color="primary" (click)="saveIntegrationSettings()" [disabled]="integrationForm.invalid || saving">
+                <mat-spinner *ngIf="saving" diameter="20"></mat-spinner>
+                <mat-icon *ngIf="!saving">save</mat-icon>
+                {{ saving ? 'Saving...' : 'Save Integration Settings' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </mat-tab>
+
+      <!-- Email Templates Tab -->
+      <mat-tab label="Email Templates">
+        <div class="tab-content">
+          
+          <!-- Templates List -->
+          <div *ngIf="!isEditingEmailTemplate" class="templates-section">
+            <div class="section-header">
+              <h2>Email Templates</h2>
+              <button mat-raised-button color="primary" (click)="createNewEmailTemplate()">
+                <mat-icon>add</mat-icon>
+                New Template
+              </button>
+            </div>
+
+            <div class="templates-grid">
+              <mat-card *ngFor="let template of (settingsData?.emailTemplates || [])" class="template-card">
+                <mat-card-header>
+                  <mat-card-title>{{ template.name }}</mat-card-title>
+                  <mat-card-subtitle>{{ template.subject }}</mat-card-subtitle>
+                </mat-card-header>
+                
+                <mat-card-content>
+                  <div class="template-preview">{{ template.body | slice:0:100 }}...</div>
+                  
+                  <div class="template-variables">
+                    <mat-chip-set>
+                      <mat-chip *ngFor="let variable of template.variables">{{variable}}</mat-chip>
+                    </mat-chip-set>
+                  </div>
+                  
+                  <div class="template-status">
+                    <span class="status" [class.active]="template.isActive" [class.inactive]="!template.isActive">
+                      {{ template.isActive ? 'Active' : 'Inactive' }}
+                    </span>
+                    <span class="modified">Modified: {{ template.lastModified | date:'short' }}</span>
+                  </div>
+                </mat-card-content>
+                
+                <mat-card-actions align="end">
+                  <button mat-button (click)="selectEmailTemplate(template)">
+                    <mat-icon>edit</mat-icon>
+                    Edit
+                  </button>
+                  <button mat-button color="warn" (click)="deleteEmailTemplate(template)">
+                    <mat-icon>delete</mat-icon>
+                    Delete
+                  </button>
+                </mat-card-actions>
+              </mat-card>
+            </div>
+          </div>
+
+          <!-- Template Editor -->
+          <div *ngIf="isEditingEmailTemplate" class="template-editor">
+            <div class="editor-header">
+              <h2>{{ selectedEmailTemplate ? 'Edit' : 'Create' }} Email Template</h2>
+              <button mat-icon-button (click)="isEditingEmailTemplate = false" matTooltip="Close Editor">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+
+            <form [formGroup]="emailTemplateForm" class="template-form">
+              <mat-card class="editor-card">
+                <mat-card-content>
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Template Name</mat-label>
+                      <input matInput formControlName="name" placeholder="Enter template name">
+                      <mat-error *ngIf="emailTemplateForm.get('name')?.hasError('required')">
+                        Template name is required
+                      </mat-error>
+                    </mat-form-field>
+                  </div>
+
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Email Subject</mat-label>
+                      <input matInput formControlName="subject" placeholder="Enter email subject">
+                      <mat-error *ngIf="emailTemplateForm.get('subject')?.hasError('required')">
+                        Subject is required
+                      </mat-error>
+                    </mat-form-field>
+                  </div>
+
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Email Body</mat-label>
+                      <textarea matInput rows="10" formControlName="body" placeholder="Enter email body content"></textarea>
+                      <mat-error *ngIf="emailTemplateForm.get('body')?.hasError('required')">
+                        Email body is required
+                      </mat-error>
+                    </mat-form-field>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="toggle-item">
+                      <div class="toggle-info">
+                        <h4>Active Template</h4>
+                        <p>Enable this template for use</p>
+                      </div>
+                      <mat-slide-toggle formControlName="isActive" color="primary"></mat-slide-toggle>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+
+              <!-- Variable Helper -->
+              <mat-card class="variables-card">
+                <mat-card-header>
+                  <mat-card-title>Available Variables</mat-card-title>
+                  <mat-card-subtitle>Click to insert into email body</mat-card-subtitle>
+                </mat-card-header>
+                
+                <mat-card-content>
+                  <div class="variables-grid">
+                    <button *ngFor="let variable of ['appName', 'userName', 'userEmail', 'bookingId', 'driverName', 'vehicleDetails', 'amount', 'date', 'time']"
+                            mat-outlined-button
+                            (click)="insertVariable(variable, true)">
+                      {{"{{"}}{{ variable }}{{"}}"}}
+                    </button>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+
+              <div class="form-actions">
+                <button mat-button (click)="isEditingEmailTemplate = false">Cancel</button>
+                <button mat-raised-button color="primary" (click)="saveEmailTemplate()" [disabled]="emailTemplateForm.invalid || saving">
+                  <mat-spinner *ngIf="saving" diameter="20"></mat-spinner>
+                  <mat-icon *ngIf="!saving">save</mat-icon>
+                  {{ saving ? 'Saving...' : 'Save Template' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- SMS Templates Tab -->
+      <mat-tab label="SMS Templates">
+        <div class="tab-content">
+          
+          <!-- Templates List -->
+          <div *ngIf="!isEditingSmsTemplate" class="templates-section">
+            <div class="section-header">
+              <h2>SMS Templates</h2>
+              <button mat-raised-button color="primary" (click)="createNewSmsTemplate()">
+                <mat-icon>add</mat-icon>
+                New Template
+              </button>
+            </div>
+
+            <div class="templates-grid">
+              <mat-card *ngFor="let template of (settingsData?.smsTemplates || [])" class="template-card sms-template">
+                <mat-card-header>
+                  <mat-card-title>{{ template.name }}</mat-card-title>
+                  <mat-card-subtitle>{{ template.message.length }} characters</mat-card-subtitle>
+                </mat-card-header>
+                
+                <mat-card-content>
+                  <div class="template-preview sms-preview">{{ template.message }}</div>
+                  
+                  <div class="template-variables">
+                    <mat-chip-set>
+                      <mat-chip *ngFor="let variable of template.variables">{{variable}}</mat-chip>
+                    </mat-chip-set>
+                  </div>
+                  
+                  <div class="template-status">
+                    <span class="status" [class.active]="template.isActive" [class.inactive]="!template.isActive">
+                      {{ template.isActive ? 'Active' : 'Inactive' }}
+                    </span>
+                    <span class="modified">Modified: {{ template.lastModified | date:'short' }}</span>
+                  </div>
+                </mat-card-content>
+                
+                <mat-card-actions align="end">
+                  <button mat-button (click)="selectSmsTemplate(template)">
+                    <mat-icon>edit</mat-icon>
+                    Edit
+                  </button>
+                  <button mat-button color="warn" (click)="deleteSmsTemplate(template)">
+                    <mat-icon>delete</mat-icon>
+                    Delete
+                  </button>
+                </mat-card-actions>
+              </mat-card>
+            </div>
+          </div>
+
+          <!-- Template Editor -->
+          <div *ngIf="isEditingSmsTemplate" class="template-editor">
+            <div class="editor-header">
+              <h2>{{ selectedSmsTemplate ? 'Edit' : 'Create' }} SMS Template</h2>
+              <button mat-icon-button (click)="isEditingSmsTemplate = false" matTooltip="Close Editor">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+
+            <form [formGroup]="smsTemplateForm" class="template-form">
+              <mat-card class="editor-card">
+                <mat-card-content>
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Template Name</mat-label>
+                      <input matInput formControlName="name" placeholder="Enter template name">
+                      <mat-error *ngIf="smsTemplateForm.get('name')?.hasError('required')">
+                        Template name is required
+                      </mat-error>
+                    </mat-form-field>
+                  </div>
+
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>SMS Message</mat-label>
+                      <textarea matInput rows="4" formControlName="message" placeholder="Enter SMS message" maxlength="160"></textarea>
+                      <mat-hint align="end">{{ getCharacterCount() }}/160 characters</mat-hint>
+                      <mat-error *ngIf="smsTemplateForm.get('message')?.hasError('required')">
+                        SMS message is required
+                      </mat-error>
+                      <mat-error *ngIf="smsTemplateForm.get('message')?.hasError('maxlength')">
+                        Message must be 160 characters or less
+                      </mat-error>
+                    </mat-form-field>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="toggle-item">
+                      <div class="toggle-info">
+                        <h4>Active Template</h4>
+                        <p>Enable this template for use</p>
+                      </div>
+                      <mat-slide-toggle formControlName="isActive" color="primary"></mat-slide-toggle>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+
+              <!-- Variable Helper -->
+              <mat-card class="variables-card">
+                <mat-card-header>
+                  <mat-card-title>Available Variables</mat-card-title>
+                  <mat-card-subtitle>Click to insert into SMS message</mat-card-subtitle>
+                </mat-card-header>
+                
+                <mat-card-content>
+                  <div class="variables-grid">
+                    <button *ngFor="let variable of ['appName', 'userName', 'bookingId', 'driverName', 'eta', 'vehicle', 'phone', 'amount']"
+                            mat-outlined-button
+                            (click)="insertVariable(variable, false)">
+                      {{"{{"}}{{ variable }}{{"}}"}}
+                    </button>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+
+              <div class="form-actions">
+                <button mat-button (click)="isEditingSmsTemplate = false">Cancel</button>
+                <button mat-raised-button color="primary" (click)="saveSmsTemplate()" [disabled]="smsTemplateForm.invalid || saving">
+                  <mat-spinner *ngIf="saving" diameter="20"></mat-spinner>
+                  <mat-icon *ngIf="!saving">save</mat-icon>
+                  {{ saving ? 'Saving...' : 'Save Template' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+  </div>
+
+  <!-- No Data State -->
+  <div *ngIf="!loading && !settingsData" class="no-data-container">
+    <mat-card class="no-data-card">
+      <mat-card-content>
+        <div class="no-data-content">
+          <mat-icon>settings</mat-icon>
+          <h3>No Settings Available</h3>
+          <p>Settings data is currently unavailable. Please try again later.</p>
+          <button mat-raised-button color="primary" (click)="loadSettings()">
+            <mat-icon>refresh</mat-icon>
+            Retry
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

@@ -1,0 +1,200 @@
+.rides-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    
+    .page-header h1 {
+      margin: 0;
+      color: #333;
+    }
+    
+    .filter-card {
+      margin-bottom: 24px;
+    }
+    
+    .filters {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    
+    .filters mat-form-field {
+      min-width: 200px;
+    }
+    
+    .status-pending {
+      background-color: #fff3e0;
+      color: #e65100;
+    }
+
+    .status-approved {
+      background-color: #e8f5e8;
+      color: #2e7d32;
+    }
+    
+    .status-started {
+      background-color: #e3f2fd;
+      color: #1565c0;
+    }
+    
+    .status-completed {
+      background-color: #f3e5f5;
+      color: #6a1b9a;
+    }
+    
+    .status-cancelled {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+    
+    @media (max-width: 768px) {
+      .page-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: stretch;
+      }
+      
+      .filters {
+        flex-direction: column;
+      }
+      
+      .filters mat-form-field {
+        min-width: auto;
+        width: 100%;
+      }
+    }
+    .pagination-controls {
+      background: #111;
+      color: #fff;
+      border-radius: 8px;
+      padding: 8px 16px;
+    }
+    
+    .pagination-controls button,
+    .pagination-controls mat-icon,
+    .pagination-controls span,
+    .pagination-controls input,
+    .pagination-controls mat-form-field {
+      color: #fff !important;
+    }
+    
+    .pagination-controls mat-form-field {
+      background: #222;
+      border-radius: 4px;
+    }
+    
+    .pagination-controls input {
+      background: #222;
+      border: none;
+      color: #fff;
+      text-align: center;
+    }
+    
+    // Clickable row styles
+    .clickable-row {
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      
+      &:hover {
+        background-color: rgba(63, 81, 181, 0.08);
+      }
+      
+      &:active {
+        background-color: rgba(63, 81, 181, 0.12);
+      }
+    }
+    
+    .data-row {
+      height: 64px;
+    }
+    
+    @media (max-width: 768px) {
+      .page-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: stretch;
+      }
+      
+      .stats-cards {
+        grid-template-columns: 1fr;
+      }
+      
+      .filters {
+        flex-direction: column;
+      }
+      
+      .filters mat-form-field {
+        min-width: auto;
+        width: 100%;
+      }
+    }
+    
+// Custom Paginator Styles
+.custom-paginator-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  background-color: #161215;
+}
+
+.page-jump-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 4px;
+}
+
+.page-jump-label {
+  font-size: 14px;
+  color: white;
+  white-space: nowrap;
+}
+
+.page-jump-input {
+  width: 60px;
+  height: 36px;
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 14px;
+  transition: border-color 0.3s;
+  background-color: transparent;
+  color: white;
+
+  &:focus {
+    outline: none;
+    border-color: #3f51b5;
+  }
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    opacity: 1;
+  }
+}
+
+.page-jump-button {
+  cursor: pointer;
+}
+
+// Responsive design for pagination
+@media (max-width: 768px) {
+  .custom-paginator-container {
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    
+    .page-jump-container {
+      justify-content: center;
+    }
+  }
+}

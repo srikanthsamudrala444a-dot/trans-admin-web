@@ -1,0 +1,78 @@
+<h2 mat-dialog-title>Manual Ride Assignment</h2>
+<mat-dialog-content>
+  <form [formGroup]="rideForm" class="ride-form">
+    
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Passenger ID*</mat-label>
+        <input matInput formControlName="passengerId" placeholder="Enter passenger ID">
+        <mat-error *ngIf="rideForm.get('passengerId')?.hasError('required')">
+          Passenger ID is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Driver ID*</mat-label>
+        <input matInput formControlName="driverId" placeholder="Enter driver ID">
+        <mat-error *ngIf="rideForm.get('driverId')?.hasError('required')">
+          Driver ID is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Pickup Address*</mat-label>
+        <input matInput formControlName="pickupAddress" placeholder="Enter pickup address">
+        <mat-error *ngIf="rideForm.get('pickupAddress')?.hasError('required')">
+          Pickup address is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Destination Address*</mat-label>
+        <input matInput formControlName="destinationAddress" placeholder="Enter destination address">
+        <mat-error *ngIf="rideForm.get('destinationAddress')?.hasError('required')">
+          Destination address is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Ride Type*</mat-label>
+        <mat-select formControlName="rideType">
+          <mat-option value="REGULAR">Regular</mat-option>
+          <mat-option value="PREMIUM">Premium</mat-option>
+          <mat-option value="SHARED">Shared</mat-option>
+        </mat-select>
+        <mat-error *ngIf="rideForm.get('rideType')?.hasError('required')">
+          Ride type is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Fare Amount*</mat-label>
+        <input matInput type="number" formControlName="fareAmount" placeholder="Enter fare amount">
+        <mat-error *ngIf="rideForm.get('fareAmount')?.hasError('required')">
+          Fare amount is required
+        </mat-error>
+        <mat-error *ngIf="rideForm.get('fareAmount')?.hasError('min')">
+          Fare amount must be greater than 0
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button mat-button (click)="onCancel()">Reset</button>
+  <div class="action-buttons">
+    <button mat-button (click)="onClose()">Cancel</button>
+    <button mat-raised-button color="primary" (click)="onSave()" [disabled]="!rideForm.valid">
+      <mat-icon>add</mat-icon>
+      Assign Ride
+    </button>
+  </div>
+</mat-dialog-actions>

@@ -1,0 +1,151 @@
+<div class="surge-activation-dialog">
+  <div mat-dialog-title class="dialog-header">
+    <mat-icon class="dialog-icon">flash_on</mat-icon>
+    <div class="dialog-title-content">
+      <h2>Activate Manual Surge</h2>
+      <p>{{ data.zone.name }}</p>
+    </div>
+  </div>
+
+  <div mat-dialog-content class="dialog-content">
+    <form [formGroup]="surgeForm" class="surge-form">
+      <!-- Current Status -->
+      <div class="current-status">
+        <div class="status-item">
+          <span class="label">Current Multiplier:</span>
+          <span class="value">{{ data.currentMultiplier.toFixed(1) }}x</span>
+        </div>
+        <div class="status-item">
+          <span class="label">Zone Status:</span>
+          <span class="value" [class]="data.currentMultiplier > 1.0 ? 'active' : 'normal'">
+            {{ data.currentMultiplier > 1.0 ? 'Surge Active' : 'Normal Pricing' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Multiplier Selection -->
+      <div class="form-section">
+        <h3>Surge Multiplier</h3>
+        <div class="multiplier-section">
+          <label class="slider-label">Surge Multiplier</label>
+          <input
+            type="range"
+            class="multiplier-slider"
+            min="1.1"
+            max="5.0"
+            step="0.1"
+            [value]="multiplierValue"
+            (input)="onMultiplierChange($event)"
+            (change)="onMultiplierChange($event)">
+          <div class="multiplier-display">
+            <span class="multiplier-value">{{ multiplierValue.toFixed(1) }}x</span>
+            <span class="multiplier-impact" 
+                  [class]="multiplierValue >= 2.5 ? 'high' : multiplierValue >= 1.8 ? 'medium' : 'low'">
+              {{ multiplierValue >= 2.5 ? 'High Impact' : multiplierValue >= 1.8 ? 'Medium Impact' : 'Low Impact' }}
+            </span>
+          </div>
+        </div>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Exact Multiplier</mat-label>
+          <input matInput type="number" formControlName="multiplier" 
+                 min="1.1" max="5.0" step="0.1">
+          <mat-error *ngIf="surgeForm.get('multiplier')?.hasError('required')">
+            Multiplier is required
+          </mat-error>
+          <mat-error *ngIf="surgeForm.get('multiplier')?.hasError('min')">
+            Minimum multiplier is 1.1x
+          </mat-error>
+          <mat-error *ngIf="surgeForm.get('multiplier')?.hasError('max')">
+            Maximum multiplier is 5.0x
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Reason Selection -->
+      <div class="form-section">
+        <h3>Activation Reason</h3>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Select Reason</mat-label>
+          <mat-select formControlName="reason">
+            <mat-option *ngFor="let reason of predefinedReasons" [value]="reason">
+              {{ reason }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="surgeForm.get('reason')?.hasError('required')">
+            Please select a reason
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field 
+          appearance="outline" 
+          class="full-width"
+          *ngIf="surgeForm.get('reason')?.value === 'Other'">
+          <mat-label>Custom Reason</mat-label>
+          <textarea matInput formControlName="customReason" rows="3"
+                    placeholder="Please specify the reason for surge activation..."></textarea>
+          <mat-error *ngIf="surgeForm.get('customReason')?.hasError('required')">
+            Please provide a custom reason
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Duration -->
+      <div class="form-section">
+        <h3>Duration</h3>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Duration (minutes)</mat-label>
+          <input matInput type="number" formControlName="duration" 
+                 min="15" max="480" step="15">
+          <mat-hint>Surge will automatically deactivate after this duration</mat-hint>
+          <mat-error *ngIf="surgeForm.get('duration')?.hasError('required')">
+            Duration is required
+          </mat-error>
+          <mat-error *ngIf="surgeForm.get('duration')?.hasError('min')">
+            Minimum duration is 15 minutes
+          </mat-error>
+          <mat-error *ngIf="surgeForm.get('duration')?.hasError('max')">
+            Maximum duration is 8 hours (480 minutes)
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Impact Estimation -->
+      <div class="impact-estimation" *ngIf="surgeForm.valid">
+        <h3>Estimated Impact</h3>
+        <div class="impact-grid">
+          <div class="impact-item">
+            <span class="impact-label">Revenue Increase:</span>
+            <span class="impact-value positive">
+              +{{ (getEstimatedImpact().revenue - 1000) | currency:'INR':'symbol':'1.0-0' }}
+            </span>
+          </div>
+          <div class="impact-item">
+            <span class="impact-label">Demand Reduction:</span>
+            <span class="impact-value">{{ getEstimatedImpact().demand }}</span>
+          </div>
+          <div class="impact-item">
+            <span class="impact-label">Driver Earnings:</span>
+            <span class="impact-value positive">
+              +{{ ((surgeForm.get('multiplier')?.value - 1) * 100).toFixed(0) }}%
+            </span>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div mat-dialog-actions class="dialog-actions">
+    <button mat-button (click)="onCancel()" class="cancel-btn">
+      Cancel
+    </button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="onSubmit()" 
+      [disabled]="!surgeForm.valid"
+      class="activate-btn">
+      <mat-icon>flash_on</mat-icon>
+      Activate Surge
+    </button>
+  </div>
+</div>

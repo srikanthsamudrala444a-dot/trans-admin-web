@@ -1,0 +1,258 @@
+<div class="passengers-container">
+      <div class="page-header">
+        <h1>Passengers Management</h1>
+        <button mat-raised-button color="primary" (click)="toggleAddForm()">
+          <mat-icon>{{ showAddForm ? 'close' : 'add' }}</mat-icon>
+          {{ showAddForm ? 'Cancel' : 'Add Passenger' }}
+        </button>
+      </div>
+
+      <!-- Add Passenger Form -->
+      @if (showAddForm) {
+      <mat-card class="add-form-card">
+        <mat-card-header>
+          <mat-card-title>Add New Passenger</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="passengerForm" class="add-passenger-form">
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Full Name</mat-label>
+                <input matInput formControlName="name" placeholder="Enter full name">
+                <mat-error *ngIf="passengerForm.get('name')?.hasError('required')">
+                  Name is required
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Contact Number</mat-label>
+                <input matInput formControlName="contactNumber" placeholder="Enter contact number">
+                <mat-error *ngIf="passengerForm.get('contactNumber')?.hasError('required')">
+                  Contact number is required
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Email Address</mat-label>
+                <input matInput type="email" formControlName="email" placeholder="Enter email address">
+                <mat-error *ngIf="passengerForm.get('email')?.hasError('required')">
+                  Email is required
+                </mat-error>
+                <mat-error *ngIf="passengerForm.get('email')?.hasError('email')">
+                  Please enter a valid email address
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>User ID</mat-label>
+                <input matInput formControlName="userId" placeholder="Enter user ID">
+                <mat-error *ngIf="passengerForm.get('userId')?.hasError('required')">
+                  User ID is required
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-actions">
+              <button mat-button type="button" (click)="resetForm()">Reset</button>
+              <button mat-raised-button color="primary" type="button" (click)="onSavePassenger()" [disabled]="!passengerForm.valid">
+                <mat-icon>save</mat-icon>
+                Add Passenger
+              </button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+      }
+      
+      <mat-card class="filter-card">
+        <mat-card-content>
+          <form [formGroup]="searchForm" class="filters">
+            <mat-form-field appearance="outline">
+              <mat-label>Status</mat-label>
+              <mat-select formControlName="status" (selectionChange)="onStatusChange()">
+                <mat-option value="all">All Status</mat-option>
+                <mat-option value="active">Active</mat-option>
+                <mat-option value="banned">Banned</mat-option>
+              </mat-select>
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline">
+              <mat-label>Search Passengers</mat-label>
+              <input 
+                matInput 
+                formControlName="search"
+                placeholder="Enter name, email, or phone number"
+                (input)="onSearchChange()">
+              <mat-icon matSuffix>search</mat-icon>
+             <!-- <mat-hint>Search by first name, last name, email, or phone number</mat-hint>-->
+            </mat-form-field>
+
+            <button 
+              mat-stroked-button 
+              type="button"
+              (click)="clearSearch()"
+              [disabled]="!searchForm.get('search')?.value && searchForm.get('status')?.value === 'all'">
+              <mat-icon>clear</mat-icon>
+              Clear
+            </button>
+          </form>
+        </mat-card-content>
+      </mat-card>
+      
+      <mat-card>
+        @if(loading){
+        <div class="loader">
+          <mat-spinner></mat-spinner>
+          <p>Loading passengers...</p>
+        </div>
+        }@else if(error){
+        <div class="error-message">
+          <mat-icon color="warn">error</mat-icon>
+          <p>{{ error }}</p>
+          <button mat-button color="primary" (click)="getAllPassengers()">Retry</button>
+        </div>
+        }@else {
+        
+        <!-- Search results indicator -->
+        @if(searchForm.get('search')?.value || searchForm.get('status')?.value !== 'all') {
+        <div class="search-results-info">
+          <mat-icon>info</mat-icon>
+          <span>
+            @if(searchForm.get('search')?.value) {
+              Showing search results for "{{ searchForm.get('search')?.value }}"
+            }
+            @if(searchForm.get('search')?.value && searchForm.get('status')?.value !== 'all') {
+              with status "{{ searchForm.get('status')?.value }}"
+            }@else if(searchForm.get('status')?.value !== 'all') {
+              Showing passengers with status "{{ searchForm.get('status')?.value }}"
+            }
+            - {{ totalItems }} result{{ totalItems !== 1 ? 's' : '' }} found
+          </span>
+        </div>
+        }
+        
+        <mat-table [dataSource]="dataSource">
+          <ng-container matColumnDef="id">
+            <mat-header-cell *matHeaderCellDef>ID</mat-header-cell>
+            <mat-cell *matCellDef="let passenger">
+              <strong>{{ passenger.id || passenger.passengerId || passenger.userId || 'N/A' }}</strong>
+            </mat-cell>
+          </ng-container>
+          
+          <ng-container matColumnDef="name">
+            <mat-header-cell *matHeaderCellDef>Passenger</mat-header-cell>
+            <mat-cell *matCellDef="let passenger">
+              <div class="passenger-info">
+                <div class="passenger-avatar">
+                  {{ (passenger.name || passenger.firstName || 'U').charAt(0) }}
+                </div>
+                <div>
+                  <div class="passenger-name">
+                    {{ passenger.name || passenger.firstName + ' ' + (passenger.lastName || '') }}
+                  </div>
+                  <div class="passenger-email">{{ passenger.email }}</div>
+                </div>
+              </div>
+            </mat-cell>
+          </ng-container>
+          
+          <ng-container matColumnDef="contactNumber">
+            <mat-header-cell *matHeaderCellDef>Phone Number</mat-header-cell>
+            <mat-cell *matCellDef="let passenger">
+              {{ passenger.contactNumber || passenger.phoneNumber || passenger.phone || 'N/A' }}
+            </mat-cell>
+          </ng-container>
+          
+          <ng-container matColumnDef="totalRides">
+            <mat-header-cell *matHeaderCellDef>Total Rides</mat-header-cell>
+            <mat-cell *matCellDef="let passenger">
+              {{ passenger.totalRides || passenger.ridesCount || 0 }}
+            </mat-cell>
+          </ng-container>
+          
+          <ng-container matColumnDef="status">
+            <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+            <mat-cell *matCellDef="let passenger">
+              <mat-chip [class]="getStatusClass(passenger)">
+                {{ getStatusText(passenger) }}
+              </mat-chip>
+            </mat-cell>
+          </ng-container>
+          
+          <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+          <mat-row 
+            class="data-row clickable-row"
+            [routerLink]="['/passengers', row.id || row.passengerId || row.userId]"
+            *matRowDef="let row; columns: displayedColumns">
+          </mat-row>
+        </mat-table>
+        
+        @if(passengers.length === 0 && !loading && !error){
+        <div class="no-data">
+          <mat-icon>
+            @if(searchForm.get('search')?.value || searchForm.get('status')?.value !== 'all') {
+              search_off
+            }@else {
+              people_outline
+            }
+          </mat-icon>
+          <p>
+            @if(searchForm.get('search')?.value || searchForm.get('status')?.value !== 'all') {
+              No passengers found matching your search criteria
+            }@else {
+              No passengers found
+            }
+          </p>
+          @if(searchForm.get('search')?.value || searchForm.get('status')?.value !== 'all') {
+          <button mat-stroked-button (click)="clearSearch()">
+            <mat-icon>clear</mat-icon>
+            Clear Search
+          </button>
+          }
+        </div>
+        }
+        
+        }
+      </mat-card>
+    </div>
+
+<div class="custom-paginator-container">
+  <mat-paginator
+    #paginator
+    [length]="totalItems"
+    [pageSize]="itemsPerPage"
+    [pageSizeOptions]="[5, 10, 25, 50]"
+    [showFirstLastButtons]="true"
+    aria-label="Passengers pagination"
+  >
+  </mat-paginator>
+
+  <div class="page-jump-container">
+    <span class="page-jump-label">Go to page:</span>
+    <input
+      type="number"
+      class="page-jump-input"
+      [(ngModel)]="pageJumpValue"
+      [min]="1"
+      [max]="totalPages"
+      (keyup.enter)="jumpToPage()"
+      placeholder="#"
+    />
+    <button
+      mat-icon-button
+      class="page-jump-button"
+      color="primary"
+      (click)="jumpToPage()"
+      [disabled]="
+        !pageJumpValue || pageJumpValue < 1 || pageJumpValue > totalPages
+      "
+      matTooltip="Jump to page"
+    >
+      <mat-icon>arrow_forward</mat-icon>
+    </button>
+  </div>
+</div>
+
+    

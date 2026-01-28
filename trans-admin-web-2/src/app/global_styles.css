@@ -1,0 +1,115 @@
+/* Angular Material Theme */
+
+@import '~@angular/material/prebuilt-themes/indigo-pink.css';
+
+/* Global Styles */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+    font-family: 'Roboto', sans-serif;
+    background-color: #fafafa;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.flex-spacer {
+    flex: 1 1 auto;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.margin-top {
+    margin-top: 16px;
+}
+
+.margin-bottom {
+    margin-bottom: 16px;
+}
+
+
+/* Custom scrollbar */
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+
+/* Loading spinner */
+
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+}
+
+
+/* Card styles */
+
+.stats-card {
+    text-align: center;
+    padding: 24px;
+}
+
+.stats-card h2 {
+    margin: 0;
+    color: #3f51b5;
+    font-size: 2.5rem;
+    font-weight: 300;
+}
+
+.stats-card p {
+    margin: 8px 0 0 0;
+    color: #666;
+    font-size: 1.1rem;
+}
+
+
+/* Table styles */
+
+.mat-mdc-table {
+    width: 100%;
+    background: white;
+}
+
+
+/* Responsive utilities */
+
+@media (max-width: 768px) {
+    .hide-on-mobile {
+        display: none !important;
+    }
+}
+
+
+/* Chart container */
+
+.chart-container {
+    position: relative;
+    height: 400px;
+    width: 100%;
+}

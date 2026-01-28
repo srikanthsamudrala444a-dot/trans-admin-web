@@ -1,0 +1,516 @@
+.drivers-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  margin: 0;
+  color: #333;
+}
+
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+
+.stat-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stat-icon.online {
+  color: #4caf50;
+}
+
+.stat-icon.offline {
+  color: #f44336;
+}
+
+.stat-icon.pending {
+  color: #ff9800;
+}
+
+.availability span {
+  margin-left: 30px;
+}
+
+// Enhanced status dot for availability column
+.status-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  position: relative;
+  display: inline-block;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+
+  &::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  &.online {
+    background-color: #4caf50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2),
+      0 2px 4px rgba(76, 175, 80, 0.3);
+
+    &::before {
+      background-color: rgba(76, 175, 80, 0.6);
+    }
+  }
+
+  &.offline {
+    background-color: #f44336;
+    box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.2),
+      0 2px 4px rgba(244, 67, 54, 0.3);
+
+    &::before {
+      background-color: rgba(244, 67, 54, 0.6);
+    }
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.stat-content h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+.stat-content p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.filter-card {
+  margin-bottom: 24px;
+}
+
+.filters {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.filters mat-form-field {
+  min-width: 200px;
+}
+
+.driver-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.driver-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #3f51b5;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+}
+
+.driver-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.driver-email {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.status-online {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+}
+
+.status-offline {
+  background-color: #f5f5f5;
+  color: #666;
+}
+
+.status-busy {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.star-icon {
+  color: #ffc107;
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.no-data {
+  padding: 100px 0px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+}
+
+// Add driver form styles
+.add-form-card {
+  margin-bottom: 24px;
+  border: 2px solid #ff9800;
+  box-shadow: 0 4px 8px rgba(255, 152, 0, 0.1);
+}
+
+.add-driver-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.half-width {
+  flex: 1;
+  min-width: 0;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+// Custom Paginator Styles
+.custom-paginator-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  background-color: #161215;
+}
+
+.page-jump-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 4px;
+}
+
+.page-jump-label {
+  font-size: 14px;
+  color: white;
+  white-space: nowrap;
+}
+
+.page-jump-input {
+  width: 60px;
+  height: 36px;
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 14px;
+  transition: border-color 0.3s;
+  background-color: transparent;
+  color: white;
+
+  &:focus {
+    outline: none;
+    border-color: #3f51b5;
+  }
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    opacity: 1;
+  }
+}
+
+.page-jump-button {
+  cursor: pointer;
+}
+
+// Status Toggle Styles
+.status-toggle-container {
+  display: flex;
+  align-items: center;
+}
+
+.status-toggle-group {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+::ng-deep .status-toggle-group .mat-button-toggle {
+  border: none !important;
+  transition: all 0.3s ease;
+}
+
+::ng-deep .status-toggle-group .mat-button-toggle.online {
+  &.mat-button-toggle-checked {
+    background-color: #4caf50 !important;
+    color: white !important;
+
+    .mat-button-toggle-button {
+      background-color: transparent !important;
+    }
+
+    mat-icon {
+      color: white !important;
+    }
+  }
+
+  &:not(.mat-button-toggle-checked) {
+    background-color: #f5f5f5;
+    color: #666;
+
+    &:hover {
+      background-color: #e8f5e8;
+      color: #4caf50;
+    }
+  }
+}
+
+::ng-deep .status-toggle-group .mat-button-toggle.offline {
+  &.mat-button-toggle-checked {
+    background-color: #f44336 !important;
+    color: white !important;
+
+    .mat-button-toggle-button {
+      background-color: transparent !important;
+    }
+
+    mat-icon {
+      color: white !important;
+    }
+  }
+
+  &:not(.mat-button-toggle-checked) {
+    background-color: #f5f5f5;
+    color: #666;
+
+    &:hover {
+      background-color: #ffebee;
+      color: #f44336;
+    }
+  }
+}
+
+::ng-deep .status-toggle-group .mat-button-toggle-label-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-weight: 500;
+}
+
+::ng-deep .status-toggle-group .mat-button-toggle-label-content mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+// Driver Details Card Styles
+.driver-details-card {
+  max-width: 1000px;
+  margin: 20px auto;
+}
+
+.driver-details-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.section-title {
+  margin-top: 24px;
+  margin-bottom: 12px;
+  color: #3f51b5;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-bottom: 2px solid #3f51b5;
+  padding-bottom: 8px;
+}
+
+.driver-detail-row {
+  display: flex;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+
+  .label {
+    font-weight: 600;
+    color: #666;
+    min-width: 200px;
+  }
+
+  .value {
+    color: #333;
+    flex: 1;
+  }
+}
+
+.vehicle-separator {
+  height: 1px;
+  background-color: #ddd;
+  margin: 16px 0;
+}
+
+.driver-details-photo {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+// Responsive design for add form
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .stats-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .filters {
+    flex-direction: column;
+  }
+
+  .filters mat-form-field {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .half-width {
+    width: 100%;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+
+  .driver-detail-row {
+    flex-direction: column;
+    gap: 4px;
+
+    .label {
+      min-width: auto;
+    }
+  }
+
+  .status-toggle-container {
+    width: 100%;
+  }
+
+  ::ng-deep .status-toggle-group {
+    width: 100%;
+    display: flex;
+  }
+
+  ::ng-deep .status-toggle-group .mat-button-toggle {
+    flex: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .custom-paginator-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .page-jump-container {
+    justify-content: center;
+  }
+}
+
+// Enhanced button styles
+.page-header button {
+  min-width: 140px;
+}
+
+.form-actions button {
+  min-width: 120px;
+  height: 40px;
+}
+
+// Animation for form appearance
+.add-form-card {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

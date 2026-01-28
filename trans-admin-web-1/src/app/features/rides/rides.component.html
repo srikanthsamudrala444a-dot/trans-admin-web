@@ -1,0 +1,116 @@
+<div class="rides-container">
+  <div class="page-header">
+    <h1>Rides Management</h1>
+    <button mat-raised-button color="primary" (click)="openManualAssignmentDialog()">
+      <mat-icon>add</mat-icon>
+      Manual Assignment
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <mat-card class="filter-card">
+    <mat-card-content>
+      <div class="filters">
+        <mat-form-field appearance="outline">
+          <mat-label>Status</mat-label>
+          <mat-select>
+            <mat-option value="all">All Status</mat-option>
+            <mat-option value="pending">Pending</mat-option>
+            <mat-option value="accepted">Accepted</mat-option>
+            <mat-option value="started">Started</mat-option>
+            <mat-option value="completed">Completed</mat-option>
+            <mat-option value="cancelled">Cancelled</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Search</mat-label>
+          <input #searchInput matInput placeholder="Search by ID, driver, or passenger">
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Rides Table -->
+  <mat-card>
+    <mat-table [dataSource]="rides">
+      <ng-container matColumnDef="id">
+        <mat-header-cell *matHeaderCellDef>Ride ID</mat-header-cell>
+        <mat-cell *matCellDef="let ride">#{{ ride.rideId }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="driver">
+        <mat-header-cell *matHeaderCellDef>Driver</mat-header-cell>
+        <mat-cell *matCellDef="let ride">{{ ride.driverId }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="passenger">
+        <mat-header-cell *matHeaderCellDef>Passenger</mat-header-cell>
+        <mat-cell *matCellDef="let ride">{{ ride.passengerId }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="pickup">
+        <mat-header-cell *matHeaderCellDef>Pickup</mat-header-cell>
+        <mat-cell *matCellDef="let ride">{{ ride.pickupLocation }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+        <mat-cell *matCellDef="let ride">
+          <mat-chip [class]="'status-' + ride.status">
+            {{ ride.status | titlecase }}
+          </mat-chip>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="fare">
+        <mat-header-cell *matHeaderCellDef>Fare</mat-header-cell>
+        <mat-cell *matCellDef="let ride">₹{{ ride.fare }}</mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row 
+        class="data-row clickable-row"
+        [routerLink]="['/rides', row.rideId || row.id]"
+        *matRowDef="let row; columns: displayedColumns">
+      </mat-row>
+    </mat-table>
+  </mat-card>
+</div>
+
+<div class="custom-paginator-container">
+  <mat-paginator
+    #paginator
+    [length]="totalItems"
+    [pageSize]="itemsPerPage"
+    [pageSizeOptions]="[5, 10, 25, 50]"
+    [showFirstLastButtons]="true"
+    aria-label="Rides pagination"
+  >
+  </mat-paginator>
+
+  <div class="page-jump-container">
+    <span class="page-jump-label">Go to page:</span>
+    <input
+      type="number"
+      class="page-jump-input"
+      [(ngModel)]="pageJumpValue"
+      [min]="1"
+      [max]="totalPages"
+      (keyup.enter)="jumpToPage()"
+      placeholder="#"
+    />
+    <button
+      mat-icon-button
+      class="page-jump-button"
+      color="primary"
+      (click)="jumpToPage()"
+      [disabled]="
+        !pageJumpValue || pageJumpValue < 1 || pageJumpValue > totalPages
+      "
+      matTooltip="Jump to page"
+    >
+      <mat-icon>arrow_forward</mat-icon>
+    </button>
+  </div>
+</div>

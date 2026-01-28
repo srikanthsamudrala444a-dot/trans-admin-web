@@ -1,0 +1,58 @@
+<mat-card class="rides-history-card">
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>history</mat-icon>
+      Driver Rides History
+    </mat-card-title>
+    <mat-card-subtitle>Driver ID: {{ driverId }}</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="rides-list">
+      @if(rides.length === 0){
+      <div class="no-data">
+        <h1>No history rides!</h1>
+      </div>
+      }@else{ @for (ride of rides; track ride.rideId) {
+      <mat-card class="ride-card" appearance="outlined">
+        <mat-card-title>
+          <mat-icon color="primary">local_taxi</mat-icon>
+          {{ ride.pickupLocation }} → {{ ride.dropLocation }}
+        </mat-card-title>
+
+        <mat-card-subtitle> Ride ID: {{ ride.rideId }} </mat-card-subtitle>
+
+        <mat-card-content>
+          <div class="ride-row">
+            <mat-icon>attach_money</mat-icon>
+            Estimated Fare: <strong>{{ ride.estimatedFare }} ₹</strong>
+          </div>
+
+          <div class="ride-row">
+            <mat-icon>calendar_today</mat-icon>
+            Created: {{ ride.createdAt | date : "medium" }}
+          </div>
+
+          <div class="ride-row">
+            <mat-icon>directions_car</mat-icon>
+            Category: {{ ride.vehicleCategory || "N/A" }}
+          </div>
+
+          <div class="ride-row">
+            <mat-icon>info</mat-icon>
+            Status: <span class="status">{{ ride.status }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      <mat-divider></mat-divider>
+      } }
+    </div>
+  </mat-card-content>
+
+  <mat-card-actions align="start">
+    <button mat-raised-button color="primary" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+      Back
+    </button>
+  </mat-card-actions>
+</mat-card>

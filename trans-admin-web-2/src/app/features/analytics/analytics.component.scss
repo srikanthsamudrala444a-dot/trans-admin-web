@@ -1,0 +1,627 @@
+.analytics-container {
+  padding: 24px;
+  min-height: calc(100vh - 64px);
+  background: #121212;
+  color: #ffffff;
+}
+
+// Header Section
+.header-section {
+  margin-bottom: 32px;
+  
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  
+  .page-title {
+    display: flex;
+    align-items: center;
+    color: #ffffff;
+    font-size: 28px;
+    font-weight: 500;
+    margin: 0;
+    
+    .title-icon {
+      margin-right: 12px;
+      font-size: 32px;
+      color: #bb86fc;
+    }
+  }
+  
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    
+    .time-range-select {
+      min-width: 160px;
+      
+      ::ng-deep {
+        .mat-mdc-form-field-outline {
+          color: #444444;
+        }
+        
+        .mat-mdc-form-field-label {
+          color: #cccccc;
+        }
+        
+        .mat-mdc-select-value,
+        .mat-mdc-select-arrow {
+          color: #ffffff;
+        }
+      }
+    }
+    
+    button {
+      &.mat-mdc-raised-button {
+        background: #bb86fc;
+        color: #000000;
+        
+        &:hover {
+          background: #9c5dfc;
+        }
+      }
+      
+      &.mat-mdc-icon-button {
+        color: #ffffff;
+        
+        &:hover {
+          background: rgba(255, 255, 255, 0.1);
+        }
+      }
+    }
+  }
+  
+  .custom-date-range {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
+    
+    mat-form-field {
+      ::ng-deep {
+        .mat-mdc-form-field-outline {
+          color: #444444;
+        }
+        
+        .mat-mdc-form-field-label {
+          color: #cccccc;
+        }
+        
+        input {
+          color: #ffffff;
+        }
+      }
+    }
+  }
+}
+
+// Loading State
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px;
+  
+  mat-spinner {
+    margin-bottom: 24px;
+  }
+  
+  p {
+    color: #cccccc;
+    font-size: 16px;
+  }
+}
+
+// Real-time Status
+.realtime-status {
+  margin-bottom: 24px;
+  
+  .status-card {
+    background: #1e1e1e;
+    border: 1px solid #333333;
+    
+    .status-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      
+      .live-icon {
+        font-size: 12px;
+        color: #757575;
+        
+        &.active {
+          color: #4caf50;
+          animation: pulse 2s infinite;
+        }
+      }
+      
+      .status-text {
+        font-weight: 600;
+        color: #ffffff;
+      }
+      
+      .last-updated {
+        color: #cccccc;
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+// Metrics Grid
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+  
+  .metric-card {
+    background: #1e1e1e;
+    border: 1px solid #333333;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+    
+    .metric-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      
+      mat-icon {
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
+      }
+      
+      .metric-label {
+        font-size: 14px;
+        color: #cccccc;
+        font-weight: 500;
+      }
+    }
+    
+    .metric-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+    
+    .metric-change {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      
+      .change-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+      }
+    }
+  }
+}
+
+// Analytics Tabs
+.analytics-tabs {
+  ::ng-deep {
+    .mat-mdc-tab-labels {
+      background: #1e1e1e;
+      border: 1px solid #333333;
+      border-radius: 8px;
+    }
+    
+    .mat-mdc-tab-label {
+      color: #cccccc !important;
+      opacity: 0.7;
+      
+      &.mdc-tab--active {
+        opacity: 1;
+        color: #bb86fc !important;
+      }
+    }
+    
+    .mat-mdc-tab-body-wrapper {
+      background: transparent;
+      padding: 24px 0;
+    }
+  }
+}
+
+// Tab Content
+.tab-content {
+  .section-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+}
+
+// Chart Cards
+.chart-card, .stats-card, .performers-card, .geographic-card, .vehicle-stats-card, .vehicle-distribution-card {
+  background: #1e1e1e;
+  border: 1px solid #333333;
+  
+  .mat-mdc-card-title {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 600;
+  }
+}
+
+// Revenue Breakdown
+.revenue-breakdown {
+  .revenue-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #333333;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    .revenue-label {
+      color: #cccccc;
+      font-weight: 500;
+    }
+    
+    .revenue-value {
+      color: #4caf50;
+      font-weight: 600;
+      font-size: 16px;
+    }
+    
+    .revenue-percentage {
+      color: #bb86fc;
+      font-size: 14px;
+      min-width: 60px;
+      text-align: right;
+    }
+  }
+}
+
+// Trip Stats
+.trip-stats {
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid #333333;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    .stat-icon {
+      color: #bb86fc;
+      font-size: 24px;
+    }
+    
+    .stat-details {
+      display: flex;
+      flex-direction: column;
+      
+      .stat-label {
+        color: #cccccc;
+        font-size: 14px;
+      }
+      
+      .stat-value {
+        color: #ffffff;
+        font-size: 18px;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+// Driver Stats Grid
+.driver-stats-grid, .passenger-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  
+  .stat-box {
+    text-align: center;
+    padding: 20px;
+    background: #2d2d2d;
+    border-radius: 8px;
+    border: 1px solid #444444;
+    
+    &.active {
+      border-color: #4caf50;
+    }
+    
+    &.new {
+      border-color: #2196f3;
+    }
+    
+    &.rating {
+      border-color: #ffc107;
+    }
+    
+    &.repeat {
+      border-color: #9c27b0;
+    }
+    
+    .stat-number {
+      display: block;
+      font-size: 28px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+    
+    .stat-label {
+      font-size: 14px;
+      color: #cccccc;
+    }
+    
+    .rating-icon {
+      color: #ffc107;
+      font-size: 16px;
+      margin-left: 4px;
+    }
+  }
+}
+
+// Performers Table
+.performers-table {
+  width: 100%;
+  background: transparent;
+  
+  th {
+    background: #2d2d2d;
+    color: #ffffff;
+    font-weight: 600;
+    padding: 16px;
+    border-bottom: 1px solid #444444;
+  }
+  
+  td {
+    color: #ffffff;
+    padding: 16px;
+    border-bottom: 1px solid #333333;
+    
+    &.earnings {
+      color: #4caf50;
+      font-weight: 600;
+    }
+  }
+  
+  .rating-display {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    
+    .star-icon {
+      color: #ffc107;
+      font-size: 16px;
+    }
+  }
+  
+  tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+// Location Lists
+.location-tabs {
+  ::ng-deep {
+    .mat-mdc-tab-labels {
+      background: #2d2d2d;
+    }
+    
+    .mat-mdc-tab-label {
+      color: #cccccc !important;
+      
+      &.mdc-tab--active {
+        color: #bb86fc !important;
+      }
+    }
+  }
+}
+
+.location-list {
+  margin-top: 16px;
+  
+  .location-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid #333333;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    .location-rank {
+      background: #bb86fc;
+      color: #000000;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .location-name {
+      flex: 1;
+      color: #ffffff;
+      font-weight: 500;
+    }
+    
+    .location-count {
+      color: #4caf50;
+      font-weight: 600;
+    }
+  }
+}
+
+// Vehicle Analytics
+.vehicle-overview {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  
+  .overview-stat {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: #2d2d2d;
+    border-radius: 8px;
+    flex: 1;
+    
+    .stat-icon {
+      font-size: 32px;
+      color: #bb86fc;
+      
+      &.active {
+        color: #4caf50;
+      }
+      
+      &.utilization {
+        color: #ff9800;
+      }
+    }
+    
+    .stat-content {
+      display: flex;
+      flex-direction: column;
+      
+      .stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: #ffffff;
+      }
+      
+      .stat-label {
+        font-size: 12px;
+        color: #cccccc;
+      }
+    }
+  }
+}
+
+.vehicle-types {
+  .vehicle-type-item {
+    margin-bottom: 20px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    .type-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      
+      .type-name {
+        color: #ffffff;
+        font-weight: 500;
+      }
+      
+      .type-percentage {
+        color: #bb86fc;
+        font-weight: 600;
+      }
+    }
+    
+    .type-bar {
+      height: 8px;
+      background: #333333;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 4px;
+      
+      .type-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #bb86fc, #9c5dfc);
+        transition: width 0.3s ease;
+      }
+    }
+    
+    .type-count {
+      color: #cccccc;
+      font-size: 12px;
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .analytics-container {
+    padding: 16px;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .section-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .driver-stats-grid, .passenger-stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .vehicle-overview {
+    flex-direction: column;
+  }
+  
+  .custom-date-range {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 24px;
+    
+    .title-icon {
+      font-size: 28px;
+    }
+  }
+  
+  .metric-card {
+    .metric-value {
+      font-size: 24px;
+    }
+  }
+}

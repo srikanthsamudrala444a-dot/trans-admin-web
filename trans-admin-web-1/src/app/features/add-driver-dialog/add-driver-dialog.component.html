@@ -1,0 +1,111 @@
+<h2 mat-dialog-title>Add New Driver</h2>
+<mat-dialog-content>
+  <form [formGroup]="driverForm" class="driver-form">
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>First Name</mat-label>
+        <input
+          matInput
+          formControlName="firstName"
+          placeholder="Enter first name"
+        />
+        <mat-error *ngIf="driverForm.get('firstName')?.hasError('required')">
+          First name is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Last Name</mat-label>
+        <input
+          matInput
+          formControlName="lastName"
+          placeholder="Enter last name"
+        />
+        <mat-error *ngIf="driverForm.get('lastName')?.hasError('required')">
+          Last name is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Date of Birth</mat-label>
+      <input matInput type="date" formControlName="dateOfBirth" />
+      <mat-error *ngIf="driverForm.get('dateOfBirth')?.hasError('required')">
+        Date of birth is required
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Email</mat-label>
+      <input
+        matInput
+        type="email"
+        formControlName="email"
+        placeholder="Enter email address"
+      />
+      <mat-error *ngIf="driverForm.get('email')?.hasError('required')">
+        Email is required
+      </mat-error>
+      <mat-error *ngIf="driverForm.get('email')?.hasError('email')">
+        Please enter a valid email
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Contact Number</mat-label>
+      <input
+        matInput
+        type="number"
+        formControlName="contactNumber"
+        placeholder="Enter contact number (numbers only)"
+      />
+      <mat-error *ngIf="driverForm.get('contactNumber')?.hasError('required')">
+        Contact number is required
+      </mat-error>
+      <mat-error *ngIf="driverForm.get('contactNumber')?.hasError('pattern')">
+        Please enter a valid contact number (10-15 digits)
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Driving License Number</mat-label>
+      <input
+        matInput
+        formControlName="drivingLicense"
+        placeholder="Enter driving license number"
+      />
+      <mat-error *ngIf="driverForm.get('drivingLicense')?.hasError('required')">
+        Driving license number is required
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>User ID</mat-label>
+      <input matInput formControlName="userId" placeholder="Enter user ID" />
+      <mat-error *ngIf="driverForm.get('userId')?.hasError('required')">
+        User ID is required
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Photo URL (Optional)</mat-label>
+      <input
+        matInput
+        formControlName="photoUrl"
+        placeholder="Enter photo URL"
+      />
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSave()"
+    [disabled]="!driverForm.valid"
+  >
+    <mat-icon>add</mat-icon>
+    Add Driver
+  </button>
+</mat-dialog-actions>

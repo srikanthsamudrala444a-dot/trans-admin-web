@@ -1,0 +1,9 @@
+ .title {
+      margin-left: 16px;
+    }
+    
+    @media (max-width: 768px) {
+      .title {
+        display: none;
+      }
+    }

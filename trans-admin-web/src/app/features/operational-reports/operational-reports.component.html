@@ -1,0 +1,435 @@
+<div class="operational-reports-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="header-content">
+      <h1 class="page-title">Operational Reports</h1>
+      <div class="header-controls">
+        <mat-form-field appearance="outline" class="time-period-select">
+          <mat-label>Time Period</mat-label>
+          <mat-select [formControl]="timePeriodControl">
+            <mat-option value="today">Today</mat-option>
+            <mat-option value="yesterday">Yesterday</mat-option>
+            <mat-option value="last_7_days">Last 7 Days</mat-option>
+            <mat-option value="last_30_days">Last 30 Days</mat-option>
+            <mat-option value="this_month">This Month</mat-option>
+            <mat-option value="last_month">Last Month</mat-option>
+          </mat-select>
+        </mat-form-field>
+        
+        <button mat-raised-button color="primary" (click)="refreshData()" [disabled]="loading">
+          <mat-icon>refresh</mat-icon>
+          Refresh
+        </button>
+        
+        <button mat-raised-button color="accent" (click)="exportReport()" [disabled]="loading || !operationalData">
+          <mat-icon>download</mat-icon>
+          Export
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-card class="loading-card">
+      <div class="loading-content">
+        <mat-icon class="loading-spinner">hourglass_empty</mat-icon>
+        <p>Loading operational data...</p>
+      </div>
+    </mat-card>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading && operationalData" class="content-section">
+    
+    <!-- Key Operational Metrics -->
+    <div class="metrics-grid">
+      <!-- Total Vehicles -->
+      <mat-card class="metric-card vehicles-card">
+        <mat-card-content>
+          <div class="metric-icon">
+            <mat-icon>local_taxi</mat-icon>
+          </div>
+          <div class="metric-content">
+            <div class="metric-value">{{ operationalData.metrics.totalVehicles }}</div>
+            <div class="metric-label">Total Fleet Vehicles</div>
+            <div class="metric-breakdown">
+              <span class="active">{{ operationalData.metrics.activeVehicles }} Active</span>
+              <span class="maintenance">{{ operationalData.metrics.vehiclesInMaintenance }} Maintenance</span>
+              <span class="idle">{{ operationalData.metrics.idleVehicles }} Idle</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Average Utilization -->
+      <mat-card class="metric-card utilization-card">
+        <mat-card-content>
+          <div class="metric-icon">
+            <mat-icon>speed</mat-icon>
+          </div>
+          <div class="metric-content">
+            <div class="metric-value">{{ operationalData.metrics.averageUtilization }}<span class="metric-unit">%</span></div>
+            <div class="metric-label">Average Fleet Utilization</div>
+            <div class="utilization-bar">
+              <mat-progress-bar 
+                mode="determinate" 
+                [value]="operationalData.metrics.averageUtilization"
+                [color]="operationalData.metrics.averageUtilization >= 70 ? 'primary' : 'warn'">
+              </mat-progress-bar>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Fleet Revenue -->
+      <mat-card class="metric-card revenue-card">
+        <mat-card-content>
+          <div class="metric-icon">
+            <mat-icon>attach_money</mat-icon>
+          </div>
+          <div class="metric-content">
+            <div class="metric-value">${{ operationalData.metrics.totalFleetRevenue | number:'1.2-2' }}</div>
+            <div class="metric-label">Total Fleet Revenue</div>
+            <div class="metric-description">Net: ${{ operationalData.metrics.netProfit | number:'1.2-2' }}</div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Maintenance Costs -->
+      <mat-card class="metric-card maintenance-card">
+        <mat-card-content>
+          <div class="metric-icon">
+            <mat-icon>build</mat-icon>
+          </div>
+          <div class="metric-content">
+            <div class="metric-value">${{ operationalData.metrics.maintenanceCosts | number:'1.2-2' }}</div>
+            <div class="metric-label">Maintenance Costs</div>
+            <div class="metric-description">
+              + ${{ operationalData.metrics.fuelCosts | number:'1.2-2' }} fuel costs
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Tabbed Content -->
+    <mat-card class="tabs-card">
+      <mat-tab-group (selectedIndexChange)="onTabChange($event)" [(selectedIndex)]="selectedTabIndex">
+        
+        <!-- Vehicle Utilization Tab -->
+        <mat-tab label="Vehicle Utilization">
+          <div class="tab-content">
+            <div class="tab-header">
+              <h3>Vehicle Utilization Analysis</h3>
+              <p>Real-time utilization rates, performance metrics, and revenue data for each vehicle in the fleet.</p>
+            </div>
+            
+            <div class="table-container">
+              <table mat-table [dataSource]="operationalData.vehicleUtilization" class="utilization-table">
+                <!-- License Plate Column -->
+                <ng-container matColumnDef="licensePlate">
+                  <th mat-header-cell *matHeaderCellDef>Vehicle</th>
+                  <td mat-cell *matCellDef="let vehicle">
+                    <div class="vehicle-info">
+                      <div class="license-plate">{{ vehicle.licensePlate }}</div>
+                      <div class="vehicle-id">{{ vehicle.vehicleId }}</div>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- Make/Model Column -->
+                <ng-container matColumnDef="make">
+                  <th mat-header-cell *matHeaderCellDef>Make/Model</th>
+                  <td mat-cell *matCellDef="let vehicle">
+                    <div class="vehicle-details">
+                      <div class="make-model">{{ vehicle.make }} {{ vehicle.model }}</div>
+                      <div class="year">{{ vehicle.year }}</div>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- Model Column -->
+                <ng-container matColumnDef="model">
+                  <th mat-header-cell *matHeaderCellDef>Status</th>
+                  <td mat-cell *matCellDef="let vehicle">
+                    <mat-chip [class]="getStatusClass(vehicle.status)">
+                      {{ vehicle.status | titlecase }}
+                    </mat-chip>
+                  </td>
+                </ng-container>
+
+                <!-- Status Column -->
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef>Utilization</th>
+                  <td mat-cell *matCellDef="let vehicle">
+                    <div class="utilization-cell">
+                      <div class="utilization-rate">{{ vehicle.utilizationRate }}%</div>
+                      <mat-progress-bar 
+                        mode="determinate" 
+                        [value]="vehicle.utilizationRate"
+                        [style.background-color]="getUtilizationColor(vehicle.utilizationRate)">
+                      </mat-progress-bar>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- Utilization Rate Column -->
+                <ng-container matColumnDef="utilizationRate">
+                  <th mat-header-cell *matHeaderCellDef>Rides</th>
+                  <td mat-cell *matCellDef="let vehicle">
+                    <div class="rides-info">
+                      <div class="total-rides">{{ vehicle.totalRides }}</div>
+                      <div class="distance">{{ vehicle.totalDistance }}km</div>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- Total Rides Column -->
+                <ng-container matColumnDef="totalRides">
+                  <th mat-header-cell *matHeaderCellDef>Revenue</th>
+                  <td mat-cell *matCellDef="let vehicle">
+                    <div class="revenue-info">
+                      <div class="total-revenue">${{ vehicle.revenue | number:'1.2-2' }}</div>
+                      <div class="per-km">${{ vehicle.revenuePerKm | number:'1.2-2' }}/km</div>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- Revenue Column -->
+                <ng-container matColumnDef="revenue">
+                  <th mat-header-cell *matHeaderCellDef>Actions</th>
+                  <td mat-cell *matCellDef="let vehicle">
+                    <button mat-icon-button (click)="viewVehicleDetails(vehicle)" matTooltip="View Details">
+                      <mat-icon>visibility</mat-icon>
+                    </button>
+                  </td>
+                </ng-container>
+
+                <!-- Actions Column -->
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef>Last Activity</th>
+                  <td mat-cell *matCellDef="let vehicle">
+                    <div class="last-activity">
+                      {{ vehicle.lastRideTime | date:'short' }}
+                    </div>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="vehicleDisplayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: vehicleDisplayedColumns;"></tr>
+              </table>
+            </div>
+          </div>
+        </mat-tab>
+
+        <!-- Maintenance Schedule Tab -->
+        <mat-tab label="Maintenance Schedule">
+          <div class="tab-content">
+            <div class="tab-header">
+              <h3>Fleet Maintenance Schedule</h3>
+              <p>Comprehensive maintenance tracking, scheduling, and cost management for the entire fleet.</p>
+            </div>
+            
+            <div class="table-container">
+              <table mat-table [dataSource]="operationalData.maintenanceSchedule" class="maintenance-table">
+                <!-- License Plate Column -->
+                <ng-container matColumnDef="licensePlate">
+                  <th mat-header-cell *matHeaderCellDef>Vehicle</th>
+                  <td mat-cell *matCellDef="let maintenance">
+                    <div class="vehicle-info">
+                      <div class="license-plate">{{ maintenance.licensePlate }}</div>
+                      <div class="vehicle-id">{{ maintenance.vehicleId }}</div>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- Type Column -->
+                <ng-container matColumnDef="type">
+                  <th mat-header-cell *matHeaderCellDef>Type</th>
+                  <td mat-cell *matCellDef="let maintenance">
+                    <div class="maintenance-type">
+                      <div class="type">{{ maintenance.type | titlecase }}</div>
+                      <div class="description">{{ maintenance.description }}</div>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- Status Column -->
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef>Status</th>
+                  <td mat-cell *matCellDef="let maintenance">
+                    <mat-chip [class]="getStatusClass(maintenance.status)">
+                      {{ maintenance.status.replace('_', ' ') | titlecase }}
+                    </mat-chip>
+                  </td>
+                </ng-container>
+
+                <!-- Scheduled Date Column -->
+                <ng-container matColumnDef="scheduledDate">
+                  <th mat-header-cell *matHeaderCellDef>Schedule</th>
+                  <td mat-cell *matCellDef="let maintenance">
+                    <div class="schedule-info">
+                      <div class="scheduled-date">{{ maintenance.scheduledDate | date:'mediumDate' }}</div>
+                      <div class="mileage" *ngIf="maintenance.mileage">{{ maintenance.mileage | number }} km</div>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- Priority Column -->
+                <ng-container matColumnDef="priority">
+                  <th mat-header-cell *matHeaderCellDef>Priority</th>
+                  <td mat-cell *matCellDef="let maintenance">
+                    <mat-chip [class]="getPriorityClass(maintenance.priority)">
+                      {{ maintenance.priority | titlecase }}
+                    </mat-chip>
+                  </td>
+                </ng-container>
+
+                <!-- Estimated Cost Column -->
+                <ng-container matColumnDef="estimatedCost">
+                  <th mat-header-cell *matHeaderCellDef>Cost</th>
+                  <td mat-cell *matCellDef="let maintenance">
+                    <div class="cost-info">
+                      <div class="estimated">${{ maintenance.estimatedCost | number:'1.2-2' }}</div>
+                      <div class="actual" *ngIf="maintenance.actualCost">
+                        Actual: ${{ maintenance.actualCost | number:'1.2-2' }}
+                      </div>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- Actions Column -->
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef>Actions</th>
+                  <td mat-cell *matCellDef="let maintenance">
+                    <button mat-icon-button (click)="viewMaintenanceDetails(maintenance)" matTooltip="View Details">
+                      <mat-icon>visibility</mat-icon>
+                    </button>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="maintenanceDisplayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: maintenanceDisplayedColumns;"></tr>
+              </table>
+            </div>
+          </div>
+        </mat-tab>
+
+        <!-- Geographical Demand Tab -->
+        <mat-tab label="Geographical Analysis">
+          <div class="tab-content">
+            <div class="tab-header">
+              <h3>Geographical Demand Analysis</h3>
+              <p>Heat map visualization and detailed analysis of ride demand patterns across different geographical areas.</p>
+            </div>
+            
+            <div class="geography-content">
+              <!-- Heat Map -->
+              <div class="heatmap-section">
+                <mat-card class="heatmap-card">
+                  <mat-card-header>
+                    <mat-card-title>Demand Heat Map</mat-card-title>
+                    <mat-card-subtitle>Real-time geographical ride demand intensity</mat-card-subtitle>
+                  </mat-card-header>
+                  <mat-card-content>
+                    <div class="heatmap-container">
+                      <canvas #heatmapCanvas class="heatmap-canvas"></canvas>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+
+              <!-- Demand Data Table -->
+              <div class="demand-table-section">
+                <mat-card class="demand-card">
+                  <mat-card-header>
+                    <mat-card-title>Area Demand Metrics</mat-card-title>
+                  </mat-card-header>
+                  <mat-card-content>
+                    <table mat-table [dataSource]="operationalData.geographicalDemand" class="demand-table">
+                      <!-- Area Column -->
+                      <ng-container matColumnDef="area">
+                        <th mat-header-cell *matHeaderCellDef>Area</th>
+                        <td mat-cell *matCellDef="let demand">
+                          <div class="area-info">
+                            <div class="area-name">{{ demand.area }}</div>
+                            <div class="coordinates">{{ demand.coordinates.lat | number:'1.4-4' }}, {{ demand.coordinates.lng | number:'1.4-4' }}</div>
+                          </div>
+                        </td>
+                      </ng-container>
+
+                      <!-- Total Rides Column -->
+                      <ng-container matColumnDef="totalRides">
+                        <th mat-header-cell *matHeaderCellDef>Rides</th>
+                        <td mat-cell *matCellDef="let demand">
+                          <div class="rides-count">{{ demand.totalRides | number }}</div>
+                        </td>
+                      </ng-container>
+
+                      <!-- Revenue Column -->
+                      <ng-container matColumnDef="revenue">
+                        <th mat-header-cell *matHeaderCellDef>Revenue</th>
+                        <td mat-cell *matCellDef="let demand">
+                          <div class="revenue-amount">${{ demand.totalRevenue | number:'1.2-2' }}</div>
+                        </td>
+                      </ng-container>
+
+                      <!-- Wait Time Column -->
+                      <ng-container matColumnDef="waitTime">
+                        <th mat-header-cell *matHeaderCellDef>Avg Wait</th>
+                        <td mat-cell *matCellDef="let demand">
+                          <div class="wait-time">{{ demand.averageWaitTime }}min</div>
+                        </td>
+                      </ng-container>
+
+                      <!-- Intensity Column -->
+                      <ng-container matColumnDef="intensity">
+                        <th mat-header-cell *matHeaderCellDef>Intensity</th>
+                        <td mat-cell *matCellDef="let demand">
+                          <mat-chip [class]="getIntensityClass(demand.demandIntensity)">
+                            {{ demand.demandIntensity.replace('_', ' ') | titlecase }}
+                          </mat-chip>
+                        </td>
+                      </ng-container>
+
+                      <!-- Supply/Demand Ratio Column -->
+                      <ng-container matColumnDef="ratio">
+                        <th mat-header-cell *matHeaderCellDef>S/D Ratio</th>
+                        <td mat-cell *matCellDef="let demand">
+                          <div class="ratio" [class.good]="demand.supplyDemandRatio >= 1" [class.poor]="demand.supplyDemandRatio < 0.8">
+                            {{ demand.supplyDemandRatio | number:'1.2-2' }}
+                          </div>
+                        </td>
+                      </ng-container>
+
+                      <tr mat-header-row *matHeaderRowDef="demandDisplayedColumns"></tr>
+                      <tr mat-row *matRowDef="let row; columns: demandDisplayedColumns;"></tr>
+                    </table>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card>
+  </div>
+
+  <!-- No Data State -->
+  <div *ngIf="!loading && !operationalData" class="no-data-container">
+    <mat-card class="no-data-card">
+      <mat-card-content>
+        <div class="no-data-content">
+          <mat-icon>assessment</mat-icon>
+          <h3>No Operational Data Available</h3>
+          <p>Operational data is currently unavailable. Please try again later or contact support.</p>
+          <button mat-raised-button color="primary" (click)="refreshData()">
+            <mat-icon>refresh</mat-icon>
+            Retry
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

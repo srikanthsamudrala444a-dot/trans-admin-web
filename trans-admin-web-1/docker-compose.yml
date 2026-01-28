@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  angular-app:
+    image: node:18  # Use Node.js 18
+    container_name: trans-admin
+    working_dir: /app
+    volumes:
+      - .:/app  # Mount current directory to /app
+      - /app/node_modules  # Prevent node_modules overwriting
+    ports:
+      - "4200:4200"  # Expose Angular dev server
+      - "49153:49153"
+    #command: ["sh", "-c", "npm install && npm install -g @angular/cli && ng serve --host 0.0.0.0"]
+    command: ["sh", "-c", "npm install && npm install -g @angular/cli && ng serve --host 0.0.0.0 --poll"]
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true

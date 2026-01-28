@@ -1,0 +1,155 @@
+ .support-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .page-header h1 {
+      margin: 0 0 24px 0;
+      color: #333;
+    }
+    
+    .stats-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    
+    .stat-card {
+      transition: transform 0.2s ease;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-2px);
+    }
+    
+    .stat-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .stat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+    }
+    
+    .stat-icon.open {
+      color: #ff5722;
+    }
+    
+    .stat-icon.progress {
+      color: #ff9800;
+    }
+    
+    .stat-icon.closed {
+      color: #4caf50;
+    }
+    
+    .stat-content h3 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 500;
+    }
+    
+    .stat-content p {
+      margin: 0;
+      color: #666;
+      font-size: 0.9rem;
+    }
+    
+    .filter-card {
+      margin-bottom: 24px;
+    }
+    
+    .filters {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    
+    .filters mat-form-field {
+      min-width: 200px;
+    }
+    
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #9c27b0;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+      font-size: 14px;
+    }
+    
+    .user-name {
+      font-weight: 500;
+      color: #333;
+    }
+    
+    .user-type {
+      font-size: 0.75rem;
+      color: #666;
+    }
+    
+    .ticket-subject {
+      max-width: 300px;
+    }
+    
+    .subject-line {
+      font-weight: 500;
+      color: #333;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .category {
+      font-size: 0.75rem;
+      color: #666;
+    }
+    
+    .priority-high {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+    
+    .priority-medium {
+      background-color: #fff3e0;
+      color: #e65100;
+    }
+    
+    .priority-low {
+      background-color: #e8f5e8;
+      color: #2e7d32;
+    }
+    
+    .status-open {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+    
+    .status-in-progress {
+      background-color: #fff3e0;
+      color: #e65100;
+    }
+    
+    .status-closed {
+      background-color: #e8f5e8;
+      color: #2e7d32;
+    }
+    
+    .unassigned {
+      color: #999;
+      font-style: italic;
+    }

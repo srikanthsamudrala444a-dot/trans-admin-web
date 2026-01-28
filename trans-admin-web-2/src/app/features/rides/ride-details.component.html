@@ -1,0 +1,156 @@
+<mat-card class="ride-details-card">
+  @if (isLoading) {
+  <div class="loader">
+    <mat-spinner></mat-spinner>
+  </div>
+  } @else if (!isLoading && errorMessage) {
+  <div class="error-message">
+    {{ errorMessage }}
+    <button mat-raised-button color="primary" (click)="backToRides()">
+      <mat-icon>arrow_back</mat-icon> Back to Rides
+    </button>
+  </div>
+  } @else if (ride) {
+  <mat-card-header>
+    <mat-card-title>
+      Ride Details
+      <div class="header-actions">
+        <button
+          mat-icon-button
+          color="primary"
+          matTooltip="View on Map"
+          class="map-btn"
+          (click)="viewOnMap()"
+          [disabled]="isLoadingTracking"
+        >
+          @if (isLoadingTracking) {
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            <mat-icon>map</mat-icon>
+          }
+        </button>
+        <button
+          mat-icon-button
+          color="accent"
+          matTooltip="Ride Timeline"
+          class="timeline-btn"
+        >
+          <mat-icon>timeline</mat-icon>
+        </button>
+      </div>
+    </mat-card-title>
+    <mat-card-subtitle>
+      ID: <strong>{{ ride.rideId || ride.id }}</strong>
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="ride-details-grid">
+      <!-- Basic Information -->
+      <h3 class="section-title">Basic Information</h3>
+      <div class="ride-detail-row">
+        <span class="label">Driver:</span>
+        <span class="value">{{ ride.driverId || 'Not Assigned' }}</span>
+      </div>
+      <div class="ride-detail-row">
+        <span class="label">Passenger:</span>
+        <span class="value">{{ ride.passengerName || ride.passengerId || 'Unknown' }}</span>
+      </div>
+      <div class="ride-detail-row">
+        <span class="label">Vehicle:</span>
+        <span class="value">{{ ride.vehicleNumber || ride.vehicleId || 'Not Assigned' }}</span>
+      </div>
+      <div class="ride-detail-row">
+        <span class="label">Ride Type:</span>
+        <span class="value">{{ ride.rideType || 'Standard' }}</span>
+      </div>
+
+      <!-- Location Details -->
+      <h3 class="section-title">Location Details</h3>
+      <div class="ride-detail-row">
+        <span class="label">Pickup Location:</span>
+        <span class="value">{{ ride.pickupLocation || ride.pickupAddress }}</span>
+      </div>
+      <div class="ride-detail-row">
+        <span class="label">Destination:</span>
+        <span class="value">{{ ride.dropLocation || ride.destinationAddress }}</span>
+      </div>
+      <div class="ride-detail-row">
+        <span class="label">Distance:</span>
+        <span class="value">{{ ride.distance ? (ride.distance + ' km') : 'N/A' }}</span>
+      </div>
+      <div class="ride-detail-row">
+        <span class="label">Duration:</span>
+        <span class="value">{{ ride.duration ? (ride.duration + ' min') : 'N/A' }}</span>
+      </div>
+
+      <!-- Status & Timing -->
+      <h3 class="section-title">Status & Timing</h3>
+      <div class="ride-detail-row">
+        <span class="label">Status:</span>
+        <span class="value" [ngClass]="'status-' + (ride.status || '').toLowerCase()">
+          {{ ride.status || 'Unknown' }}
+        </span>
+      </div>
+      <div class="ride-detail-row">
+        <span class="label">Requested At:</span>
+        <span class="value">{{ ride.requestedAt || ride.createdAt | date:'medium' }}</span>
+      </div>
+      <div class="ride-detail-row" *ngIf="ride.acceptedAt">
+        <span class="label">Accepted At:</span>
+        <span class="value">{{ ride.acceptedAt | date:'medium' }}</span>
+      </div>
+      <div class="ride-detail-row" *ngIf="ride.startedAt">
+        <span class="label">Started At:</span>
+        <span class="value">{{ ride.startedAt | date:'medium' }}</span>
+      </div>
+      <div class="ride-detail-row" *ngIf="ride.completedAt">
+        <span class="label">Completed At:</span>
+        <span class="value">{{ ride.completedAt | date:'medium' }}</span>
+      </div>
+
+      <!-- Payment -->
+      <h3 class="section-title">Payment</h3>
+      <div class="ride-detail-row">
+        <span class="label">Fare Amount:</span>
+        <span class="value">₹{{ ride.fare || ride.fareAmount || '0.00' }}</span>
+      </div>
+      <div class="ride-detail-row">
+        <span class="label">Payment Method:</span>
+        <span class="value">{{ ride.paymentMethod || 'Not Specified' }}</span>
+      </div>
+      <div class="ride-detail-row">
+        <span class="label">Payment Status:</span>
+        <span class="value" [ngClass]="'payment-' + (ride.paymentStatus || '').toLowerCase()">
+          {{ ride.paymentStatus || 'Pending' }}
+        </span>
+      </div>
+
+      <!-- Rating & Feedback -->
+      <h3 class="section-title">Rating & Feedback</h3>
+      <div class="ride-detail-row">
+        <span class="label">Driver Rating:</span>
+        <span class="value">
+          {{ ride.driverRating ? (ride.driverRating + '/5') : 'Not Rated' }}
+        </span>
+      </div>
+      <div class="ride-detail-row">
+        <span class="label">Passenger Rating:</span>
+        <span class="value">
+          {{ ride.passengerRating ? (ride.passengerRating + '/5') : 'Not Rated' }}
+        </span>
+      </div>
+      <div class="ride-detail-row" *ngIf="ride.feedback">
+        <span class="label">Feedback:</span>
+        <span class="value">{{ ride.feedback }}</span>
+      </div>
+    </div>
+  </mat-card-content>
+
+  <mat-card-actions>
+    <button mat-raised-button color="primary" (click)="backToRides()">
+      <mat-icon>arrow_back</mat-icon> Back to Rides
+    </button>
+  </mat-card-actions>
+  }
+</mat-card>

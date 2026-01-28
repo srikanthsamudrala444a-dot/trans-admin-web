@@ -1,0 +1,260 @@
+.passenger-details-card {
+  max-width: 700px;
+  margin: 32px auto;
+  padding: 24px;
+  background: #1e1e1e;
+  color: #f5f5f5;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.error-message {
+  text-align: center;
+  padding: 40px;
+  color: #ff6b6b;
+  
+  button {
+    margin-top: 16px;
+  }
+}
+
+mat-card-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+// Header action buttons are styled by Material Design
+
+mat-card-subtitle {
+  font-size: 1rem;
+  color: #bbb;
+  margin-bottom: 12px;
+  text-align: center;
+  width: 100%;
+}
+
+.passenger-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 12px 20px;
+  margin-top: 16px;
+  align-items: center;
+}
+
+.passenger-detail-row {
+  display: contents;
+}
+
+.label {
+  font-weight: 600;
+  color: #ccc;
+  text-align: right;
+  justify-self: end;
+}
+
+.value {
+  color: #fff;
+  text-align: left;
+  justify-self: start;
+  word-break: break-word;
+  
+  &.active {
+    color: #4caf50;
+    font-weight: 500;
+  }
+  
+  &.banned {
+    color: #f44336;
+    font-weight: 500;
+  }
+  
+  &.on-hold {
+    color: #ff9800;
+    font-weight: 500;
+  }
+}
+
+.section-title {
+  grid-column: 1 / -1;
+  margin: 24px 0 8px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: white;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 4px;
+}
+
+img.passenger-details-photo {
+  border-radius: 8px;
+  margin-top: 8px;
+  max-width: 120px;
+  height: auto;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+}
+
+mat-card-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px 0 0;
+  margin-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  
+  button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+// Status Actions Styling
+.status-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.status-actions button {
+  width: 36px;
+  height: 36px;
+  font-size: 16px;
+  line-height: 1;
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.reactivate-btn {
+  background-color: #4caf50 !important;
+  color: white !important;
+  
+  &:hover:not(:disabled) {
+    background-color: #45a049 !important;
+  }
+}
+
+.suspend-btn {
+  background-color: #ff9800 !important;
+  color: white !important;
+  
+  &:hover:not(:disabled) {
+    background-color: #f57c00 !important;
+  }
+}
+
+.deactivate-btn {
+  background-color: #f44336 !important;
+  color: white !important;
+  
+  &:hover:not(:disabled) {
+    background-color: #d32f2f !important;
+  }
+  
+  mat-icon {
+    font-size: 18px;
+  }
+}
+
+// Activity Analysis Section
+.activity-analysis-section {
+  margin-top: 24px;
+  
+  // Override the container styling of the nested component to match the theme
+  app-passenger-activity-analysis {
+    display: block;
+    
+    ::ng-deep {
+      .passenger-activity-container {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+        
+        .header-card,
+        .filters-card,
+        .content-card {
+          background: #1e1e1e;
+          color: #f5f5f5;
+          border: 1px solid #333;
+          
+          mat-card-title {
+            color: #f5f5f5;
+            
+            mat-icon {
+              color: #1976d2;
+            }
+          }
+          
+          mat-card-subtitle {
+            color: #bbb;
+          }
+        }
+        
+        .overview-grid .stat-card {
+          background: linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 100%);
+          border-color: #333;
+          color: #f5f5f5;
+          
+          .stat-content {
+            .stat-value {
+              color: #f5f5f5;
+            }
+            
+            .stat-label {
+              color: #ccc;
+            }
+            
+            .stat-detail {
+              color: #999;
+            }
+          }
+        }
+        
+        // Dark theme for tables
+        .table-container {
+          background-color: #2a2a2a;
+          
+          table {
+            .mat-mdc-header-cell {
+              background-color: #1f1f1f;
+              color: #f5f5f5;
+            }
+            
+            .mat-mdc-cell {
+              color: #f5f5f5;
+              border-bottom-color: #333;
+            }
+            
+            .mat-mdc-row:hover {
+              background-color: #333;
+            }
+          }
+        }
+      }
+    }
+  }
+}

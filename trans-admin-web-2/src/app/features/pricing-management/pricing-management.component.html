@@ -1,0 +1,357 @@
+<div class="pricing-management">
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <mat-icon>trending_up</mat-icon>
+        Surge & Dynamic Pricing
+      </h1>
+      <p class="page-description">
+        Monitor and manage demand-based pricing across different zones
+      </p>
+    </div>
+    <div class="header-actions">
+      <button mat-raised-button color="primary" (click)="onRefreshData()">
+        <mat-icon>refresh</mat-icon>
+        Refresh Data
+      </button>
+    </div>
+  </div>
+
+  <!-- Real-time Overview Cards -->
+  <div class="overview-cards" *ngIf="!loading.metrics">
+    <mat-card class="overview-card">
+      <mat-card-header>
+        <mat-card-title>Active Surge Zones</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="metric-value">{{ activeSurgeEvents.length }}</div>
+        <div class="metric-label">Currently Active</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="overview-card">
+      <mat-card-header>
+        <mat-card-title>Average Multiplier</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="metric-value">
+          {{ analytics ? analytics.averageSurgeMultiplier.toFixed(1) : '0.0' }}x
+        </div>
+        <div class="metric-label">Across All Zones</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="overview-card">
+      <mat-card-header>
+        <mat-card-title>Surge Revenue</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="metric-value">
+          {{ analytics ? formatCurrency(analytics.surgeRevenue) : '₹0' }}
+        </div>
+        <div class="metric-label">
+          {{ analytics ? formatPercentage(analytics.surgeRevenuePercentage) : '0%' }} of Total
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="overview-card">
+      <mat-card-header>
+        <mat-card-title>Driver Earnings Impact</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="metric-value positive">
+          +{{ analytics ? formatPercentage(analytics.driverEarningsIncrease) : '0%' }}
+        </div>
+        <div class="metric-label">Increase</div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Loading State for Overview -->
+  <div class="loading-state" *ngIf="loading.metrics || loading.analytics">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading real-time data...</p>
+  </div>
+
+  <!-- Main Content Tabs -->
+  <mat-tab-group 
+    class="pricing-tabs" 
+    (selectedTabChange)="onTabChange($event.index)"
+    [selectedIndex]="selectedTabIndex">
+    
+    <!-- Active Surge Monitoring Tab -->
+    <mat-tab label="Active Surge Monitoring">
+      <div class="tab-content">
+        <!-- Active Surge Events -->
+        <mat-card class="content-card">
+          <mat-card-header>
+            <mat-card-title>Active Surge Events</mat-card-title>
+            <mat-card-subtitle>Real-time surge pricing status across zones</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="surge-events-grid" *ngIf="!loading.surgeEvents && activeSurgeEvents.length > 0">
+              <div class="surge-event-card" *ngFor="let event of activeSurgeEvents">
+                <div class="event-header">
+                  <h3>{{ event.zoneName }}</h3>
+                  <mat-chip [class]="'surge-chip surge-' + getSurgeStatus(event.currentMultiplier)">
+                    {{ event.currentMultiplier }}x
+                  </mat-chip>
+                </div>
+                <div class="event-details">
+                  <div class="detail-item">
+                    <span class="label">Duration:</span>
+                    <span class="value">{{ formatDuration(event.startTime) }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">Demand/Supply:</span>
+                    <span class="value">{{ event.demandCount }}/{{ event.supplyCount }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">Avg Wait:</span>
+                    <span class="value">{{ event.averageWaitTime }}min</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="label">Revenue:</span>
+                    <span class="value">{{ formatCurrency(event.totalRevenue) }}</span>
+                  </div>
+                </div>
+                <div class="event-actions">
+                  <button 
+                    mat-stroked-button 
+                    color="warn" 
+                    (click)="onDeactivateSurge(event.id)">
+                    <mat-icon>stop</mat-icon>
+                    Deactivate
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="empty-state" *ngIf="!loading.surgeEvents && activeSurgeEvents.length === 0">
+              <mat-icon>trending_flat</mat-icon>
+              <h3>No Active Surge Events</h3>
+              <p>All zones are currently operating at normal pricing</p>
+            </div>
+
+            <div class="loading-state" *ngIf="loading.surgeEvents">
+              <mat-spinner diameter="40"></mat-spinner>
+              <p>Loading surge events...</p>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Real-time Zone Metrics -->
+        <mat-card class="content-card">
+          <mat-card-header>
+            <mat-card-title>Zone Metrics</mat-card-title>
+            <mat-card-subtitle>Real-time demand and supply monitoring</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="zone-metrics-grid" *ngIf="realTimeMetrics.length > 0">
+              <div class="zone-metric-card" *ngFor="let metric of realTimeMetrics">
+                <div class="metric-header">
+                  <h4>{{ metric.zoneName }}</h4>
+                  <div class="last-updated">{{ formatTime(metric.timestamp) }}</div>
+                </div>
+                <div class="metric-stats">
+                  <div class="stat-row">
+                    <div class="stat-item">
+                      <span class="stat-label">Active Drivers</span>
+                      <span class="stat-value">{{ metric.activeDrivers }}</span>
+                    </div>
+                    <div class="stat-item">
+                      <span class="stat-label">Pending Bookings</span>
+                      <span class="stat-value">{{ metric.pendingBookings }}</span>
+                    </div>
+                  </div>
+                  <div class="stat-row">
+                    <div class="stat-item">
+                      <span class="stat-label">D/S Ratio</span>
+                      <span class="stat-value" 
+                            [class]="metric.demandToSupplyRatio > 2 ? 'high' : metric.demandToSupplyRatio > 1.5 ? 'medium' : 'normal'">
+                        {{ metric.demandToSupplyRatio.toFixed(2) }}
+                      </span>
+                    </div>
+                    <div class="stat-item">
+                      <span class="stat-label">Current Multiplier</span>
+                      <span class="stat-value multiplier" 
+                            [class]="getSurgeStatus(metric.currentSurgeMultiplier)">
+                        {{ metric.currentSurgeMultiplier }}x
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div class="metric-actions">
+                  <button 
+                    mat-stroked-button 
+                    color="primary" 
+                    [disabled]="metric.currentSurgeMultiplier > 1.0"
+                    (click)="onManualSurgeActivation(metric.zoneId)">
+                    <mat-icon>flash_on</mat-icon>
+                    Manual Surge
+                  </button>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+    <!-- Zone Management Tab -->
+    <mat-tab label="Zone Management">
+      <div class="tab-content">
+        <mat-card class="content-card">
+          <mat-card-header>
+            <mat-card-title>Pricing Zones</mat-card-title>
+            <mat-card-subtitle>Manage geographical zones for dynamic pricing</mat-card-subtitle>
+            <div class="card-actions">
+              <button mat-raised-button color="primary">
+                <mat-icon>add</mat-icon>
+                Add New Zone
+              </button>
+            </div>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="zones-grid" *ngIf="!loading.zones && zones.length > 0">
+              <app-zone-card 
+                *ngFor="let zone of zones" 
+                [zone]="zone"
+                [metrics]="getZoneMetrics(zone.id)"
+                (editZone)="onEditZone($event)"
+                (deleteZone)="onDeleteZone($event)"
+                (toggleZoneStatus)="onToggleZoneStatus($event)"
+                (manualSurge)="onManualSurgeActivation($event)"
+                (viewMap)="onViewZoneMap($event)"
+                (viewAnalytics)="onViewZoneAnalytics($event)">
+              </app-zone-card>
+            </div>
+
+            <div class="loading-state" *ngIf="loading.zones">
+              <mat-spinner diameter="40"></mat-spinner>
+              <p>Loading zones...</p>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+    <!-- Pricing Rules Tab -->
+    <mat-tab label="Pricing Rules">
+      <div class="tab-content">
+        <mat-card class="content-card">
+          <mat-card-header>
+            <mat-card-title>Surge Pricing Rules</mat-card-title>
+            <mat-card-subtitle>Configure automatic surge pricing conditions</mat-card-subtitle>
+            <div class="card-actions">
+              <button mat-raised-button color="primary">
+                <mat-icon>add</mat-icon>
+                Create New Rule
+              </button>
+            </div>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="rules-list">
+              <p class="section-note">
+                Pricing rules configuration will be available here. 
+                This would include trigger conditions, multiplier settings, and time restrictions.
+              </p>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+    <!-- Analytics Tab -->
+    <mat-tab label="Analytics & Reports">
+      <div class="tab-content">
+        <mat-card class="content-card">
+          <mat-card-header>
+            <mat-card-title>Pricing Analytics</mat-card-title>
+            <mat-card-subtitle>Performance insights and revenue impact</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="analytics-content" *ngIf="analytics && !loading.analytics">
+              <!-- Performance Summary -->
+              <div class="analytics-summary">
+                <div class="summary-grid">
+                  <div class="summary-item">
+                    <div class="summary-value">{{ analytics.totalSurgeEvents }}</div>
+                    <div class="summary-label">Total Surge Events (30 days)</div>
+                  </div>
+                  <div class="summary-item">
+                    <div class="summary-value">{{ formatCurrency(analytics.surgeRevenue) }}</div>
+                    <div class="summary-label">Surge Revenue</div>
+                  </div>
+                  <div class="summary-item">
+                    <div class="summary-value positive">+{{ formatPercentage(analytics.driverEarningsIncrease) }}</div>
+                    <div class="summary-label">Driver Earnings Increase</div>
+                  </div>
+                  <div class="summary-item">
+                    <div class="summary-value" [class]="analytics.customerSatisfactionImpact >= 0 ? 'positive' : 'negative'">
+                      {{ analytics.customerSatisfactionImpact >= 0 ? '+' : '' }}{{ formatPercentage(analytics.customerSatisfactionImpact) }}
+                    </div>
+                    <div class="summary-label">Customer Satisfaction Impact</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Zone Performance -->
+              <div class="zone-performance-section">
+                <h3>Zone Performance </h3>
+                <div class="performance-grid">
+                  <div class="performance-card" *ngFor="let zone of analytics.zonePerformance">
+                    <h4>{{ zone.zoneName }}</h4>
+                    <div class="performance-stats">
+                      <div class="perf-stat">
+                        <span class="label">Events:</span>
+                        <span class="value">{{ zone.surgeEventsCount }}</span>
+                      </div>
+                      <div class="perf-stat">
+                        <span class="label">Avg Multiplier:</span>
+                        <span class="value">{{ zone.averageMultiplier.toFixed(1) }}x</span>
+                      </div>
+                      <div class="perf-stat">
+                        <span class="label">Revenue:</span>
+                        <span class="value">{{ formatCurrency(zone.totalRevenue) }}</span>
+                      </div>
+                      <div class="perf-stat">
+                        <span class="label">Retention:</span>
+                        <span class="value">{{ formatPercentage(zone.customerRetention) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="loading-state" *ngIf="loading.analytics">
+              <mat-spinner diameter="40"></mat-spinner>
+              <p>Loading analytics...</p>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+    <!-- Settings Tab -->
+    <mat-tab label="Settings">
+      <div class="tab-content">
+        <mat-card class="content-card">
+          <mat-card-header>
+            <mat-card-title>Dynamic Pricing Settings</mat-card-title>
+            <mat-card-subtitle>Configure global pricing parameters and policies</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="settings-content">
+              <p class="section-note">
+                Global pricing settings, emergency overrides, and notification preferences will be configured here.
+              </p>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

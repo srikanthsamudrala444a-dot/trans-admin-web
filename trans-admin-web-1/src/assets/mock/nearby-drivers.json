@@ -1,0 +1,16 @@
+[
+  {
+    "driverId": "D124",
+    "name": "Jane Smith",
+    "latitude": 12.9721,
+    "longitude": 77.5939,
+    "status": "active"
+  },
+  {
+    "driverId": "D125",
+    "name": "Mark Johnson",
+    "latitude": 12.9735,
+    "longitude": 77.5962,
+    "status": "inactive"
+  }
+]

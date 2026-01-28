@@ -1,0 +1,385 @@
+<div class="analytics-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="header-content">
+      <h1 class="page-title">
+        <mat-icon class="title-icon">analytics</mat-icon>
+        Real-Time Analytics & Statistics
+      </h1>
+      <div class="header-actions">
+        <mat-form-field appearance="outline" class="time-range-select">
+          <mat-label>Time Range</mat-label>
+          <mat-select [(ngModel)]="selectedTimeRange" (selectionChange)="onTimeRangeChange()">
+            <mat-option *ngFor="let range of timeRanges" [value]="range">
+              {{ range.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        
+        <button mat-icon-button 
+                [color]="autoRefresh ? 'primary' : ''" 
+                (click)="toggleAutoRefresh()"
+                matTooltip="Toggle Auto Refresh">
+          <mat-icon>{{ autoRefresh ? 'sync' : 'sync_disabled' }}</mat-icon>
+        </button>
+        
+        <button mat-icon-button (click)="refreshData()" matTooltip="Refresh Data">
+          <mat-icon>refresh</mat-icon>
+        </button>
+        
+        <button mat-raised-button color="primary" (click)="exportAnalytics()">
+          <mat-icon>file_download</mat-icon>
+          Export
+        </button>
+      </div>
+    </div>
+    
+    <!-- Custom Date Range -->
+    <div class="custom-date-range" *ngIf="selectedTimeRange.value === 'custom'">
+      <mat-form-field appearance="outline">
+        <mat-label>Start Date</mat-label>
+        <input matInput [matDatepicker]="startPicker" [(ngModel)]="customStartDate" (dateChange)="onCustomDateChange()">
+        <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+        <mat-datepicker #startPicker></mat-datepicker>
+      </mat-form-field>
+      
+      <mat-form-field appearance="outline">
+        <mat-label>End Date</mat-label>
+        <input matInput [matDatepicker]="endPicker" [(ngModel)]="customEndDate" (dateChange)="onCustomDateChange()">
+        <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+        <mat-datepicker #endPicker></mat-datepicker>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="60"></mat-spinner>
+    <p>Loading real-time analytics...</p>
+  </div>
+
+  <!-- Analytics Content -->
+  <div *ngIf="!loading && analytics" class="analytics-content">
+    
+    <!-- Real-time Status -->
+    <div class="realtime-status">
+      <mat-card class="status-card">
+        <mat-card-content>
+          <div class="status-info">
+            <mat-icon class="live-icon" [class.active]="autoRefresh">fiber_manual_record</mat-icon>
+            <span class="status-text">{{ autoRefresh ? 'LIVE' : 'STATIC' }}</span>
+            <span class="last-updated">Last updated: {{ getLastUpdatedTime() }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Main Metrics Grid -->
+    <div class="metrics-grid">
+      <mat-card *ngFor="let metric of analytics.overview.metrics" class="metric-card">
+        <mat-card-content>
+          <div class="metric-header">
+            <mat-icon [style.color]="metric.color">{{ metric.icon }}</mat-icon>
+            <span class="metric-label">{{ metric.label }}</span>
+          </div>
+          <div class="metric-value">{{ formatValue(metric.value, metric.format) }}</div>
+          <div class="metric-change" [style.color]="getChangeColor(metric.changeType)">
+            <mat-icon class="change-icon">{{ getChangeIcon(metric.changeType) }}</mat-icon>
+            <span>{{ metric.change > 0 ? '+' : '' }}{{ metric.change }}{{ metric.format === 'percentage' ? 'pp' : '%' }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Tabbed Analytics Views -->
+    <mat-tab-group [(selectedIndex)]="selectedTabIndex" class="analytics-tabs">
+      
+      <!-- Overview Tab -->
+      <mat-tab label="Overview">
+        <div class="tab-content">
+          <!-- Revenue Breakdown -->
+          <div class="section-row">
+            <mat-card class="chart-card">
+              <mat-card-header>
+                <mat-card-title>Revenue Breakdown</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="revenue-breakdown">
+                  <div class="revenue-item">
+                    <span class="revenue-label">Ride Revenue</span>
+                    <span class="revenue-value">{{ formatCurrency(analytics.revenue.rideRevenue) }}</span>
+                    <span class="revenue-percentage">{{ formatPercentage((analytics.revenue.rideRevenue / analytics.revenue.totalRevenue) * 100) }}</span>
+                  </div>
+                  <div class="revenue-item">
+                    <span class="revenue-label">Commission</span>
+                    <span class="revenue-value">{{ formatCurrency(analytics.revenue.commissionRevenue) }}</span>
+                    <span class="revenue-percentage">{{ formatPercentage((analytics.revenue.commissionRevenue / analytics.revenue.totalRevenue) * 100) }}</span>
+                  </div>
+                  <div class="revenue-item">
+                    <span class="revenue-label">Tips</span>
+                    <span class="revenue-value">{{ formatCurrency(analytics.revenue.tipRevenue) }}</span>
+                    <span class="revenue-percentage">{{ formatPercentage((analytics.revenue.tipRevenue / analytics.revenue.totalRevenue) * 100) }}</span>
+                  </div>
+                  <div class="revenue-item">
+                    <span class="revenue-label">Surge Pricing</span>
+                    <span class="revenue-value">{{ formatCurrency(analytics.revenue.surgePricing) }}</span>
+                    <span class="revenue-percentage">{{ formatPercentage((analytics.revenue.surgePricing / analytics.revenue.totalRevenue) * 100) }}</span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Trip Statistics -->
+            <mat-card class="chart-card">
+              <mat-card-header>
+                <mat-card-title>Trip Analytics</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="trip-stats">
+                  <div class="stat-item">
+                    <mat-icon class="stat-icon">today</mat-icon>
+                    <div class="stat-details">
+                      <span class="stat-label">Today's Trips</span>
+                      <span class="stat-value">{{ formatNumber(analytics.trips.tripsToday) }}</span>
+                    </div>
+                  </div>
+                  <div class="stat-item">
+                    <mat-icon class="stat-icon">date_range</mat-icon>
+                    <div class="stat-details">
+                      <span class="stat-label">This Week</span>
+                      <span class="stat-value">{{ formatNumber(analytics.trips.tripsThisWeek) }}</span>
+                    </div>
+                  </div>
+                  <div class="stat-item">
+                    <mat-icon class="stat-icon">calendar_month</mat-icon>
+                    <div class="stat-details">
+                      <span class="stat-label">This Month</span>
+                      <span class="stat-value">{{ formatNumber(analytics.trips.tripsThisMonth) }}</span>
+                    </div>
+                  </div>
+                  <div class="stat-item">
+                    <mat-icon class="stat-icon">speed</mat-icon>
+                    <div class="stat-details">
+                      <span class="stat-label">Avg. Distance</span>
+                      <span class="stat-value">{{ analytics.trips.averageDistance }} km</span>
+                    </div>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Drivers Tab -->
+      <mat-tab label="Drivers">
+        <div class="tab-content">
+          <div class="section-row">
+            <!-- Driver Stats -->
+            <mat-card class="stats-card">
+              <mat-card-header>
+                <mat-card-title>Driver Statistics</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="driver-stats-grid">
+                  <div class="stat-box">
+                    <span class="stat-number">{{ formatNumber(analytics.drivers.totalDrivers) }}</span>
+                    <span class="stat-label">Total Drivers</span>
+                  </div>
+                  <div class="stat-box active">
+                    <span class="stat-number">{{ formatNumber(analytics.drivers.activeDrivers) }}</span>
+                    <span class="stat-label">Active Drivers</span>
+                  </div>
+                  <div class="stat-box new">
+                    <span class="stat-number">{{ analytics.drivers.newDriversToday }}</span>
+                    <span class="stat-label">New Today</span>
+                  </div>
+                  <div class="stat-box rating">
+                    <span class="stat-number">{{ analytics.drivers.averageRating }}</span>
+                    <span class="stat-label">Avg Rating</span>
+                    <mat-icon class="rating-icon">star</mat-icon>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Top Performers -->
+            <mat-card class="performers-card">
+              <mat-card-header>
+                <mat-card-title>Top Performers</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <table mat-table [dataSource]="analytics.drivers.topPerformers" class="performers-table">
+                  
+                  <ng-container matColumnDef="rank">
+                    <th mat-header-cell *matHeaderCellDef>Rank</th>
+                    <td mat-cell *matCellDef="let driver; let i = index">
+                      <mat-icon [style.color]="getDriverRankColor(i)">{{ getDriverRankIcon(i) }}</mat-icon>
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef>Driver Name</th>
+                    <td mat-cell *matCellDef="let driver">{{ driver.name }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="rides">
+                    <th mat-header-cell *matHeaderCellDef>Rides</th>
+                    <td mat-cell *matCellDef="let driver">{{ driver.totalRides }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="rating">
+                    <th mat-header-cell *matHeaderCellDef>Rating</th>
+                    <td mat-cell *matCellDef="let driver">
+                      <div class="rating-display">
+                        {{ driver.rating }}
+                        <mat-icon class="star-icon">star</mat-icon>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="earnings">
+                    <th mat-header-cell *matHeaderCellDef>Earnings</th>
+                    <td mat-cell *matCellDef="let driver" class="earnings">
+                      {{ formatCurrency(driver.earnings) }}
+                    </td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="getDisplayedDriverColumns()"></tr>
+                  <tr mat-row *matRowDef="let row; columns: getDisplayedDriverColumns();"></tr>
+                </table>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Passengers Tab -->
+      <mat-tab label="Passengers">
+        <div class="tab-content">
+          <div class="section-row">
+            <!-- Passenger Stats -->
+            <mat-card class="stats-card">
+              <mat-card-header>
+                <mat-card-title>Passenger Analytics</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="passenger-stats-grid">
+                  <div class="stat-box">
+                    <span class="stat-number">{{ formatNumber(analytics.passengers.totalPassengers) }}</span>
+                    <span class="stat-label">Total Passengers</span>
+                  </div>
+                  <div class="stat-box active">
+                    <span class="stat-number">{{ formatNumber(analytics.passengers.activePassengers) }}</span>
+                    <span class="stat-label">Active Passengers</span>
+                  </div>
+                  <div class="stat-box new">
+                    <span class="stat-number">{{ analytics.passengers.newPassengersToday }}</span>
+                    <span class="stat-label">New Today</span>
+                  </div>
+                  <div class="stat-box repeat">
+                    <span class="stat-number">{{ formatPercentage(analytics.passengers.repeatRate) }}</span>
+                    <span class="stat-label">Repeat Rate</span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Geographic Data -->
+            <mat-card class="geographic-card">
+              <mat-card-header>
+                <mat-card-title>Popular Locations</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <mat-tab-group class="location-tabs">
+                  <mat-tab label="Pickup">
+                    <div class="location-list">
+                      <div *ngFor="let location of analytics.geographic.popularPickupLocations; let i = index" 
+                           class="location-item">
+                        <span class="location-rank">{{ i + 1 }}</span>
+                        <span class="location-name">{{ location.location }}</span>
+                        <span class="location-count">{{ formatNumber(location.count) }}</span>
+                      </div>
+                    </div>
+                  </mat-tab>
+                  <mat-tab label="Drop-off">
+                    <div class="location-list">
+                      <div *ngFor="let location of analytics.geographic.popularDropoffLocations; let i = index" 
+                           class="location-item">
+                        <span class="location-rank">{{ i + 1 }}</span>
+                        <span class="location-name">{{ location.location }}</span>
+                        <span class="location-count">{{ formatNumber(location.count) }}</span>
+                      </div>
+                    </div>
+                  </mat-tab>
+                </mat-tab-group>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Vehicles Tab -->
+      <mat-tab label="Vehicles">
+        <div class="tab-content">
+          <div class="section-row">
+            <!-- Vehicle Statistics -->
+            <mat-card class="vehicle-stats-card">
+              <mat-card-header>
+                <mat-card-title>Vehicle Analytics</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="vehicle-overview">
+                  <div class="overview-stat">
+                    <mat-icon class="stat-icon">directions_car</mat-icon>
+                    <div class="stat-content">
+                      <span class="stat-value">{{ formatNumber(analytics.vehicles.totalVehicles) }}</span>
+                      <span class="stat-label">Total Vehicles</span>
+                    </div>
+                  </div>
+                  <div class="overview-stat">
+                    <mat-icon class="stat-icon active">radio_button_checked</mat-icon>
+                    <div class="stat-content">
+                      <span class="stat-value">{{ formatNumber(analytics.vehicles.activeVehicles) }}</span>
+                      <span class="stat-label">Active Now</span>
+                    </div>
+                  </div>
+                  <div class="overview-stat">
+                    <mat-icon class="stat-icon utilization">speed</mat-icon>
+                    <div class="stat-content">
+                      <span class="stat-value">{{ formatPercentage(analytics.vehicles.utilizationRate) }}</span>
+                      <span class="stat-label">Utilization</span>
+                    </div>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Vehicle Type Distribution -->
+            <mat-card class="vehicle-distribution-card">
+              <mat-card-header>
+                <mat-card-title>Vehicle Type Distribution</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="vehicle-types">
+                  <div *ngFor="let type of analytics.vehicles.vehicleTypeDistribution" 
+                       class="vehicle-type-item">
+                    <div class="type-info">
+                      <span class="type-name">{{ type.type }}</span>
+                      <span class="type-percentage">{{ formatPercentage(type.percentage) }}</span>
+                    </div>
+                    <div class="type-bar">
+                      <div class="type-fill" [style.width.%]="type.percentage"></div>
+                    </div>
+                    <span class="type-count">{{ formatNumber(type.count) }} vehicles</span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+  </div>
+</div>
